@@ -72,16 +72,22 @@ func (cpp *Cpp) Read(p []byte) (n int, err os.Error) {
 			return cpp.fillResult(p, []byte(line)), nil
 		}
 		return cpp.Read(p)
+
 	case strings.HasPrefix(line, "#include"):
 		return cpp.include(p, rmDirective(line))
+
 	case strings.HasPrefix(line, "#define"):
 		return cpp.define(p, rmDirective(line))
+
 	case strings.HasPrefix(line, "#ifdef"):
 		return cpp.ifDef(p, rmDirective(line))
+
 	case strings.HasPrefix(line, "#ifndef"):
 		return cpp.ifNDef(p, rmDirective(line))
+
 	case strings.HasPrefix(line, "#endif"):
 		return cpp.endIf(p, rmDirective(line))
+
 	default:
 		log.Printf("Got directive [%s]\n", line);
 		return cpp.Read(p)
