@@ -1,3 +1,4 @@
-this is the first line of a
+this is the first line \
+	now the second line of a
 #include "b"
 this is from a

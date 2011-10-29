@@ -54,7 +54,7 @@ func (cpp *Cpp) Read(p []byte) (n int, err os.Error) {
 		return 0, os.EOF
 	}
 
-	line, err := cpp.readLine()
+	line, raw, err := cpp.readLine()
 	if err != nil && err == os.EOF {
 		cpp.pop()
 		if len(line) > 0 {
@@ -65,31 +65,31 @@ func (cpp *Cpp) Read(p []byte) (n int, err os.Error) {
 		return 0, err
 	}
 
-	text := strings.Trim(line, whiteSpace)
+	line = strings.Trim(line, whiteSpace)
 	switch {
-	case text[0] != '#':
+	case line[0] != '#':
 		if cpp.nfalse == 0 {
-			return cpp.fillResult(p, []byte(line)), nil
+			return cpp.fillResult(p, []byte(raw)), nil
 		}
 		return cpp.Read(p)
 
-	case strings.HasPrefix(text, "#include"):
+	case strings.HasPrefix(line, "#include"):
 		return cpp.include(p, rmDirective(line))
 
-	case strings.HasPrefix(text, "#define"):
+	case strings.HasPrefix(line, "#define"):
 		return cpp.define(p, rmDirective(line))
 
-	case strings.HasPrefix(text, "#ifdef"):
+	case strings.HasPrefix(line, "#ifdef"):
 		return cpp.ifDef(p, rmDirective(line))
 
-	case strings.HasPrefix(text, "#ifndef"):
+	case strings.HasPrefix(line, "#ifndef"):
 		return cpp.ifNDef(p, rmDirective(line))
 
-	case strings.HasPrefix(text, "#endif"):
+	case strings.HasPrefix(line, "#endif"):
 		return cpp.endIf(p, rmDirective(line))
 
 	default:
-		log.Printf("Got directive [%s]\n", text);
+		log.Printf("Got directive [%s]\n", line);
 		return cpp.Read(p)
 	}
 	panic("Unreachable")
@@ -266,27 +266,36 @@ func (cpp *Cpp) errorf(f string, args ...interface{}) os.Error {
 	return fmt.Errorf("%s%s", prefix, suffix)
 }
 
-// Read a line from the top file on the stack.  This
-// treates long lines (with escaped newlines) as if
-// there were one big line.  The result is the next
-// line with a trailing '\n' character.
-func (cpp *Cpp) readLine() (string, os.Error) {
-	buf := make([]byte, 0, 100)
+// Read a line from the top file on the stack.
+// Returns the full line (with escaped newlines
+// removed), the raw line (with escaped newlines
+// intact and any error that may have occured.
+func (cpp *Cpp) readLine() (string, string, os.Error) {
+	line := make([]byte, 0, 100)
+	raw := make([]byte, 0, 100)
+
 	data, prefix, err := cpp.top().in.ReadLine()
 	for err == nil && len(data) > 0 && (prefix || data[len(data)-1] == '\\') {
-		if !prefix && data[len(data)-1] == '\\' {
+		raw = append(raw, data...)
+		if !prefix {
 			cpp.top().lineno++
-			data = data[:len(data)-1]
+			raw = append(raw, '\n')
+			if data[len(data)-1] == '\\' {
+				data = data[:len(data)-1]
+			}
 		}
-		buf = append(buf, data...)
+		line = append(line, data...)
 		data, prefix, err = cpp.top().in.ReadLine()
 	}
+
 	if err == nil {
-		buf = append(buf, data...)
-		if len(buf) > 0 {
-			buf = append(buf, '\n')
+		raw = append(raw, append(data, '\n')...)
+		if data[len(data)-1] == '\\' {
+			data = data[:len(data)-1]
 		}
+		line = append(line, data...)
 	}
 	cpp.top().lineno++
-	return string(buf), err
+
+	return string(line), string(raw), err
 }
