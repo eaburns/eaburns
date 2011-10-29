@@ -9,10 +9,15 @@ import (
 	"path/filepath"
 )
 
+const whiteSpace = " \t"
+
 type cpp struct{
-	seen map[string]bool
+	defs map[string]string
+	nconds int	// number of conditions
+	nfalse int		// depth inside a false cond
+	onstack map[string]bool
 	files []file
-	buf []byte
+	buf []byte	// left over bytes that were not yet read
 }
 
 type file struct{
@@ -22,14 +27,18 @@ type file struct{
 	in *bufio.Reader
 }
 
+// Create a new pre-processor reading from the
+// given file.
 func New(path string) (c *cpp, err os.Error) {
 	c = &cpp{
-		seen: make(map[string]bool),
+		defs: make(map[string]string),
+		onstack: make(map[string]bool),
 	}
 	err = c.push(path)
 	return
 }
 
+// Read the pre-processed data.
 func (cpp *cpp) Read(p []byte) (n int, err os.Error) {
 	if cpp.buf != nil {
 		return cpp.fillResult(p, cpp.buf), nil
@@ -50,12 +59,23 @@ func (cpp *cpp) Read(p []byte) (n int, err os.Error) {
 		return 0, err
 	}
 
-	line = strings.Trim(line, " \t")
+	line = strings.Trim(line, whiteSpace)
 	switch {
 	case line[0] != '#':
-		return cpp.fillResult(p, []byte(line)), nil
+		if cpp.nfalse == 0 {
+			return cpp.fillResult(p, []byte(line)), nil
+		}
+		return cpp.Read(p)
 	case strings.HasPrefix(line, "#include"):
 		return cpp.include(p, line)
+	case strings.HasPrefix(line, "#define"):
+		return cpp.define(p, line)
+	case strings.HasPrefix(line, "#ifdef"):
+		return cpp.ifDef(p, line)
+	case strings.HasPrefix(line, "#ifndef"):
+		return cpp.ifNDef(p, line)
+	case strings.HasPrefix(line, "#endif"):
+		return cpp.endIf(p, line)
 	default:
 		log.Printf("Got directive [%s]\n", line);
 		return cpp.Read(p)
@@ -101,6 +121,47 @@ func (cpp *cpp) getInclude(line string) (string, os.Error) {
 	return line[:end], nil
 }
 
+func (cpp *cpp) define(p []byte, line string) (int, os.Error) {
+	i := strings.IndexAny(line, whiteSpace)
+	id := line[:i]
+	cpp.defs[id] = strings.Trim(line[i:], whiteSpace)
+	return cpp.Read(p)
+}
+
+func (cpp *cpp) ifDef(p []byte, line string) (int, os.Error) {
+	i := strings.IndexAny(line, whiteSpace)
+	id := line[:i]
+	_, ok := cpp.defs[id]
+	cpp.cond(ok)
+	return cpp.Read(p)
+}
+
+func (cpp *cpp) ifNDef(p []byte, line string) (int, os.Error) {
+	i := strings.IndexAny(line, whiteSpace)
+	id := line[:i]
+	_, ok := cpp.defs[id]
+	cpp.cond(!ok)
+	return cpp.Read(p)
+}
+
+func (cpp *cpp) endIf(p []byte, line string) (int, os.Error) {
+	if cpp.nconds == 0 {
+		return 0, cpp.errorf("#endif without matching condition")
+	}
+	cpp.nconds--
+	if cpp.nfalse > 0 {
+		cpp.nfalse--
+	}
+	return cpp.Read(p)
+}
+
+func (cpp *cpp) cond(b bool) {
+	cpp.nconds++
+	if !b || cpp.nfalse > 0 {
+		cpp.nfalse++
+	}
+}
+
 func (cpp *cpp) fillResult(p []byte, line []byte) int {
 	n := copy(p, line)
 	if n < len(line) {
@@ -112,7 +173,7 @@ func (cpp *cpp) fillResult(p []byte, line []byte) int {
 }
 
 func (cpp *cpp) push(path string) os.Error {
-	if _, ok := cpp.seen[path]; ok {
+	if  cpp.onstack[path] {
 		loop := []string{}
 		for i := range cpp.files {
 			loop = append(loop, cpp.files[i].path)
@@ -129,13 +190,13 @@ func (cpp *cpp) push(path string) os.Error {
 		file: in,
 		in: bufio.NewReader(in),
 	}
-	cpp.seen[path] = true
+	cpp.onstack[path] = true
 	cpp.files = append(cpp.files, f)
 	return nil
 }
 
 func (cpp *cpp) pop() {
-	cpp.seen[cpp.top().path] = false
+	cpp.onstack[cpp.top().path] = false
 	cpp.top().file.Close()
 	if len(cpp.files) == 1 {
 		cpp.files = []file{}
@@ -170,6 +231,9 @@ func (cpp *cpp) readLine() (string, os.Error) {
 	}
 	if err == nil {
 		buf = append(buf, data...)
+		if len(buf) > 0 {
+			buf = append(buf, '\n')
+		}
 	}
 	cpp.top().lineno++
 	return string(buf), err
