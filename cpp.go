@@ -67,15 +67,15 @@ func (cpp *cpp) Read(p []byte) (n int, err os.Error) {
 		}
 		return cpp.Read(p)
 	case strings.HasPrefix(line, "#include"):
-		return cpp.include(p, line)
+		return cpp.include(p, rmDirective(line))
 	case strings.HasPrefix(line, "#define"):
-		return cpp.define(p, line)
+		return cpp.define(p, rmDirective(line))
 	case strings.HasPrefix(line, "#ifdef"):
-		return cpp.ifDef(p, line)
+		return cpp.ifDef(p, rmDirective(line))
 	case strings.HasPrefix(line, "#ifndef"):
-		return cpp.ifNDef(p, line)
+		return cpp.ifNDef(p, rmDirective(line))
 	case strings.HasPrefix(line, "#endif"):
-		return cpp.endIf(p, line)
+		return cpp.endIf(p, rmDirective(line))
 	default:
 		log.Printf("Got directive [%s]\n", line);
 		return cpp.Read(p)
@@ -101,6 +101,8 @@ func (cpp *cpp) include(p []byte, line string) (int, os.Error) {
 	return cpp.Read(p)
 }
 
+// Get the name of the file which is being included
+// by an include directive.
 func (cpp *cpp) getInclude(line string) (string, os.Error) {
 	start := strings.IndexAny(line, "\"<")
 	if start < 0 {
@@ -122,23 +124,29 @@ func (cpp *cpp) getInclude(line string) (string, os.Error) {
 }
 
 func (cpp *cpp) define(p []byte, line string) (int, os.Error) {
-	i := strings.IndexAny(line, whiteSpace)
-	id := line[:i]
-	cpp.defs[id] = strings.Trim(line[i:], whiteSpace)
+	id, vl := line, ""
+	if i := strings.IndexAny(line, whiteSpace); i >= 0 {
+		id, vl = line[:i], strings.Trim(line[i:], whiteSpace)
+	}
+	cpp.defs[id] = vl
 	return cpp.Read(p)
 }
 
 func (cpp *cpp) ifDef(p []byte, line string) (int, os.Error) {
-	i := strings.IndexAny(line, whiteSpace)
-	id := line[:i]
+	id := line
+	if i := strings.IndexAny(line, whiteSpace); i >= 0 {
+		id = line[:i]
+	}
 	_, ok := cpp.defs[id]
 	cpp.cond(ok)
 	return cpp.Read(p)
 }
 
 func (cpp *cpp) ifNDef(p []byte, line string) (int, os.Error) {
-	i := strings.IndexAny(line, whiteSpace)
-	id := line[:i]
+	id := line
+	if i := strings.IndexAny(line, whiteSpace); i >= 0 {
+		id = line[:i]
+	}
 	_, ok := cpp.defs[id]
 	cpp.cond(!ok)
 	return cpp.Read(p)
@@ -155,6 +163,7 @@ func (cpp *cpp) endIf(p []byte, line string) (int, os.Error) {
 	return cpp.Read(p)
 }
 
+// Track the given condition.
 func (cpp *cpp) cond(b bool) {
 	cpp.nconds++
 	if !b || cpp.nfalse > 0 {
@@ -162,6 +171,25 @@ func (cpp *cpp) cond(b bool) {
 	}
 }
 
+// Removes the directive from the beginning
+// of the line and trims off any leading/trailing
+// whitespace.
+func rmDirective(line string) string {
+	line = strings.Trim(line, whiteSpace)
+	if line[0] != '#' {
+		panic("Not called with a directive")
+	}
+	i := strings.IndexAny(line, whiteSpace)
+	if i < 0 {
+		return ""
+	}
+	return strings.Trim(line[i:], whiteSpace)
+}
+
+// Copies as many bytes as possible into p
+// from the line.  If p cannot hold the entire
+// line then the rest of it is put in the line
+// buffer.
 func (cpp *cpp) fillResult(p []byte, line []byte) int {
 	n := copy(p, line)
 	if n < len(line) {
@@ -172,6 +200,7 @@ func (cpp *cpp) fillResult(p []byte, line []byte) int {
 	return n
 }
 
+// Push the path onto the top of the file stack.
 func (cpp *cpp) push(path string) os.Error {
 	if  cpp.onstack[path] {
 		loop := []string{}
@@ -195,6 +224,7 @@ func (cpp *cpp) push(path string) os.Error {
 	return nil
 }
 
+// Pop the top file off of the stack.
 func (cpp *cpp) pop() {
 	cpp.onstack[cpp.top().path] = false
 	cpp.top().file.Close()
@@ -205,6 +235,8 @@ func (cpp *cpp) pop() {
 	}
 }
 
+// Get the top file from the stack or nil if there is
+// no current file.
 func (cpp *cpp) top() *file {
 	if len(cpp.files) == 0 {
 		return nil
@@ -212,12 +244,21 @@ func (cpp *cpp) top() *file {
 	return &cpp.files[len(cpp.files)-1]
 }
 
+// Format an error with the current file and
+// line.
 func (cpp *cpp) errorf(f string, args ...interface{}) os.Error {
-	prefix := fmt.Sprintf("%s:%s: ", cpp.top().path, cpp.top().lineno)
-	suffix := fmt.Sprintf(f, args)
+	prefix := fmt.Sprintf("%s:%d: ", cpp.top().path, cpp.top().lineno)
+	suffix := f
+	if len(args) > 0 {
+		suffix = fmt.Sprintf(f, args)
+	}
 	return fmt.Errorf("%s%s", prefix, suffix)
 }
 
+// Read a line from the top file on the stack.  This
+// treates long lines (with escaped newlines) as if
+// there were one big line.  The result is the next
+// line with a trailing '\n' character.
 func (cpp *cpp) readLine() (string, os.Error) {
 	buf := make([]byte, 0, 100)
 	data, prefix, err := cpp.top().in.ReadLine()
