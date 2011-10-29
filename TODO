@@ -11,3 +11,5 @@
 * #error/#warning
 
 * Function-style defines
+
+* Fix the tests
