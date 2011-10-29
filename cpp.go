@@ -1,3 +1,7 @@
+// Defines an io.Reader that runs its data
+// through a C preprocessor before it is
+// read by the user.
+
 package cpp
 
 import (
@@ -244,8 +248,7 @@ func (cpp *cpp) top() *file {
 	return &cpp.files[len(cpp.files)-1]
 }
 
-// Format an error with the current file and
-// line.
+// Format an error with the current file and line.
 func (cpp *cpp) errorf(f string, args ...interface{}) os.Error {
 	prefix := fmt.Sprintf("%s:%d: ", cpp.top().path, cpp.top().lineno)
 	suffix := f
