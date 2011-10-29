@@ -278,11 +278,11 @@ func (cpp *Cpp) readLine() (string, string, os.Error) {
 	for err == nil && len(data) > 0 && (prefix || data[len(data)-1] == '\\') {
 		raw = append(raw, data...)
 		if !prefix {
-			cpp.top().lineno++
 			raw = append(raw, '\n')
 			if data[len(data)-1] == '\\' {
 				data = data[:len(data)-1]
 			}
+			cpp.top().lineno++
 		}
 		line = append(line, data...)
 		data, prefix, err = cpp.top().in.ReadLine()
