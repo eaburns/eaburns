@@ -65,31 +65,31 @@ func (cpp *Cpp) Read(p []byte) (n int, err os.Error) {
 		return 0, err
 	}
 
-	line = strings.Trim(line, whiteSpace)
+	text := strings.Trim(line, whiteSpace)
 	switch {
-	case line[0] != '#':
+	case text[0] != '#':
 		if cpp.nfalse == 0 {
 			return cpp.fillResult(p, []byte(line)), nil
 		}
 		return cpp.Read(p)
 
-	case strings.HasPrefix(line, "#include"):
+	case strings.HasPrefix(text, "#include"):
 		return cpp.include(p, rmDirective(line))
 
-	case strings.HasPrefix(line, "#define"):
+	case strings.HasPrefix(text, "#define"):
 		return cpp.define(p, rmDirective(line))
 
-	case strings.HasPrefix(line, "#ifdef"):
+	case strings.HasPrefix(text, "#ifdef"):
 		return cpp.ifDef(p, rmDirective(line))
 
-	case strings.HasPrefix(line, "#ifndef"):
+	case strings.HasPrefix(text, "#ifndef"):
 		return cpp.ifNDef(p, rmDirective(line))
 
-	case strings.HasPrefix(line, "#endif"):
+	case strings.HasPrefix(text, "#endif"):
 		return cpp.endIf(p, rmDirective(line))
 
 	default:
-		log.Printf("Got directive [%s]\n", line);
+		log.Printf("Got directive [%s]\n", text);
 		return cpp.Read(p)
 	}
 	panic("Unreachable")
