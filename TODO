@@ -1,0 +1,13 @@
+* Find an alternative to recursion in Read() because
+	there is no tailcall optimization
+
+* Enabling/disabling the removal of different directives
+	from the output
+
+* Expand defines
+
+* #if
+
+* #error/#warning
+
+* Function-style defines
