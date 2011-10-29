@@ -6,6 +6,10 @@
 
 * Expand defines
 
+* Keep the raw line around so that escaped newlines
+	aren't removed from the output send around to
+	the caller of Read()
+
 * #if
 
 * #error/#warning
