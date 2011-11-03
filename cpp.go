@@ -68,6 +68,7 @@ again:
 
 	line = strings.Trim(line, whiteSpace)
 	again := false
+
 	switch {
 	case line[0] != '#':
 		if cpp.nfalse == 0 {
