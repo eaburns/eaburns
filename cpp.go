@@ -46,6 +46,7 @@ func New(path string) (c *Cpp, err os.Error) {
 // never returns more than a single line of the
 // file at a time.
 func (cpp *Cpp) Read(p []byte) (n int, err os.Error) {
+again:
 	if cpp.buf != nil {
 		return cpp.fillResult(p, cpp.buf), nil
 	}
@@ -60,45 +61,47 @@ func (cpp *Cpp) Read(p []byte) (n int, err os.Error) {
 		if len(line) > 0 {
 			return cpp.fillResult(p, []byte(line)), nil
 		}
-		return cpp.Read(p)
+		goto again;
 	} else if err != nil {
 		return 0, err
 	}
 
 	line = strings.Trim(line, whiteSpace)
+	again := false
 	switch {
 	case line[0] != '#':
 		if cpp.nfalse == 0 {
 			return cpp.fillResult(p, []byte(raw)), nil
 		}
-		return cpp.Read(p)
+		goto again;
 
 	case strings.HasPrefix(line, "#include"):
-		return cpp.include(p, rmDirective(line))
+		n, err, again = cpp.include(p, rmDirective(line))
 
 	case strings.HasPrefix(line, "#define"):
-		return cpp.define(p, rmDirective(line))
+		n, err, again = cpp.define(p, rmDirective(line))
 
 	case strings.HasPrefix(line, "#ifdef"):
-		return cpp.ifDef(p, rmDirective(line))
+		n, err, again = cpp.ifDef(p, rmDirective(line))
 
 	case strings.HasPrefix(line, "#ifndef"):
-		return cpp.ifNDef(p, rmDirective(line))
+		n, err, again = cpp.ifNDef(p, rmDirective(line))
 
 	case strings.HasPrefix(line, "#endif"):
-		return cpp.endIf(p, rmDirective(line))
+		n, err, again = cpp.endIf(p, rmDirective(line))
 
 	default:
 		log.Printf("Got directive [%s]\n", line);
-		return cpp.Read(p)
+		goto again
 	}
-	panic("Unreachable")
+	if again { goto again }
+	return
 }
 
-func (cpp *Cpp) include(p []byte, line string) (int, os.Error) {
+func (cpp *Cpp) include(p []byte, line string) (int, os.Error, bool) {
 	inc, err := cpp.getInclude(line)
 	if err != nil {
-		return 0, err
+		return 0, err, false
 	}
 
 	if inc[0] != '/' {
@@ -108,9 +111,9 @@ func (cpp *Cpp) include(p []byte, line string) (int, os.Error) {
 
 	err = cpp.push(inc);
 	if err != nil {
-		return 0, err
+		return 0, err, false
 	}
-	return cpp.Read(p)
+	return 0, nil, true
 }
 
 // Get the name of the file which is being included
@@ -135,44 +138,44 @@ func (cpp *Cpp) getInclude(line string) (string, os.Error) {
 	return line[:end], nil
 }
 
-func (cpp *Cpp) define(p []byte, line string) (int, os.Error) {
+func (cpp *Cpp) define(p []byte, line string) (int, os.Error, bool) {
 	id, vl := line, ""
 	if i := strings.IndexAny(line, whiteSpace); i >= 0 {
 		id, vl = line[:i], strings.Trim(line[i:], whiteSpace)
 	}
 	cpp.defs[id] = vl
-	return cpp.Read(p)
+	return 0, nil, true
 }
 
-func (cpp *Cpp) ifDef(p []byte, line string) (int, os.Error) {
+func (cpp *Cpp) ifDef(p []byte, line string) (int, os.Error, bool) {
 	id := line
 	if i := strings.IndexAny(line, whiteSpace); i >= 0 {
 		id = line[:i]
 	}
 	_, ok := cpp.defs[id]
 	cpp.cond(ok)
-	return cpp.Read(p)
+	return 0, nil, true
 }
 
-func (cpp *Cpp) ifNDef(p []byte, line string) (int, os.Error) {
+func (cpp *Cpp) ifNDef(p []byte, line string) (int, os.Error, bool) {
 	id := line
 	if i := strings.IndexAny(line, whiteSpace); i >= 0 {
 		id = line[:i]
 	}
 	_, ok := cpp.defs[id]
 	cpp.cond(!ok)
-	return cpp.Read(p)
+	return 0, nil, true
 }
 
-func (cpp *Cpp) endIf(p []byte, line string) (int, os.Error) {
+func (cpp *Cpp) endIf(p []byte, line string) (int, os.Error, bool) {
 	if cpp.nconds == 0 {
-		return 0, cpp.errorf("#endif without matching condition")
+		return 0, cpp.errorf("#endif without matching condition"), false
 	}
 	cpp.nconds--
 	if cpp.nfalse > 0 {
 		cpp.nfalse--
 	}
-	return cpp.Read(p)
+	return 0, nil, true
 }
 
 // Track the given condition.
