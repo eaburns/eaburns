@@ -10,3 +10,15 @@
 * Function-style defines
 
 * Fix the tests
+
+* Optionally splice lines with escaped newlines
+
+* Remove C-style and C++-style comments
+
+* Buy a C standard?
+
+* Token concatenation ☹
+
+* Quoting
+
+* Variadic marcos
