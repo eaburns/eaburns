@@ -213,7 +213,9 @@ func (cpp *Cpp) fillResult(p []byte, line []byte) int {
 	if n < len(line) {
 		line = line[n:]
 		m := copy(cpp.buf, line)
-		cpp.buf = cpp.buf[:m]
+		if m < len(cpp.buf) {
+			cpp.buf = cpp.buf[:m]
+		}
 		if m < len(line) {
 			cpp.buf = append(cpp.buf, line[m:]...)
 		}
