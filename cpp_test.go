@@ -16,7 +16,7 @@ func TestIgnoreDirectives(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	line := make([]byte, 100)
+	line := make([]byte, 2)
 	n, err := cpp.Read(line)
 	for err == nil {
 		fmt.Printf("[%s]\n", string(line[:n]))

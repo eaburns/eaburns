@@ -49,7 +49,7 @@ func New(path string) (c *Cpp, err os.Error) {
 // file at a time.
 func (cpp *Cpp) Read(p []byte) (n int, err os.Error) {
 again:
-	if cpp.buf != nil {
+	if len(cpp.buf) > 0 {
 		return cpp.fillResult(p, cpp.buf), nil
 	}
 
@@ -211,9 +211,14 @@ func rmDirective(line string) string {
 func (cpp *Cpp) fillResult(p []byte, line []byte) int {
 	n := copy(p, line)
 	if n < len(line) {
-		cpp.buf = append(cpp.buf[:0], line[n:len(line)]...)
+		line = line[n:]
+		m := copy(cpp.buf, line)
+		cpp.buf = cpp.buf[:m]
+		if m < len(line) {
+			cpp.buf = append(cpp.buf, line[m:]...)
+		}
 	} else {
-		cpp.buf = nil
+		cpp.buf = cpp.buf[:0]
 	}
 	return n
 }
