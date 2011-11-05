@@ -15,29 +15,29 @@ import (
 
 const whiteSpace = " \t"
 
-type Cpp struct{
-	defs map[string]string
-	nconds int	// number of conditions
-	nfalse int		// depth inside a false cond
+type Cpp struct {
+	defs    map[string]string
+	nconds  int // number of conditions
+	nfalse  int // depth inside a false cond
 	onstack map[string]bool
-	files []file
-	buf []byte	// left over bytes that were not yet read
-	line []byte	// readLine interpreted line buffer
-	raw []byte	// readLine raw line buffer
+	files   []file
+	buf     []byte // left over bytes that were not yet read
+	line    []byte // readLine interpreted line buffer
+	raw     []byte // readLine raw line buffer
 }
 
-type file struct{
+type file struct {
 	lineno int
-	path string
-	file *os.File
-	in *bufio.Reader
+	path   string
+	file   *os.File
+	in     *bufio.Reader
 }
 
 // Create a new pre-processor reading from the
 // given file.
 func New(path string) (c *Cpp, err os.Error) {
 	c = &Cpp{
-		defs: make(map[string]string),
+		defs:    make(map[string]string),
 		onstack: make(map[string]bool),
 	}
 	err = c.push(path)
@@ -63,7 +63,7 @@ again:
 		if len(line) > 0 {
 			return cpp.fillResult(p, []byte(line)), nil
 		}
-		goto again;
+		goto again
 	} else if err != nil {
 		return 0, err
 	}
@@ -76,7 +76,7 @@ again:
 		if cpp.nfalse == 0 {
 			return cpp.fillResult(p, []byte(raw)), nil
 		}
-		goto again;
+		goto again
 
 	case strings.HasPrefix(line, "#include"):
 		n, err, again = cpp.include(p, rmDirective(line))
@@ -94,10 +94,12 @@ again:
 		n, err, again = cpp.endIf(p, rmDirective(line))
 
 	default:
-		log.Printf("Got directive [%s]\n", line);
+		log.Printf("Got directive [%s]\n", line)
 		goto again
 	}
-	if again { goto again }
+	if again {
+		goto again
+	}
 	return
 }
 
@@ -112,7 +114,7 @@ func (cpp *Cpp) include(p []byte, line string) (int, os.Error, bool) {
 		inc = filepath.Join(dir, inc)
 	}
 
-	err = cpp.push(inc);
+	err = cpp.push(inc)
 	if err != nil {
 		return 0, err, false
 	}
@@ -227,7 +229,7 @@ func (cpp *Cpp) fillResult(p []byte, line []byte) int {
 
 // Push the path onto the top of the file stack.
 func (cpp *Cpp) push(path string) os.Error {
-	if  cpp.onstack[path] {
+	if cpp.onstack[path] {
 		loop := []string{}
 		for i := range cpp.files {
 			loop = append(loop, cpp.files[i].path)
@@ -240,9 +242,9 @@ func (cpp *Cpp) push(path string) os.Error {
 	}
 	f := file{
 		lineno: 1,
-		path: path,
-		file: in,
-		in: bufio.NewReader(in),
+		path:   path,
+		file:   in,
+		in:     bufio.NewReader(in),
 	}
 	cpp.onstack[path] = true
 	cpp.files = append(cpp.files, f)
@@ -255,7 +257,7 @@ func (cpp *Cpp) pop() {
 	cpp.top().file.Close()
 	if len(cpp.files) == 1 {
 		cpp.files = []file{}
-	} else {	
+	} else {
 		cpp.files = cpp.files[:len(cpp.files)-1]
 	}
 }
