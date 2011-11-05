@@ -70,7 +70,7 @@ again:
 	again := false
 
 	switch {
-	case line[0] != '#':
+	case len(line) == 0 || line[0] != '#':
 		if cpp.nfalse == 0 {
 			return cpp.fillResult(p, []byte(raw)), nil
 		}
@@ -274,32 +274,60 @@ func (cpp *Cpp) errorf(f string, args ...interface{}) os.Error {
 // Returns the full line (with escaped newlines
 // removed), the raw line (with escaped newlines
 // intact and any error that may have occured.
+//func (cpp *Cpp) readLine() (string, string, os.Error) {
+//	line := make([]byte, 0, 100)
+//	raw := make([]byte, 0, 100)
+//
+//	data, prefix, err := cpp.top().in.ReadLine()
+//	for err == nil && len(data) > 0 && (prefix || data[len(data)-1] == '\\') {
+//		raw = append(raw, data...)
+//		if !prefix {
+//			raw = append(raw, '\n')
+//			if data[len(data)-1] == '\\' {
+//				data = data[:len(data)-1]
+//			}
+//			cpp.top().lineno++
+//		}
+//		line = append(line, data...)
+//		data, prefix, err = cpp.top().in.ReadLine()
+//	}
+//
+//	if err == nil {
+//		raw = append(raw, append(data, '\n')...)
+//		if data[len(data)-1] == '\\' {
+//			data = data[:len(data)-1]
+//		}
+//		line = append(line, data...)
+//	}
+//	cpp.top().lineno++
+//
+//	return string(line), string(raw), err
+//}
+
 func (cpp *Cpp) readLine() (string, string, os.Error) {
-	line := make([]byte, 0, 100)
-	raw := make([]byte, 0, 100)
+	line := make([]int, 0, 100)
+	raw := make([]int, 0, 100)
+	escape := false
 
-	data, prefix, err := cpp.top().in.ReadLine()
-	for err == nil && len(data) > 0 && (prefix || data[len(data)-1] == '\\') {
-		raw = append(raw, data...)
-		if !prefix {
-			raw = append(raw, '\n')
-			if data[len(data)-1] == '\\' {
-				data = data[:len(data)-1]
-			}
-			cpp.top().lineno++
+	c, _, err := cpp.top().in.ReadRune()
+	for err == nil {
+		raw = append(raw, c)
+		if c == '\n' && !escape {
+			break
 		}
-		line = append(line, data...)
-		data, prefix, err = cpp.top().in.ReadLine()
+		if c != '\n' && escape {
+			line = append(line, '\\')
+		}
+		escape = c == '\\'
+		if !escape {
+			line = append(line, c)
+		}
+		c, _, err = cpp.top().in.ReadRune()
 	}
 
-	if err == nil {
-		raw = append(raw, append(data, '\n')...)
-		if data[len(data)-1] == '\\' {
-			data = data[:len(data)-1]
-		}
-		line = append(line, data...)
+	if len(line) > 0 && err == os.EOF {
+		err = nil
 	}
-	cpp.top().lineno++
 
 	return string(line), string(raw), err
 }
