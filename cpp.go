@@ -279,8 +279,8 @@ func (cpp *Cpp) errorf(f string, args ...interface{}) os.Error {
 func (cpp *Cpp) readLine() (string, []byte, os.Error) {
 	line := cpp.line[:0]
 	raw := cpp.raw[:0]
-	escape := false
 
+	escape := false
 	c, err := cpp.top().in.ReadByte()
 	for err == nil {
 		raw = append(raw, c)
