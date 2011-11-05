@@ -22,6 +22,8 @@ type Cpp struct{
 	onstack map[string]bool
 	files []file
 	buf []byte	// left over bytes that were not yet read
+	line []byte	// readLine interpreted line buffer
+	raw []byte	// readLine raw line buffer
 }
 
 type file struct{
@@ -274,42 +276,12 @@ func (cpp *Cpp) errorf(f string, args ...interface{}) os.Error {
 // Returns the full line (with escaped newlines
 // removed), the raw line (with escaped newlines
 // intact and any error that may have occured.
-//func (cpp *Cpp) readLine() (string, string, os.Error) {
-//	line := make([]byte, 0, 100)
-//	raw := make([]byte, 0, 100)
-//
-//	data, prefix, err := cpp.top().in.ReadLine()
-//	for err == nil && len(data) > 0 && (prefix || data[len(data)-1] == '\\') {
-//		raw = append(raw, data...)
-//		if !prefix {
-//			raw = append(raw, '\n')
-//			if data[len(data)-1] == '\\' {
-//				data = data[:len(data)-1]
-//			}
-//			cpp.top().lineno++
-//		}
-//		line = append(line, data...)
-//		data, prefix, err = cpp.top().in.ReadLine()
-//	}
-//
-//	if err == nil {
-//		raw = append(raw, append(data, '\n')...)
-//		if data[len(data)-1] == '\\' {
-//			data = data[:len(data)-1]
-//		}
-//		line = append(line, data...)
-//	}
-//	cpp.top().lineno++
-//
-//	return string(line), string(raw), err
-//}
-
-func (cpp *Cpp) readLine() (string, string, os.Error) {
-	line := make([]int, 0, 100)
-	raw := make([]int, 0, 100)
+func (cpp *Cpp) readLine() (string, []byte, os.Error) {
+	line := cpp.line[:0]
+	raw := cpp.raw[:0]
 	escape := false
 
-	c, _, err := cpp.top().in.ReadRune()
+	c, err := cpp.top().in.ReadByte()
 	for err == nil {
 		raw = append(raw, c)
 		if c == '\n' && !escape {
@@ -322,12 +294,12 @@ func (cpp *Cpp) readLine() (string, string, os.Error) {
 		if !escape {
 			line = append(line, c)
 		}
-		c, _, err = cpp.top().in.ReadRune()
+		c, err = cpp.top().in.ReadByte()
 	}
 
 	if len(line) > 0 && err == os.EOF {
 		err = nil
 	}
 
-	return string(line), string(raw), err
+	return string(line), raw, err
 }
