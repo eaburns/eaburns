@@ -282,7 +282,7 @@ func (cpp *Cpp) errorf(f string, args ...interface{}) os.Error {
 // Read a line from the top file on the stack.
 // Returns the full line (with escaped newlines
 // removed), the raw line (with escaped newlines
-// intact and any error that may have occured.
+// intact) and any error that may have occured.
 func (cpp *Cpp) readLine() (string, []byte, os.Error) {
 	line := cpp.line[:0]
 	raw := cpp.raw[:0]
