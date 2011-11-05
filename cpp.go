@@ -211,7 +211,7 @@ func rmDirective(line string) string {
 func (cpp *Cpp) fillResult(p []byte, line []byte) int {
 	n := copy(p, line)
 	if n < len(line) {
-		cpp.buf = line[n:len(line)]
+		cpp.buf = append(cpp.buf[:0], line[n:len(line)]...)
 	} else {
 		cpp.buf = nil
 	}
