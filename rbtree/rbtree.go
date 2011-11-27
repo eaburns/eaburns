@@ -1,11 +1,13 @@
 // Copyright 2011 Ethan Burns
 // Use of this source code is governed by a BSD-style
 // license that can be foudn in the LICENSE file.
-/*
- A self-balancing binary tree.  The implementation of this red-black
- tree is directly from the 3rd edition of "Introduction to Algorithms"
- by Cormen, Leiserson, Rivest and Stein.
-*/
+
+// A self-balancing binary tree that can be used as an ordered map from
+// keys to values.
+//
+// The implementation of this red-black tree is directly from the 3rd
+// edition of "Introduction to Algorithms" by Cormen, Leiserson, Rivest
+// and Stein.
 package rbtree
 
 /* In my opinion, some of this code is really terrible looking.  The
@@ -17,12 +19,16 @@ the pseudo-code in CLRS and therefore the book documents the code
 
 type color bool
 
+// Key is the interface for the keys associated with data in the tree.
 type Key interface {
 	// standard c-style compare: 0 is equal, <0 means reciever is
 	// less, >0 means receiver is greater
 	Compare(Key) int
 }
 
+// Node represents a node in the tree.  It can be used as an opaque
+// handle to the tree node holding the association between a Key
+// and its data.
 type Node struct {
 	parent *Node
 	left   *Node
@@ -32,6 +38,8 @@ type Node struct {
 	Value  interface{}
 }
 
+// RbTree is a red-black tree that can map Keys to values of type
+// interface{}.
 type RbTree struct {
 	root *Node
 	len  int
@@ -55,18 +63,19 @@ func newNode(k Key, v interface{}) *Node {
 	return &Node{left: &nilNode, right: &nilNode, parent: &nilNode, Key: k, Value: v}
 }
 
-// Creates a new empty tree.
+// New returns a new empty tree.
 func New() *RbTree {
 	return &RbTree{root: &nilNode}
 }
 
-// Retrieve the number of nodes in the tree in constant time.
+// Len returns the number of key/value mappings in the tree.
 func (t *RbTree) Len() int {
 	return t.len
 }
 
-// Find the first value bound to the given key.  Returns nil if it is
-// not found.  O(lg n)
+// Find returns a pointer to a node that associates the matching Key
+// to a value or nil if there is no mapping for the given Key in the tree.
+// This operation is O(lg n) in the number of Nodes in the tree.
 func (t *RbTree) Find(k Key) *Node {
 	x := t.root
 	for x != &nilNode {
@@ -82,14 +91,15 @@ func (t *RbTree) Find(k Key) *Node {
 	return nil
 }
 
-// Test if the key is in the tree.  O(lg n)
+// Member tests if there is a value bound to the given Key in the tree.
 func (t *RbTree) Member(k Key) bool {
 	return t.Find(k) != nil
 }
 
-// Call the function on each key/value pair in order of the keys.  The
-// behavior is not well defined if the tree is modified by the
-// function f.  O(n)
+// Do calls the function on each Key/value pair in the tree.  The function
+// is called on the bindings in the ordering defined over the Keys. The
+// behavior of Do is undefined defined if the tree is modified by the
+// function f.  The operation is O(n) in the number of Nodes in the tree.
 func (t *RbTree) Do(f func(k Key, v interface{})) {
 	inOrder(t.root, f)
 }
@@ -102,16 +112,19 @@ func inOrder(n *Node, f func(k Key, v interface{})) {
 	}
 }
 
-// Inserts a binding of v to k in the tree. O(lg n)
-//
-// The return value is the node associated with the binding.
+// Add inserts a new mapping into the tree from the given
+// key to the given value and returns a pointer to the Node
+// associated with this binding.  This operation is O(lg n) in
+// the number of Nodes in the tree.
 func (t *RbTree) Add(k Key, v interface{}) *Node {
 	n := newNode(k, v)
 	t.len += 1
 	return rbInsert(false, t, n)
 }
 
-// Reinsert the given node back into the tree.  O(lg n)
+// Reinsert re-inserts the given Node into the tree.  The Node must
+// represent a node that has been removed from the tree.  This
+// operation is O(lg n) in the number of Nodes in the tree.
 func (t *RbTree) Reinsert(n *Node) {
 	if n != nil {
 		n.left = &nilNode
@@ -122,9 +135,10 @@ func (t *RbTree) Reinsert(n *Node) {
 	}
 }
 
-// Updates the position of the node in the tree.  This should be
-// called whenever the key is changed and n is still in the tree.
-// O(lg n)
+// Update updates the position of the given Node in the tree.
+// This should be called whenever the key is changed and the
+// Node is still in the tree.  This operation is O(lg n) in the number
+// of Nodes in the tree.
 func (t *RbTree) UpdateKey(n *Node) {
 	if n != nil {
 		t.RemoveNode(n)
@@ -132,10 +146,12 @@ func (t *RbTree) UpdateKey(n *Node) {
 	}
 }
 
-// Replaces a binding to k with the value v or inserts a new binging
-// if there wasn't one previously.  O(lg n)
-//
-// The return value is the node associated with the binding.
+// Replace looks for a binding for the given Key and returns a pointer
+// to the node for the replaced or new binding.  If a binding is
+// found then the value to which it refers is replaced with the new
+// value.  If there is no value previously bound to the Key then
+// a new binding is added.  This operation is O(lg n) in the number
+// of Nodes in the tree.
 func (t *RbTree) Replace(k Key, v interface{}) *Node {
 	n := newNode(k, v)
 	m := rbInsert(true, t, n)
@@ -253,7 +269,9 @@ func rbInsertFixup(t *RbTree, z *Node) {
 	t.root.color = black
 }
 
-// The minimum key in the tree. O(lg n)
+// Minimum returns a pointer to the node in the tree that holds the
+// minimum key according to the comparison function over Keys.
+// This operation is O(lg n) in the number of Nodes in the tree.
 func (t *RbTree) Minimum() *Node {
 	return treeMinimum(t.root)
 }
@@ -264,7 +282,9 @@ func treeMinimum(x *Node) *Node {
 	return x
 }
 
-// The maximum key in the tree. O(lg n)
+// Maximum returns a pointer to the node in the tree that holds the
+// maximum key according to the comparison function over Keys.
+// This operation is O(lg n) in the number of Nodes in the tree.
 func (t *RbTree) Maximum() *Node {
 	return treeMaximum(t.root)
 }
@@ -275,7 +295,10 @@ func treeMaximum(x *Node) *Node {
 	return x
 }
 
-// Remove a node bound to the given key from the tree. O(lg n)
+// Remove attempts to remove a binding from Key.  If there is no such
+// binding then nil is returned otherwise a pointer to the Node for the
+// removed binding is returned.  This operation is O(lg n) in the number
+// of Nodes in the tree.
 func (t *RbTree) Remove(k Key) *Node {
 	n := t.Find(k)
 	if n != nil {
@@ -285,8 +308,10 @@ func (t *RbTree) Remove(k Key) *Node {
 	return n
 }
 
-// Remove the given node from the tree. O(lg n) but often much faster
-// than calling Remove on the key and value.
+// RemoveNode removes the given Node from the tree.  This operation
+// is O(lg n) in the number of Nodes in the tree but can often be much
+// faster than calling Remove on the Key as this method elides the
+// loopkup step to find the Node.
 func (t *RbTree) RemoveNode(n *Node) {
 	if n != nil {
 		t.len -= 1
@@ -405,7 +430,7 @@ func copy(n *Node) *Node {
 	return m
 }
 
-// Return a copy of the given tree.
+// Copy returns a copy of the given tree.
 func (t *RbTree) Copy() *RbTree {
 	return &RbTree{root: copy(t.root), len: t.len}
 }

@@ -1,9 +1,7 @@
 // Copyright 2011 Ethan Burns
 // Use of this source code is governed by a BSD-style
 // license that can be foudn in the LICENSE file.
-/*
- * Utility functions for testing the RB tree
- */
+
 package rbtree
 
 import (
