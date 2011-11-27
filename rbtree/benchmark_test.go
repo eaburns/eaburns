@@ -5,7 +5,7 @@ package rbtree
 
 import (
 	"testing"
-	"rand"
+	"math/rand"
 	"time"
 )
 
