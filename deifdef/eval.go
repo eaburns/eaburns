@@ -19,7 +19,7 @@ func (c *cpp) proc(line []byte) (output bool) {
 
 type junker int
 
-func (junker) Write(p []byte) (n int, err os.Error) {
+func (junker) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
@@ -57,7 +57,7 @@ func (c *cpp) eval(n *nd) {
 		if c.ignoring() {
 			return
 		}
-		defs[n.sval] = "", false
+		delete(defs, n.sval)
 	case tokDef:
 		if c.ignoring() {
 			return

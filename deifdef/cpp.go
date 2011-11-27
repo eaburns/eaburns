@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"os"
+	"io"
 	"fmt"
 )
 
@@ -64,7 +64,7 @@ func (c *cpp) procdrctv(line []byte) []byte {
 	return nil
 }
 
-func (cpp *cpp) readl() (line []byte, err os.Error) {
+func (cpp *cpp) readl() (line []byte, err error) {
 	line = []byte{}
 	cpp.lineno++
 	for {
@@ -100,7 +100,7 @@ func (c cpp) fullline(line []byte) ([]byte, []byte) {
 	for line[len(line)-1] == '\\' {
 		nxt, err := c.readl()
 		if err != nil {
-			if err == os.EOF {
+			if err == io.EOF {
 				return line, raw
 			}
 			panic(fmt.Sprintf("line %d: unexpected EOF", c.lineno))
