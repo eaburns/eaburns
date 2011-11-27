@@ -68,7 +68,8 @@ func New() *RbTree {
 	return &RbTree{root: &nilNode}
 }
 
-// Len returns the number of key/value mappings in the tree.
+// Len returns the number of key/value mappings in the tree.  This operation
+// is constant in the number of Nodes in the tree.
 func (t *RbTree) Len() int {
 	return t.len
 }
