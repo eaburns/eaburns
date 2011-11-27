@@ -5,6 +5,7 @@
 package cpp
 
 import (
+	"io"
 	"os"
 	"fmt"
 	"log"
@@ -35,7 +36,7 @@ type file struct {
 
 // Create a new pre-processor reading from the
 // given file.
-func New(path string) (c *Cpp, err os.Error) {
+func New(path string) (c *Cpp, err error) {
 	c = &Cpp{
 		defs:    make(map[string]string),
 		onstack: make(map[string]bool),
@@ -47,18 +48,18 @@ func New(path string) (c *Cpp, err os.Error) {
 // Read the preprocessed data.  This method
 // never returns more than a single line of the
 // file at a time.
-func (cpp *Cpp) Read(p []byte) (n int, err os.Error) {
+func (cpp *Cpp) Read(p []byte) (n int, err error) {
 again:
 	if len(cpp.buf) > 0 {
 		return cpp.fillResult(p, cpp.buf), nil
 	}
 
 	if cpp.top() == nil {
-		return 0, os.EOF
+		return 0, io.EOF
 	}
 
 	line, raw, err := cpp.readLine()
-	if err != nil && err == os.EOF {
+	if err != nil && err == io.EOF {
 		cpp.pop()
 		if len(line) > 0 {
 			return cpp.fillResult(p, []byte(line)), nil
@@ -103,7 +104,7 @@ again:
 	return
 }
 
-func (cpp *Cpp) include(p []byte, line string) (int, os.Error, bool) {
+func (cpp *Cpp) include(p []byte, line string) (int, error, bool) {
 	inc, err := cpp.getInclude(line)
 	if err != nil {
 		return 0, err, false
@@ -123,7 +124,7 @@ func (cpp *Cpp) include(p []byte, line string) (int, os.Error, bool) {
 
 // Get the name of the file which is being included
 // by an include directive.
-func (cpp *Cpp) getInclude(line string) (string, os.Error) {
+func (cpp *Cpp) getInclude(line string) (string, error) {
 	start := strings.IndexAny(line, "\"<")
 	if start < 0 {
 		return "", cpp.errorf("no starting delimiter\n")
@@ -143,7 +144,7 @@ func (cpp *Cpp) getInclude(line string) (string, os.Error) {
 	return line[:end], nil
 }
 
-func (cpp *Cpp) define(p []byte, line string) (int, os.Error, bool) {
+func (cpp *Cpp) define(p []byte, line string) (int, error, bool) {
 	id, vl := line, ""
 	if i := strings.IndexAny(line, whiteSpace); i >= 0 {
 		id, vl = line[:i], strings.Trim(line[i:], whiteSpace)
@@ -152,7 +153,7 @@ func (cpp *Cpp) define(p []byte, line string) (int, os.Error, bool) {
 	return 0, nil, true
 }
 
-func (cpp *Cpp) ifDef(p []byte, line string) (int, os.Error, bool) {
+func (cpp *Cpp) ifDef(p []byte, line string) (int, error, bool) {
 	id := line
 	if i := strings.IndexAny(line, whiteSpace); i >= 0 {
 		id = line[:i]
@@ -162,7 +163,7 @@ func (cpp *Cpp) ifDef(p []byte, line string) (int, os.Error, bool) {
 	return 0, nil, true
 }
 
-func (cpp *Cpp) ifNDef(p []byte, line string) (int, os.Error, bool) {
+func (cpp *Cpp) ifNDef(p []byte, line string) (int, error, bool) {
 	id := line
 	if i := strings.IndexAny(line, whiteSpace); i >= 0 {
 		id = line[:i]
@@ -172,7 +173,7 @@ func (cpp *Cpp) ifNDef(p []byte, line string) (int, os.Error, bool) {
 	return 0, nil, true
 }
 
-func (cpp *Cpp) endIf(p []byte, line string) (int, os.Error, bool) {
+func (cpp *Cpp) endIf(p []byte, line string) (int, error, bool) {
 	if cpp.nconds == 0 {
 		return 0, cpp.errorf("#endif without matching condition"), false
 	}
@@ -228,7 +229,7 @@ func (cpp *Cpp) fillResult(p []byte, line []byte) int {
 }
 
 // Push the path onto the top of the file stack.
-func (cpp *Cpp) push(path string) os.Error {
+func (cpp *Cpp) push(path string) error {
 	if cpp.onstack[path] {
 		loop := []string{}
 		for i := range cpp.files {
@@ -272,7 +273,7 @@ func (cpp *Cpp) top() *file {
 }
 
 // Format an error with the current file and line.
-func (cpp *Cpp) errorf(f string, args ...interface{}) os.Error {
+func (cpp *Cpp) errorf(f string, args ...interface{}) error {
 	prefix := fmt.Sprintf("%s:%d: ", cpp.top().path, cpp.top().lineno)
 	suffix := f
 	if len(args) > 0 {
@@ -285,7 +286,7 @@ func (cpp *Cpp) errorf(f string, args ...interface{}) os.Error {
 // Returns the full line (with escaped newlines
 // removed), the raw line (with escaped newlines
 // intact) and any error that may have occured.
-func (cpp *Cpp) readLine() (string, []byte, os.Error) {
+func (cpp *Cpp) readLine() (string, []byte, error) {
 	line := cpp.line[:0]
 	raw := cpp.raw[:0]
 
@@ -306,7 +307,7 @@ func (cpp *Cpp) readLine() (string, []byte, os.Error) {
 		c, err = cpp.top().in.ReadByte()
 	}
 
-	if len(line) > 0 && err == os.EOF {
+	if len(line) > 0 && err == io.EOF {
 		err = nil
 	}
 
