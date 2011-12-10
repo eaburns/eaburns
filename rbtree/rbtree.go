@@ -21,8 +21,9 @@ type color bool
 
 // Key is the interface for the keys associated with data in the tree.
 type Key interface {
-	// standard c-style compare: 0 is equal, <0 means reciever is
-	// less, >0 means receiver is greater
+	// Compare checks the ordering of two keys.  It returns
+	// <0 if the receiver is less than the argument, >0 if the
+	// receiver is greater and 0 if they are equal.
 	Compare(Key) int
 }
 
