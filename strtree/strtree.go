@@ -26,13 +26,25 @@ func (t tSlice) Len() int {
 // has a prefix that comes before the jth element
 // lexicographically
 func (t tSlice) Less(i, j int) bool {
-	return t[i].prefix < t[j].prefix
+	return t[i].prefix[0] < t[j].prefix[0]
 }
 
 // Swap swaps the ith and jth element of the tSlice
 func (t tSlice) Swap(i, j int) {
 	t[i], t[j] = t[j], t[i]
 } 
+
+// search returns the index for a string in the sorted
+// slice or -1 if there is no index for that string yet.
+func (t tSlice) search(s string) int {
+	n := sort.Search(len(t), func(i int) bool {
+		return t[i].prefix[0] >= s[0]
+	})
+	if n == len(t) || t[n].prefix[0] != s[0] {
+		return -1
+	}
+	return n
+}
 
 // Insert inserts a string into the set
 func (t *T) Insert(s string) {
@@ -44,7 +56,7 @@ func (t *T) Insert(s string) {
 
 	if strings.HasPrefix(s, t.prefix) {
 		s = s[len(t.prefix):]
-		i := index(t.kids, s)
+		i := t.kids.search(s)
 		if i < 0 {
 			t.kids = append(t.kids, T{prefix: s, mem: true})
 			sort.Sort(t.kids)
@@ -98,7 +110,7 @@ func (t *T) Member(s string) bool {
 
 	if strings.HasPrefix(s, t.prefix) {
 		s = s[len(t.prefix):]
-		i := index(t.kids, s)
+		i := t.kids.search(s)
 		if i < 0 {
 			return false
 		}
@@ -106,18 +118,6 @@ func (t *T) Member(s string) bool {
 	}
 
 	return false
-}
-
-// index returns the index for the node that begins with the
-// same letter as the string.  This is the location within the
-// slice into which the string should be placed.
-func index(nodes []T, s string) int {
-	for i := range nodes {
-		if nodes[i].prefix[0] == s[0] {
-			return i
-		}
-	}
-	return -1
 }
 
 // Iterate calls a function on every string in the set in
