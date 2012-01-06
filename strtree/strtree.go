@@ -2,8 +2,8 @@
 package strtree
 
 import (
-	"strings"
 	"sort"
+	"strings"
 )
 
 // A T is the root of a radix tree.  Each T represents a set
@@ -11,39 +11,8 @@ import (
 // The zero-value is ready to use.
 type T struct {
 	prefix string // The string prefix represented by this node
-	kids   tSlice    // Trees containing extensions of this prefix
+	kids   []T    // Trees containing extensions of this prefix
 	mem    bool   // True if this string is in the set, otherwise false
-}
-
-type tSlice []T
-
-// Len returns the number of trees in the tSlice
-func (t tSlice) Len() int {
-	return len(t)
-}
-
-// Less returns true if the ith element of the tSlice
-// has a prefix that comes before the jth element
-// lexicographically
-func (t tSlice) Less(i, j int) bool {
-	return t[i].prefix[0] < t[j].prefix[0]
-}
-
-// Swap swaps the ith and jth element of the tSlice
-func (t tSlice) Swap(i, j int) {
-	t[i], t[j] = t[j], t[i]
-} 
-
-// search returns the index for a string in the sorted
-// slice or -1 if there is no index for that string yet.
-func (t tSlice) search(s string) int {
-	n := sort.Search(len(t), func(i int) bool {
-		return t[i].prefix[0] >= s[0]
-	})
-	if n == len(t) || t[n].prefix[0] != s[0] {
-		return -1
-	}
-	return n
 }
 
 // Insert inserts a string into the set
@@ -56,10 +25,9 @@ func (t *T) Insert(s string) {
 
 	if strings.HasPrefix(s, t.prefix) {
 		s = s[len(t.prefix):]
-		i := t.kids.search(s)
+		i := search(t.kids, s)
 		if i < 0 {
-			t.kids = append(t.kids, T{prefix: s, mem: true})
-			sort.Sort(t.kids)
+			t.kids = insert(t.kids, T{prefix: s, mem: true})
 		} else {
 			t.kids[i].Insert(s)
 		}
@@ -74,8 +42,7 @@ func (t *T) Insert(s string) {
 		t.mem = true
 		return
 	}
-	t.kids = append(t.kids, T{prefix: s[len(c):], mem: true})
-	sort.Sort(t.kids)
+	t.kids = insert(t.kids, T{prefix: s[len(c):], mem: true})
 	t.mem = false
 }
 
@@ -110,7 +77,7 @@ func (t *T) Member(s string) bool {
 
 	if strings.HasPrefix(s, t.prefix) {
 		s = s[len(t.prefix):]
-		i := t.kids.search(s)
+		i := search(t.kids, s)
 		if i < 0 {
 			return false
 		}
@@ -150,4 +117,27 @@ func (t *T) Len() int {
 		n += t.kids[i].Len()
 	}
 	return n
+}
+
+// search returns the index for a string in the sorted
+// slice or -1 if there is no index for that string yet.
+func search(ts []T, s string) int {
+	n := sort.Search(len(ts), func(i int) bool {
+		return ts[i].prefix[0] >= s[0]
+	})
+	if n == len(ts) || ts[n].prefix[0] != s[0] {
+		return -1
+	}
+	return n
+}
+
+// insert inserts a node into the slice in sorted order.
+func insert(ts []T, t T) []T {
+	ts = append(ts, t)
+	i := len(ts) - 1
+	for ; i > 0 && ts[i-1].prefix[0] > t.prefix[0]; i-- {
+		ts[i] = ts[i-1]
+	}
+	ts[i] = t
+	return ts
 }
