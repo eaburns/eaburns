@@ -17,7 +17,7 @@ func (Worker) Execute(cmd *string, _ *struct{}) error {
 	c := exec.Command("/bin/sh", "-c", *cmd)
 	o, err := c.CombinedOutput()
 	if err != nil {
-		log.Printf("[%s] failed output=[%s]: %s\n", cmd, o, err)
+		log.Printf("failed output=[%s]: %s\n", o, err)
 		return errors.New(err.Error() + ": [" + string(o) + "]")
 	}
 
