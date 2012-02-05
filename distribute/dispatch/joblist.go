@@ -87,6 +87,7 @@ func (j *joblist) Go(finished chan<- bool) {
 			case <- j.eof:
 				logfile.Print("joblist: got EOF")
 				j.goteof = true
+				if j.n == 0 { goto done }
 
 			case p := <-j.post:
 				logfile.Printf("joblist: got post [%s]\n", p)
@@ -102,6 +103,7 @@ func (j *joblist) Go(finished chan<- bool) {
 			case <- j.eof:
 				logfile.Print("joblist: got EOF")
 				j.goteof = true
+				if j.n == 0 { goto done }
 
 			case p := <-j.post:
 				logfile.Printf("joblist: got post [%s]\n", p)
