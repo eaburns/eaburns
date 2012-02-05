@@ -41,23 +41,18 @@ func main() {
 	if e != nil {
 		log.Fatal("listen error:", e)
 	}
-	log.Print("serving HTTP on ", l.Addr())
+	log.Print("listening for connections on ", l.Addr())
 
-	if *connect == "" {
-		log.Print("listening for connections")
-		http.Serve(l, nil)
-		return	// unreachable
+	if *connect != "" {
+		log.Printf("calling %s\n", *connect)
+		client, err := rpc.DialHTTP("tcp", *connect)
+		if err != nil {
+			log.Fatalf("failed to connect to %s: %s", *connect, err)
+		}
+		var res struct{}
+		client.Call("WorkerList.Add", l.Addr().String(), &res)
+		client.Close()
 	}
 
-	log.Print("listening for connections")
-	go http.Serve(l, nil)
-	log.Printf("calling %s\n", *connect)
-	client, err := rpc.DialHTTP("tcp", *connect)
-	if err != nil {
-		log.Fatalf("failed to connect to %s: %s", *connect, err)
-	}
-	var res struct{}
-	client.Call("WorkerList.Add", l.Addr().String(), &res)
-	client.Close()
-	<-make(chan bool)	// go to sleep forever
+	http.Serve(l, nil)
 }
