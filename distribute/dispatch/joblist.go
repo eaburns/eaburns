@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"log"
+	"container/list"
 )
 
 var (
@@ -27,7 +28,7 @@ type result struct{
 // joblist stores the different jobs and distributes them to
 // workers upon request.
 type joblist struct{
-	q []string
+	q *list.List
 	n, nok, nfail int
 	goteof bool
 	eof chan bool		// receiving EOF signal from command file
@@ -39,6 +40,7 @@ type joblist struct{
 // newJoblist makes a new joblist
 func newJoblist(finished chan<- bool) *joblist {
 	j := &joblist{
+		q: list.New(),
 		eof: make(chan bool),
 		post: make(chan string),
 		jobs: make(chan string),
@@ -82,7 +84,7 @@ func (j *joblist) repostJob(cmd string) {
 
 func (j *joblist) Go(finished chan<- bool) {
 	for {
-		for len(j.q) == 0 {
+		for j.q.Len() == 0 {
 			select {
 			case <- j.eof:
 				logfile.Print("joblist: got EOF")
@@ -92,13 +94,13 @@ func (j *joblist) Go(finished chan<- bool) {
 			case p := <-j.post:
 				logfile.Printf("joblist: got post [%s]\n", p)
 				j.n++
-				j.q = append(j.q, p)
+				j.q.PushBack(p)
 
 			case p := <-j.done:
 				if j.handleDone(p) { goto done }
 			}
 		}
-		for len(j.q) > 0 {
+		for j.q.Len() > 0 {
 			select {
 			case <- j.eof:
 				logfile.Print("joblist: got EOF")
@@ -108,14 +110,15 @@ func (j *joblist) Go(finished chan<- bool) {
 			case p := <-j.post:
 				logfile.Printf("joblist: got post [%s]\n", p)
 				j.n++
-				j.q = append(j.q, p)
+				j.q.PushBack(p)
 
 			case p := <-j.done:
 				if j.handleDone(p) { goto done }
 
-			case j.jobs <- j.q[len(j.q)-1]:
-				logfile.Printf("joblist: sent [%s]\n", j.q[len(j.q)-1])
-				j.q = j.q[:len(j.q)-1]
+			case j.jobs <- j.q.Front().Value.(string):
+				e := j.q.Front()
+				logfile.Printf("joblist: sent [%s]\n", e.Value.(string))
+				j.q.Remove(e)
 			}
 		
 		}
@@ -144,7 +147,7 @@ func (j *joblist) handleDone(r result) bool {
 
 	case resultRepost:
 		logfile.Printf("joblist: reposted [%s]\n", r.cmd)
-		j.q = append(j.q, r.cmd)
+		j.q.PushBack(r.cmd)
 	}
 
 	if j.goteof && j.n == 0 {
