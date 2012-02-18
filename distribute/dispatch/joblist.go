@@ -84,43 +84,30 @@ func (j *joblist) repostJob(cmd string) {
 
 func (j *joblist) Go(finished chan<- bool) {
 	for {
-		for j.q.Len() == 0 {
-			select {
-			case <- j.eof:
-				logfile.Print("joblist: got EOF")
-				j.goteof = true
-				if j.n == 0 { goto done }
-
-			case p := <-j.post:
-				logfile.Printf("joblist: got post [%s]\n", p)
-				j.n++
-				j.q.PushBack(p)
-
-			case p := <-j.done:
-				if j.handleDone(p) { goto done }
-			}
+		var send chan<- string
+		var front string
+		if j.q.Len() > 0 {
+			send = j.jobs
+			front = j.q.Front().Value.(string)
 		}
-		for j.q.Len() > 0 {
-			select {
-			case <- j.eof:
-				logfile.Print("joblist: got EOF")
-				j.goteof = true
-				if j.n == 0 { goto done }
+		select {
+		case <- j.eof:
+			logfile.Print("joblist: got EOF")
+			j.goteof = true
+			if j.n == 0 { goto done }
 
-			case p := <-j.post:
-				logfile.Printf("joblist: got post [%s]\n", p)
-				j.n++
-				j.q.PushBack(p)
+		case p := <-j.post:
+			logfile.Printf("joblist: got post [%s]\n", p)
+			j.n++
+			j.q.PushBack(p)
 
-			case p := <-j.done:
-				if j.handleDone(p) { goto done }
+		case p := <-j.done:
+			if j.handleDone(p) { goto done }
 
-			case j.jobs <- j.q.Front().Value.(string):
-				e := j.q.Front()
-				logfile.Printf("joblist: sent [%s]\n", e.Value.(string))
-				j.q.Remove(e)
-			}
-		
+		case send <- front:
+			e := j.q.Front()
+			logfile.Printf("joblist: sent [%s]\n", front)
+			j.q.Remove(e)
 		}
 	}
 done:
