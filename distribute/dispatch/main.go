@@ -39,31 +39,16 @@ func postCommands(joblist *joblist) {
 	in := bufio.NewReader(infile)
 	for err == nil {
 		var str string
-		switch str, err = readLine(in); {
+		var prefix bool
+		switch str, prefix, err = in.ReadLine(); {
 		case err != nil && err != io.EOF:
 			logfile.Fatalf("failed to read line from %s: %s\n", *inpath, err)
+		case prefix:
+			logfile.Fatalf("line is too long")
 		case err == nil:
 			joblist.postJob(str)
 		}
 	}
 
 	joblist.eof <- true
-}
-
-// readLine reads a single line from a file.  An error
-// is returned if the read fails.
-func readLine(in *bufio.Reader) (string, error) {
-	buf := make([]byte, 0, 100)
-	data, prefix, err := in.ReadLine()
-	for err == nil && len(data) > 0 && (prefix || data[len(data)-1] == '\\') {
-		if !prefix && data[len(data)-1] == '\\' {
-			data = data[:len(data)-1]
-		}
-		buf = append(buf, data...)
-		data, prefix, err = in.ReadLine()
-	}
-	if err == nil {
-		buf = append(buf, data...)
-	}
-	return string(buf), err
 }
