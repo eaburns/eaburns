@@ -39,11 +39,11 @@ func postCommands(joblist *joblist) {
 	in := bufio.NewReader(infile)
 	for {
 		switch str, prefix, err := in.ReadLine(); {
-		case err != nil && err != io.EOF:
-			logfile.Fatalf("failed to read line from %s: %s\n", *inpath, err)
 		case err == io.EOF:
 			joblist.eof <- true
 			return
+		case err != nil:
+			logfile.Fatalf("failed to read line from %s: %s\n", *inpath, err)
 		case prefix:
 			logfile.Fatalf("line is too long")
 		default:
