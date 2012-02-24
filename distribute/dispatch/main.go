@@ -37,18 +37,18 @@ func postCommands(joblist *joblist) {
 	}
 
 	in := bufio.NewReader(infile)
-	for err == nil {
-		var str string
-		var prefix bool
-		switch str, prefix, err = in.ReadLine(); {
+	for {
+		switch str, prefix, err := in.ReadLine(); {
 		case err != nil && err != io.EOF:
 			logfile.Fatalf("failed to read line from %s: %s\n", *inpath, err)
+		case err == io.EOF:
+			joblist.eof <- true
+			return
 		case prefix:
 			logfile.Fatalf("line is too long")
-		case err == nil:
-			joblist.postJob(str)
+		default:
+			joblist.postJob(string(str))
 		}
 	}
-
-	joblist.eof <- true
+	panic("Unreachable")
 }
