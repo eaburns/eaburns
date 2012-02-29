@@ -46,7 +46,7 @@ func postCommands(joblist *joblist) {
 			logfile.Fatalf("failed to read line from %s: %s\n", *inpath, err)
 		case prefix:
 			logfile.Fatalf("line is too long")
-		default:
+		case len(str) > 0:
 			joblist.postJob(string(str))
 		}
 	}
