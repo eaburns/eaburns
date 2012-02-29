@@ -4,7 +4,6 @@ import (
 	"strings"
 	"strconv"
 	"net"
-	"net/http"
 	"net/rpc"
 	"flag"
 )
@@ -12,17 +11,21 @@ import (
 var port = flag.Int("p", 1235, "The port on which to listen for new workers")
 
 func startWorkers(joblist *joblist) {
-	rpc.Register(&WorkerList{joblist})
-	rpc.HandleHTTP()
-	l, e := net.Listen("tcp", ":" + strconv.Itoa(*port))
-	if e != nil {
-		logfile.Fatal("listen error:", e)
-	}
-	logfile.Print("listening for new workers on ", l.Addr())
-	go http.Serve(l, nil)
-
+	go startListening(joblist)
 	for _, addr := range flag.Args() {
 		go worker(addr, joblist)
+	}
+}
+
+func startListening(joblist *joblist) {
+	rpc.Register(&WorkerList{joblist})
+	l, err := net.Listen("tcp", ":" + strconv.Itoa(*port))
+	if err != nil {
+		logfile.Fatal("listen error:", err)
+	}
+	logfile.Print("listening for new workers on ", l.Addr())
+	for {
+		rpc.Accept(l)
 	}
 }
 
