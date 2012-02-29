@@ -45,12 +45,18 @@ func main() {
 
 	if *connect != "" {
 		log.Printf("calling %s\n", *connect)
-		client, err := rpc.DialHTTP("tcp", *connect)
+		conn, err := net.Dial("tcp", *connect)
 		if err != nil {
-			log.Fatalf("failed to connect to %s: %s", *connect, err)
+			log.Fatalf("failed to connect to %s: %s", *connect, err);
 		}
+		addr, _, err := net.SplitHostPort(conn.LocalAddr().String())
+		if err != nil {
+			log.Fatalf("failed to get the local address: %s", err)
+		}
+		laddr := net.JoinHostPort(addr, strconv.Itoa(*port))
+		client := rpc.NewClient(conn)
 		var res struct{}
-		client.Call("WorkerList.Add", l.Addr().String(), &res)
+		client.Call("WorkerList.Add", laddr, &res)
 		client.Close()
 	}
 
