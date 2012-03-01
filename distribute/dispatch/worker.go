@@ -36,7 +36,7 @@ func (w WorkerList) Add(addr *string, _*struct{}) error {
 func worker(addr string, joblist *joblist) {
 	logfile.Printf("worker %s: started\n", addr);
 
-	client, err := rpc.DialHTTP("tcp", addr)
+	client, err := rpc.Dial("tcp", addr)
 	if err != nil {
 		logfile.Printf("worker %s: %s", addr, err)
 		return
