@@ -2,7 +2,6 @@ package main
 
 import (
 	"net"
-	"net/http"
 	"net/rpc"
 	"os/exec"
 	"errors"
@@ -36,7 +35,6 @@ func main() {
 	flag.Parse()
 
 	rpc.Register(new(Worker))
-	rpc.HandleHTTP()
 	l, e := net.Listen("tcp", ":" + strconv.Itoa(*port))
 	if e != nil {
 		log.Fatal("listen error:", e)
@@ -60,5 +58,5 @@ func main() {
 		client.Close()
 	}
 
-	http.Serve(l, nil)
+	rpc.Accept(l)
 }
