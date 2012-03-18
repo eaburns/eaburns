@@ -31,10 +31,10 @@ func (a *Set) Union(b *Set) {
 	case ap == bp:
 		return
 	case ap.rank < bp.rank:
-		a.parent = b.parent
+		ap.parent = bp
 	default:
-		b.parent = a.parent
-		if a.parent.rank == b.parent.rank {
+		bp.parent = ap
+		if ap.rank == bp.rank {
 			a.rank++
 		}	
 	}
