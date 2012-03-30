@@ -133,4 +133,11 @@ func (img Image) Draw(x, y int) {
 	gl.TexCoord2i(0, 1)
 	gl.Vertex3i(x, y+img.Height, 0)
 	gl.End()
+	img.tex.Unbind(gl.TEXTURE_2D)
+}
+
+// Release releases the resources that were allocated
+// for this image.  The image is then rendered unusable.
+func (img Image) Release() {
+	img.tex.Delete()	
 }

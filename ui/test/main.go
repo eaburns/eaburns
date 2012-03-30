@@ -17,6 +17,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer img.Release()
+
 	fmt.Printf("Loaded the image\n")
 	// Resize the image
 	img.Width, img.Height = 64, 64
