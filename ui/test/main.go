@@ -1,9 +1,9 @@
 package main
 
 import (
-	"os"
-	"fmt"
 	"code.google.com/p/eaburns/ui"
+	"fmt"
+	"os"
 )
 
 func init() {
@@ -13,7 +13,7 @@ func init() {
 func main() {
 	defer ui.Deinit()
 
-	if err := ui.OpenWindow(200,200); err != nil {
+	if err := ui.OpenWindow(200, 200); err != nil {
 		panic(err)
 	}
 
@@ -27,7 +27,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Loaded\n");
+	fmt.Printf("Loaded\n")
 	img.W = 64
 	img.H = 64
 
@@ -35,5 +35,6 @@ func main() {
 	img.Draw(0, 0)
 	ui.Flip()
 
-	for { }
+	for {
+	}
 }
