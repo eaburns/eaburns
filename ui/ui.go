@@ -6,7 +6,7 @@ import (
 	"github.com/jteeuwen/glfw"
 	"image"
 	"image/png"
-	"io"
+	"os"
 )
 
 // Init initializes the user interface.  This must be
@@ -26,14 +26,13 @@ func Deinit() {
 
 // OpenWindow opens a new window with the given size.
 func OpenWindow(w, h int) error {
-	r, g, b := 0, 0, 0     // defaults
-	a := 8                 // 8-bit alpha channel
-	depth, stencil := 0, 0 // no depth or stencil buffers
-	mode := glfw.Windowed
-
 	glfw.OpenWindowHint(glfw.WindowNoResize, 1)
 
-	if err := glfw.OpenWindow(w, h, r, g, b, a, depth, stencil, mode); err != nil {
+	r, g, b := 0, 0, 0 // defaults
+	a := 8             // 8-bit alpha channel
+	d, s := 0, 0       // no depth or stencil buffers
+	m := glfw.Windowed
+	if err := glfw.OpenWindow(w, h, r, g, b, a, d, s, m); err != nil {
 		return err
 	}
 
@@ -74,32 +73,52 @@ type Drawer interface {
 // An Image is a drawable image.
 type Image struct {
 	texId gl.Uint
-	W, H  int
+
+	// Width and Height are the size of the image.
+	// They may be change to modify it's size.
+	Width, Height int
 }
 
-// ReadImage creates a new image by reading a .png from
-// the given io.Reader
-func ReadImage(in io.Reader) (Image, error) {
+// LoadPng loads a image from the given PNG file.
+func LoadPng(file string) (img Image, err error) {
+	i, err := loadPng(file)
+	if err != nil {
+		return
+	}
+
+	img.Width, img.Height = i.Bounds().Dx(), i.Bounds().Dy()
+
+	gl.GenTextures(1, &img.texId)
+	gl.BindTexture(gl.TEXTURE_2D, img.texId)
+	gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+	gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+
+	gl.TexImage2D(gl.TEXTURE_2D, 0, 4, gl.Sizei(img.Width),
+		gl.Sizei(img.Height), 0, gl.RGBA, gl.UNSIGNED_BYTE,
+		gl.Pointer(&i.Pix[0]))
+	return
+}
+
+// loadPng loads an image from a .png file.
+//
+// The image must be a NRGBA image... whatever that means.
+func loadPng(file string) (rgbaImg *image.NRGBA, err error) {
+	in, err := os.Open(file)
+	if err != nil {
+		return
+	}
+	defer in.Close()
+
 	img, err := png.Decode(in)
 	if err != nil {
-		return Image{}, err
+		return
 	}
 
 	rgbaImg, ok := img.(*image.NRGBA)
 	if !ok {
-		return Image{}, errors.New("texture must be an NRGBA image")
+		err = errors.New("texture must be an NRGBA image")
 	}
-	w, h := rgbaImg.Bounds().Dx(), rgbaImg.Bounds().Dy()
-
-	var texId gl.Uint
-	gl.GenTextures(1, &texId)
-	gl.BindTexture(gl.TEXTURE_2D, texId)
-	gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-	gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-	gl.TexImage2D(gl.TEXTURE_2D, 0, 4, gl.Sizei(w), gl.Sizei(h),
-		0, gl.RGBA, gl.UNSIGNED_BYTE, gl.Pointer(&rgbaImg.Pix[0]))
-
-	return Image{texId: texId, W: w, H: h}, nil
+	return
 }
 
 // Draw draws the given image to the open window.
@@ -109,10 +128,10 @@ func (i Image) Draw(x, y int) {
 	gl.TexCoord2i(gl.Int(0), gl.Int(0))
 	gl.Vertex3i(gl.Int(x), gl.Int(y), gl.Int(0))
 	gl.TexCoord2i(gl.Int(1), gl.Int(0))
-	gl.Vertex3i(gl.Int(x+i.W), gl.Int(y), gl.Int(0))
+	gl.Vertex3i(gl.Int(x+i.Width), gl.Int(y), gl.Int(0))
 	gl.TexCoord2i(gl.Int(1), gl.Int(1))
-	gl.Vertex3i(gl.Int(x+i.W), gl.Int(y+i.H), gl.Int(0))
+	gl.Vertex3i(gl.Int(x+i.Width), gl.Int(y+i.Height), gl.Int(0))
 	gl.TexCoord2i(gl.Int(0), gl.Int(1))
-	gl.Vertex3i(gl.Int(x), gl.Int(y+i.H), gl.Int(0))
+	gl.Vertex3i(gl.Int(x), gl.Int(y+i.Height), gl.Int(0))
 	gl.End()
 }
