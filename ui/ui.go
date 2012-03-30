@@ -2,7 +2,7 @@ package ui
 
 import (
 	"errors"
-	gl "github.com/chsc/gogl/gl21"
+	"github.com/banthar/gl"
 	"github.com/jteeuwen/glfw"
 	"image"
 	"image/png"
@@ -36,8 +36,8 @@ func OpenWindow(w, h int) error {
 		return err
 	}
 
-	if err := gl.Init(); err != nil {
-		return err
+	if gl.Init() != 0 {
+		return errors.New("Failed to initialize OpenGL")
 	}
 
 	gl.Enable(gl.TEXTURE_2D)
@@ -46,10 +46,10 @@ func OpenWindow(w, h int) error {
 	gl.ClearColor(0.0, 0.0, 0.0, 0.0)
 	gl.MatrixMode(gl.PROJECTION)
 	gl.LoadIdentity()
-	gl.Ortho(0, gl.Double(w), 0, gl.Double(-h), -1, 1)
+	gl.Ortho(0, float64(w), 0, float64(-h), -1, 1)
 	gl.MatrixMode(gl.MODELVIEW)
 	gl.LoadIdentity()
-	gl.Translated(gl.Double(0), gl.Double(-h), gl.Double(0))
+	gl.Translated(0, float64(-h), 0)
 	return nil
 }
 
@@ -72,7 +72,7 @@ type Drawer interface {
 
 // An Image is a drawable image.
 type Image struct {
-	texId gl.Uint
+	tex gl.Texture
 
 	// Width and Height are the size of the image.
 	// They may be change to modify it's size.
@@ -88,14 +88,13 @@ func LoadPng(file string) (img Image, err error) {
 
 	img.Width, img.Height = i.Bounds().Dx(), i.Bounds().Dy()
 
-	gl.GenTextures(1, &img.texId)
-	gl.BindTexture(gl.TEXTURE_2D, img.texId)
+	img.tex = gl.GenTexture()
+	img.tex.Bind(gl.TEXTURE_2D)
 	gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
 	gl.TexParameterf(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 
-	gl.TexImage2D(gl.TEXTURE_2D, 0, 4, gl.Sizei(img.Width),
-		gl.Sizei(img.Height), 0, gl.RGBA, gl.UNSIGNED_BYTE,
-		gl.Pointer(&i.Pix[0]))
+	gl.TexImage2D(gl.TEXTURE_2D, 0, 4, img.Width, img.Height,
+		0, gl.RGBA, gl.UNSIGNED_BYTE, i.Pix)
 	return
 }
 
@@ -122,16 +121,16 @@ func loadPng(file string) (rgbaImg *image.NRGBA, err error) {
 }
 
 // Draw draws the given image to the open window.
-func (i Image) Draw(x, y int) {
-	gl.BindTexture(gl.TEXTURE_2D, i.texId)
+func (img Image) Draw(x, y int) {
+	img.tex.Bind(gl.TEXTURE_2D)
 	gl.Begin(gl.QUADS)
-	gl.TexCoord2i(gl.Int(0), gl.Int(0))
-	gl.Vertex3i(gl.Int(x), gl.Int(y), gl.Int(0))
-	gl.TexCoord2i(gl.Int(1), gl.Int(0))
-	gl.Vertex3i(gl.Int(x+i.Width), gl.Int(y), gl.Int(0))
-	gl.TexCoord2i(gl.Int(1), gl.Int(1))
-	gl.Vertex3i(gl.Int(x+i.Width), gl.Int(y+i.Height), gl.Int(0))
-	gl.TexCoord2i(gl.Int(0), gl.Int(1))
-	gl.Vertex3i(gl.Int(x), gl.Int(y+i.Height), gl.Int(0))
+	gl.TexCoord2i(0, 0)
+	gl.Vertex3i(x, y, 0)
+	gl.TexCoord2i(1, 0)
+	gl.Vertex3i(x+img.Width, y, 0)
+	gl.TexCoord2i(1, 1)
+	gl.Vertex3i(x+img.Width, y+img.Height, 0)
+	gl.TexCoord2i(0, 1)
+	gl.Vertex3i(x, y+img.Height, 0)
 	gl.End()
 }
