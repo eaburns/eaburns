@@ -11,6 +11,7 @@ import (
 	"image/png"
 	"io/ioutil"
 	"os"
+	"unicode/utf8"
 )
 
 // Init initializes the user interface.  This must be
@@ -170,16 +171,16 @@ func LoadTtf(file string, sz int, c color.Color) (font Font, err error) {
 	return
 }
 
-// Size returns the size of the font in pixels, rounded up.
-func (font Font) size(str string) (int, int) {
-	return len(str) * font.emPx, font.emPx
+// Height returns the height of text in this font in pixels.
+func (font Font) Height() int {
+	return font.emPx
 }
 
 // Render renders the text in the given font and returns an image
 // of the formatted string.
 func (font Font) Render(format string, vls ...interface{}) (img Image, err error) {
 	str := fmt.Sprintf(format, vls...)
-	width, height := font.size(str)
+	width, height := utf8.RuneCountInString(str)*font.emPx, font.emPx
 
 	rgba := image.NewNRGBA(image.Rect(0, 0, width, height))
 	font.ctx.SetDst(rgba)
@@ -195,13 +196,15 @@ func (font Font) Render(format string, vls ...interface{}) (img Image, err error
 	return
 }
 
-// Draw draws text at the given location using the given font.
-func (font Font) Draw(x, y int, format string, vls ...interface{}) error {
+// Draw draws text at the given location using the given font,
+// returning the size of the image that was just drawn.
+func (font Font) Draw(x, y int, format string, vls ...interface{}) (w, h int, err error) {
 	img, err := font.Render(format, vls...)
 	if err != nil {
-		return err
+		return
 	}
 	defer img.Release()
 	img.Draw(x, y)
-	return nil
+	w, h = img.Width, img.Height
+	return
 }
