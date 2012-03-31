@@ -3,13 +3,14 @@ package main
 import (
 	"code.google.com/p/eaburns/ui"
 	"fmt"
+	"image/color"
 )
 
 func main() {
 	ui.Init()
 	defer ui.Deinit()
 
-	if err := ui.OpenWindow(200, 200); err != nil {
+	if err := ui.OpenWindow(640, 480); err != nil {
 		panic(err)
 	}
 
@@ -18,13 +19,18 @@ func main() {
 		panic(err)
 	}
 	defer img.Release()
-
 	fmt.Printf("Loaded the image\n")
-	// Resize the image
-	img.Width, img.Height = 64, 64
+
+	font, err := ui.LoadTtf("prstartk.ttf", 16, color.RGBA{R: 0, G: 255, B: 0, A: 255})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Loaded the font\n")
 
 	ui.Clear()
 	img.Draw(0, 0)
+	font.Draw(200, 10, "Hello")
+	font.Draw(10, 100, "World")
 	ui.Flip()
 
 	for {

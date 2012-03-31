@@ -1,11 +1,15 @@
 package ui
 
 import (
+	"code.google.com/p/freetype-go/freetype"
 	"errors"
+	"fmt"
 	"github.com/banthar/gl"
 	"github.com/jteeuwen/glfw"
 	"image"
+	"image/color"
 	"image/png"
+	"io/ioutil"
 	"os"
 )
 
@@ -42,7 +46,7 @@ func OpenWindow(w, h int) error {
 
 	gl.Enable(gl.TEXTURE_2D)
 	gl.Enable(gl.BLEND)
-	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE)
+	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	gl.ClearColor(0.0, 0.0, 0.0, 0.0)
 	gl.MatrixMode(gl.PROJECTION)
 	gl.LoadIdentity()
@@ -63,13 +67,6 @@ func Clear() {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 }
 
-// A Drawer is something that can draw itself.
-type Drawer interface {
-	// Draw draws a Drawer at the given x, y window
-	// coordinate.
-	Draw(x, y int)
-}
-
 // An Image is a drawable image.
 type Image struct {
 	tex gl.Texture
@@ -79,13 +76,8 @@ type Image struct {
 	Width, Height int
 }
 
-// LoadPng loads a image from the given PNG file.
-func LoadPng(file string) (img Image, err error) {
-	i, err := loadPng(file)
-	if err != nil {
-		return
-	}
-
+// MakeImage makes an image from an image.NRGBA.
+func MakeImage(i *image.NRGBA) (img Image) {
 	img.Width, img.Height = i.Bounds().Dx(), i.Bounds().Dy()
 
 	img.tex = gl.GenTexture()
@@ -96,6 +88,15 @@ func LoadPng(file string) (img Image, err error) {
 	gl.TexImage2D(gl.TEXTURE_2D, 0, 4, img.Width, img.Height,
 		0, gl.RGBA, gl.UNSIGNED_BYTE, i.Pix)
 	return
+}
+
+// LoadPng loads a image from the given PNG file.
+func LoadPng(file string) (Image, error) {
+	img, err := loadPng(file)
+	if err != nil {
+		return Image{}, err
+	}
+	return MakeImage(img), nil
 }
 
 // loadPng loads an image from a .png file.
@@ -139,5 +140,68 @@ func (img Image) Draw(x, y int) {
 // Release releases the resources that were allocated
 // for this image.  The image is then rendered unusable.
 func (img Image) Release() {
-	img.tex.Delete()	
+	img.tex.Delete()
+}
+
+// A Font describes the look of and draw text.
+type Font struct {
+	ctx  *freetype.Context
+	emPx int // An em-box size in pixels
+}
+
+// LoadTtf returns a truetype font loaded from the given file.
+func LoadTtf(file string, sz int, c color.Color) (font Font, err error) {
+	bytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		return
+	}
+
+	fnt, err := freetype.ParseFont(bytes)
+	if err != nil {
+		return
+	}
+
+	font.ctx = freetype.NewContext()
+	font.ctx.SetDPI(72)
+	font.ctx.SetFont(fnt)
+	font.ctx.SetFontSize(float64(sz))
+	font.ctx.SetSrc(image.NewUniform(c))
+	font.emPx = font.ctx.FUnitToPixelRU(fnt.UnitsPerEm())
+	return
+}
+
+// Size returns the size of the font in pixels, rounded up.
+func (font Font) size(str string) (int, int) {
+	return len(str) * font.emPx, font.emPx
+}
+
+// Render renders the text in the given font and returns an image
+// of the formatted string.
+func (font Font) Render(format string, vls ...interface{}) (img Image, err error) {
+	str := fmt.Sprintf(format, vls...)
+	width, height := font.size(str)
+
+	rgba := image.NewNRGBA(image.Rect(0, 0, width, height))
+	font.ctx.SetDst(rgba)
+	font.ctx.SetClip(rgba.Bounds())
+
+	pt := freetype.Pt(0, height)
+	pt, err = font.ctx.DrawString(str, pt)
+	if err != nil {
+		return
+	}
+
+	img = MakeImage(rgba)
+	return
+}
+
+// Draw draws text at the given location using the given font.
+func (font Font) Draw(x, y int, format string, vls ...interface{}) error {
+	img, err := font.Render(format, vls...)
+	if err != nil {
+		return err
+	}
+	defer img.Release()
+	img.Draw(x, y)
+	return nil
 }
