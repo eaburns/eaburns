@@ -27,37 +27,36 @@ func Make(w, f int) Fixed32 {
 }
 
 // Add returns the sum of two Fixed32 numbers.
-func Add(a, b Fixed32) Fixed32 {
+func (a Fixed32) Add(b Fixed32) Fixed32 {
 	return a + b
 }
 
 // Add returns the difference of two Fixed32 numbers.
-func Sub(a, b Fixed32) Fixed32 {
+func (a Fixed32) Sub(b Fixed32) Fixed32 {
 	return a - b
 }
 
 // Mul returns the product of two Fixed32 numbers.
-func Mul(a, b Fixed32) Fixed32 {
+func (a Fixed32) Mul(b Fixed32) Fixed32 {
 	return Fixed32((int64(a) * int64(b)) >> shift)
 }
 
 // Div returns the quotient of two Fixed32 numbers.
-func Div(a, b Fixed32) Fixed32 {
+func (a Fixed32) Div(b Fixed32) Fixed32 {
 	return Fixed32((int64(a) / int64(b)) << shift)
-
 }
 
 // Mod returns the remainder when dividing two Fixed32 numbers.
-func Mod(a, b Fixed32) Fixed32 {
+func (a Fixed32) Mod(b Fixed32) Fixed32 {
 	return a % b
 }
 
 // Whole returns the whole portion of the Fixed32 number.
-func Whole(a Fixed32) int {
+func (a Fixed32) Whole() int {
 	return int(a >> shift)
 }
 
 // Frac returns the fractional portion of teh Fixed32 number.
-func Frac(a Fixed32) float32 {
+func (a Fixed32) Frac() float32 {
 	return float32(a & 0xFF) / float32(1 << shift)
 }
