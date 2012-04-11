@@ -5,9 +5,9 @@
 package rbtree
 
 import (
-	"testing"
-	"math/rand"
 	"container/list"
+	"math/rand"
+	"testing"
 	"time"
 )
 
@@ -17,7 +17,7 @@ const nAdds = 100000
 // Insert then remove a bunch of random numbers... not a great way to
 // test.
 func TestAddRemove(t *testing.T) {
-	rand.Seed(time.Nanoseconds())
+	rand.Seed(int64(time.Now().Nanosecond()))
 	tree := New()
 	lst := list.New()
 	for i := 0; i < nAdds; i += 1 {
@@ -46,7 +46,7 @@ func TestAddRemove(t *testing.T) {
 }
 
 func randomTree() *RbTree {
-	rand.Seed(time.Nanoseconds())
+	rand.Seed(int64(time.Now().Nanosecond()))
 	tree := New()
 	lst := list.New()
 	for i := 0; i < nAdds; i += 1 {

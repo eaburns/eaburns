@@ -5,13 +5,13 @@
 package rbtree
 
 import (
-	"testing"
 	"math/rand"
+	"testing"
 	"time"
 )
 
 func randomInts(b *testing.B) []int {
-	rand.Seed(time.Nanoseconds())
+	rand.Seed(int64(time.Now().Nanosecond()))
 	ints := make([]int, b.N)
 	for i := 0; i < b.N; i += 1 {
 		k := rand.Int()
@@ -62,7 +62,7 @@ func BenchmarkRemoveNode(b *testing.B) {
 func BenchmarkInsert(b *testing.B) {
 	tree := New()
 	for i := 0; i < b.N; i++ {
-		tree.Replace(intKey(b.N - i), b.N - i)
+		tree.Replace(intKey(b.N-i), b.N-i)
 	}
 }
 
@@ -70,11 +70,10 @@ func BenchmarkDelete(b *testing.B) {
 	b.StopTimer()
 	tree := New()
 	for i := 0; i < b.N; i++ {
-		tree.Replace(intKey(b.N - i), b.N - i)
+		tree.Replace(intKey(b.N-i), b.N-i)
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		tree.Remove(intKey(i))
 	}
 }
-
