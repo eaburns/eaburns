@@ -1,6 +1,5 @@
 // The safeint package provides arithmetic operations on integers
 // that are safe with respect to overflow and underflow.
-
 package safeint
 
 const (
