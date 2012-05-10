@@ -14,9 +14,9 @@ const (
 // value is +1 for overflow, -1 for underflow and 0 otherwise.
 func Add(a, b int) (int, int) {
 	carry := 0
-	if a > 0 && b > 0 && MaxInt - b < a {
+	if a > 0 && b > 0 && MaxInt-b < a {
 		carry = 1
-	} else if a < 0 && b < 0 && MinInt - b > a {
+	} else if a < 0 && b < 0 && MinInt-b > a {
 		carry = -1
 	}
 	return a + b, carry
@@ -32,9 +32,9 @@ func MustAdd(a, b int) int {
 // value is +1 for overflow, -1 for underflow and 0 otherwise.
 func Sub(a, b int) (int, int) {
 	carry := 0
-	if a > 0 && b < 0 && MaxInt + b < a {
+	if a > 0 && b < 0 && MaxInt+b < a {
 		carry = 1
-	} else if a < 0 && b > 0 && MinInt + b > a {
+	} else if a < 0 && b > 0 && MinInt+b > a {
 		carry = -1
 	}
 	return a - b, carry
@@ -62,7 +62,7 @@ func Mul(a, b int) (int, int) {
 			carry = 1
 		}
 	}
-	return a*b, carry
+	return a * b, carry
 }
 
 // MustMul returns the product of the two integers and panics
@@ -78,7 +78,7 @@ func Div(a, b int) (int, int) {
 	if b == 0 || (a == MinInt && b == -1) {
 		carry = 1
 	}
-	return a/b, carry
+	return a / b, carry
 }
 
 // MustDiv returns the quotient of the two integers and panics
@@ -94,7 +94,7 @@ func must(oper func(int, int) (int, int), a, b int) int {
 	case carry == 0:
 		return r
 	case carry < 0:
-		panic("Underflow");
+		panic("Underflow")
 	}
-	panic("Overflow");
+	panic("Overflow")
 }

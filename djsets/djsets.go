@@ -3,9 +3,9 @@ package djsets
 
 // Set is a single disjoint set.  Its zero
 // value is ready for use.
-type Set struct{
+type Set struct {
 	parent *Set
-	rank int
+	rank   int
 
 	// Aux is a field that is free for
 	// use by the user of this library.
@@ -14,7 +14,7 @@ type Set struct{
 
 // Find returns a pointer the canonical Set
 // that this Set is contained in.
-func (s *Set) Find() *Set{
+func (s *Set) Find() *Set {
 	if s.parent == s || s.parent == nil {
 		s.parent = s
 		return s
@@ -36,6 +36,6 @@ func (a *Set) Union(b *Set) {
 		bp.parent = ap
 		if ap.rank == bp.rank {
 			a.rank++
-		}	
+		}
 	}
 }

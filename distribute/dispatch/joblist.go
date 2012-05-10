@@ -1,14 +1,14 @@
 package main
 
 import (
-	"os"
-	"log"
 	"container/list"
+	"log"
+	"os"
 )
 
 var (
 	faillog = logger("fail.log")
-	oklog = logger("ok.log")
+	oklog   = logger("ok.log")
 )
 
 const (
@@ -19,29 +19,29 @@ const (
 
 // result is the result of a job that a worker may pass back
 // to the job list.
-type result struct{
+type result struct {
 	status int
-	cmd string
+	cmd    string
 	output string
 }
 
 // joblist stores the different jobs and distributes them to
 // workers upon request.
-type joblist struct{
-	q *list.List
+type joblist struct {
+	q             *list.List
 	n, nok, nfail int
-	goteof bool
-	eof chan bool		// receiving EOF signal from command file
-	post chan string	// receiving posted jobs
-	jobs chan string	// sending jobs to workers
-	done chan result	// receiving jobs completions
+	goteof        bool
+	eof           chan bool   // receiving EOF signal from command file
+	post          chan string // receiving posted jobs
+	jobs          chan string // sending jobs to workers
+	done          chan result // receiving jobs completions
 }
 
 // newJoblist makes a new joblist
 func newJoblist(finished chan<- bool) *joblist {
 	j := &joblist{
-		q: list.New(),
-		eof: make(chan bool),
+		q:    list.New(),
+		eof:  make(chan bool),
 		post: make(chan string),
 		jobs: make(chan string),
 		done: make(chan result),
@@ -59,7 +59,7 @@ func (j *joblist) postJob(cmd string) {
 func (j *joblist) failJob(cmd string, output string) {
 	j.done <- result{
 		status: resultFail,
-		cmd: cmd,
+		cmd:    cmd,
 		output: string(output),
 	}
 }
@@ -69,7 +69,7 @@ func (j *joblist) failJob(cmd string, output string) {
 func (j *joblist) finishJob(cmd string) {
 	j.done <- result{
 		status: resultOk,
-		cmd: cmd,
+		cmd:    cmd,
 	}
 }
 
@@ -78,7 +78,7 @@ func (j *joblist) finishJob(cmd string) {
 func (j *joblist) repostJob(cmd string) {
 	j.done <- result{
 		status: resultRepost,
-		cmd: cmd,
+		cmd:    cmd,
 	}
 }
 
@@ -91,10 +91,12 @@ func (j *joblist) Go(finished chan<- bool) {
 			front = j.q.Front().Value.(string)
 		}
 		select {
-		case <- j.eof:
+		case <-j.eof:
 			logfile.Print("joblist: got EOF")
 			j.goteof = true
-			if j.n == 0 { goto done }
+			if j.n == 0 {
+				goto done
+			}
 
 		case p := <-j.post:
 			logfile.Printf("joblist: got post [%s]\n", p)
@@ -102,7 +104,9 @@ func (j *joblist) Go(finished chan<- bool) {
 			j.q.PushBack(p)
 
 		case p := <-j.done:
-			if j.handleDone(p) { goto done }
+			if j.handleDone(p) {
+				goto done
+			}
 
 		case send <- front:
 			e := j.q.Front()
