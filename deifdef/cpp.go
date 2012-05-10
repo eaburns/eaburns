@@ -2,8 +2,8 @@ package main
 
 import (
 	"bufio"
-	"io"
 	"fmt"
+	"io"
 )
 
 const (
@@ -12,20 +12,20 @@ const (
 
 type cpp struct {
 	lineno int
-	in  *bufio.Reader
-	out *bufio.Writer
+	in     *bufio.Reader
+	out    *bufio.Writer
 
 	nifs int
-	ifs [Stksz]bool
+	ifs  [Stksz]bool
 }
 
 func mk(in *bufio.Reader, out *bufio.Writer) cpp {
 	return cpp{
-	in: in,
-	out: out,
-	nifs: 1,
-	ifs: [Stksz]bool{0: true},
-	};
+		in:   in,
+		out:  out,
+		nifs: 1,
+		ifs:  [Stksz]bool{0: true},
+	}
 }
 
 func (c *cpp) preproc() {

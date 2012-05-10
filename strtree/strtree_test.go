@@ -1,10 +1,10 @@
 package strtree
 
 import (
-	"testing"
-	"os"
-	"io"
 	"bufio"
+	"io"
+	"os"
+	"testing"
 )
 
 // TestCommonPrefixFunc tests the commonPrefix function
@@ -265,7 +265,7 @@ func TestIterate(t *testing.T) {
 	}
 
 	n := 0
-	last := ""	// not in the list so less than all.
+	last := "" // not in the list so less than all.
 	tree.Iterate(func(s string) {
 		if last >= s {
 			t.Fatalf("[%s] came before [%s]\n", last, s)
@@ -282,7 +282,7 @@ func TestIterate(t *testing.T) {
 func TestLen(t *testing.T) {
 	tests := [...][]string{
 		{},
-		{ "a", "b", "c"},
+		{"a", "b", "c"},
 		{
 			"rubens",
 			"rubicon",

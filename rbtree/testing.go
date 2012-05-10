@@ -5,8 +5,8 @@
 package rbtree
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func emptyNode() *Node {
@@ -16,7 +16,6 @@ func emptyNode() *Node {
 	n.parent = &nilNode
 	return n
 }
-
 
 type intKey int
 
@@ -108,8 +107,8 @@ func dump(lvl int, n *Node) {
 		color = "red"
 	}
 	fmt.Printf("%v, %s\n", n.Key, color)
-	dump(lvl + 1, n.left)
-	dump(lvl + 1, n.right)
+	dump(lvl+1, n.left)
+	dump(lvl+1, n.right)
 }
 
 func reflect(n *Node) *Node {
@@ -132,15 +131,15 @@ func followPath(i int, s string, n *Node, reflect bool) *Node {
 	}
 	if s[i] == 'l' {
 		if reflect {
-			return followPath(i + 1, s, n.right, reflect)
+			return followPath(i+1, s, n.right, reflect)
 		} else {
-			return followPath(i + 1, s, n.left, reflect)
+			return followPath(i+1, s, n.left, reflect)
 		}
 	} else if s[i] == 'r' {
 		if reflect {
-			return followPath(i + 1, s, n.left, reflect)
+			return followPath(i+1, s, n.left, reflect)
 		} else {
-			return followPath(i + 1, s, n.right, reflect)
+			return followPath(i+1, s, n.right, reflect)
 		}
 	}
 	return nil

@@ -1,40 +1,40 @@
 package main
 
 import (
-	"strings"
-	"strconv"
+	"flag"
 	"net"
 	"net/rpc"
-	"flag"
+	"strconv"
+	"strings"
 )
 
 var port = flag.Int("p", 1235, "The port on which to listen for new workers")
 
 func startWorkers(joblist *joblist) {
 	rpc.Register(&WorkerList{joblist})
-	l, err := net.Listen("tcp", ":" + strconv.Itoa(*port))
+	l, err := net.Listen("tcp", ":"+strconv.Itoa(*port))
 	if err != nil {
 		logfile.Fatal("listen error:", err)
 	}
 	logfile.Print("listening for new workers on ", l.Addr())
-	go rpc.Accept(l);
+	go rpc.Accept(l)
 
 	for _, addr := range flag.Args() {
 		go worker(addr, joblist)
 	}
 }
 
-type WorkerList struct{
+type WorkerList struct {
 	joblist *joblist
 }
 
-func (w WorkerList) Add(addr *string, _*struct{}) error {
+func (w WorkerList) Add(addr *string, _ *struct{}) error {
 	go worker(*addr, w.joblist)
 	return nil
 }
 
 func worker(addr string, joblist *joblist) {
-	logfile.Printf("worker %s: started\n", addr);
+	logfile.Printf("worker %s: started\n", addr)
 
 	client, err := rpc.Dial("tcp", addr)
 	if err != nil {

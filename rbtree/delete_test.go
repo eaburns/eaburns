@@ -24,7 +24,7 @@ func blk(d int) *Node {
 	if d == 1 {
 		return &nilNode
 	}
-	return s("blk", black, blk(d - 1), blk(d - 1))
+	return s("blk", black, blk(d-1), blk(d-1))
 }
 
 func TestDeleteSingleton(t *testing.T) {
@@ -45,16 +45,16 @@ func TestDeleteSingleton(t *testing.T) {
 
 func runTestCase4(t *testing.T, c_prime color, right bool) {
 	tree := New()
-	c := black		// can't test red because this is the root
+	c := black // can't test red because this is the root
 	c_blk_depth := 1
 	if c_prime == red {
 		c_blk_depth = 2
 	}
 	tree.root = s("b", c,
-                      s("a", black, blk(1), blk(1)),
-                      s("d", black, s("c", c_prime,
-                                      blk(c_blk_depth), blk(c_blk_depth)),
-                                    s("e", red, blk(2), blk(2))))
+		s("a", black, blk(1), blk(1)),
+		s("d", black, s("c", c_prime,
+			blk(c_blk_depth), blk(c_blk_depth)),
+			s("e", red, blk(2), blk(2))))
 	if right {
 		tree.root = reflect(tree.root)
 	}
@@ -94,9 +94,9 @@ func TestDeleteCase4(t *testing.T) {
 func runTestCase3(t *testing.T, right bool) {
 	tree := New()
 	tree.root = s("b", black,
-                      s("a", black, blk(1), blk(1)),
-                      s("d", black, s("c", red, blk(2), blk(2)),
-                                    s("e", black, blk(1), blk(1))))
+		s("a", black, blk(1), blk(1)),
+		s("d", black, s("c", red, blk(2), blk(2)),
+			s("e", black, blk(1), blk(1))))
 	if right {
 		tree.root = reflect(tree.root)
 	}
@@ -108,16 +108,16 @@ func runTestCase3(t *testing.T, right bool) {
 	if path("", tree, right).Value.(string) != "c" {
 		t.Errorf("Root is not c")
 	}
-	if path("l", tree,right).Value.(string) != "b" {
+	if path("l", tree, right).Value.(string) != "b" {
 		t.Errorf("c left is not b")
 	}
-	if path("r", tree,right).Value.(string) != "d" {
+	if path("r", tree, right).Value.(string) != "d" {
 		t.Errorf("c right is not d")
 	}
-	if path("rr", tree,right).Value.(string) != "e" {
+	if path("rr", tree, right).Value.(string) != "e" {
 		t.Errorf("d right is not e")
 	}
-	if path("ll", tree,right).Value.(string) != "a" {
+	if path("ll", tree, right).Value.(string) != "a" {
 		t.Errorf("b right is not a")
 	}
 	ensureInvariants(t, tree)

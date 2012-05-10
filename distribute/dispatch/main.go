@@ -1,16 +1,16 @@
 package main
 
 import (
-	"log"
-	"os"
-	"io"
 	"bufio"
 	"flag"
+	"io"
+	"log"
+	"os"
 )
 
 var (
 	logfile = log.New(os.Stderr, "", log.LstdFlags)
-	inpath = flag.String("cmdfile", "cmds", "The command file")
+	inpath  = flag.String("cmdfile", "cmds", "The command file")
 )
 
 func main() {
@@ -25,7 +25,7 @@ func main() {
 	<-finished
 	logfile.Printf("%d jobs succeeded\n", joblist.nok)
 	logfile.Printf("%d jobs failed\n", joblist.nfail)
-	logfile.Printf("%d jobs completed\n", joblist.nok + joblist.nfail)
+	logfile.Printf("%d jobs completed\n", joblist.nok+joblist.nfail)
 }
 
 // postCommands reads the command file and posts

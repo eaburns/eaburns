@@ -78,7 +78,6 @@ func TestRightRotateRoot(t *testing.T) {
 	}
 }
 
-
 // Example from CLRS ed 3 Figure 13.2
 func TestLeftRotateInternal(t *testing.T) {
 	tree := New()

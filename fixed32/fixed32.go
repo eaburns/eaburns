@@ -2,7 +2,6 @@
 // 24 bits for the whole part and 8 bits for the fractional part.
 package fixed32
 
-
 // A Fixed32 is a 32-bit fixed-point value with 24 bits for the
 // whole part and 8 bits for the fractional part.
 type Fixed32 int32
@@ -23,7 +22,7 @@ const (
 // represents the whole part and the second is the fracitonal
 // part.
 func Make(w, f int) Fixed32 {
-	return Fixed32(w << shift + f)
+	return Fixed32(w<<shift + f)
 }
 
 // Add returns the sum of two Fixed32 numbers.
@@ -58,5 +57,5 @@ func (a Fixed32) Whole() int {
 
 // Frac returns the fractional portion of teh Fixed32 number.
 func (a Fixed32) Frac() float32 {
-	return float32(a & 0xFF) / float32(1 << shift)
+	return float32(a&0xFF) / float32(1<<shift)
 }
