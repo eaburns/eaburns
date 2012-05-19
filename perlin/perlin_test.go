@@ -2,8 +2,8 @@ package perlin
 
 import (
 	"testing"
-	"time"
 	"testing/quick"
+	"time"
 )
 
 // TestSavePng tests saving to a PNG file.
@@ -50,4 +50,3 @@ func TestSmoothedNoise2d(t *testing.T) {
 		t.Error(err)
 	}
 }
-
