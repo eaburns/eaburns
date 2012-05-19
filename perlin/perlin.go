@@ -1,7 +1,7 @@
 // The perlin package has routines for generating and viewing
 // Perlin noise functions.
-// The implementation is based off of the one described here:
-// 	http://freespace.virgin.net/hugo.elias/models/m_perlin.htm
+// The implementation is based off of the one described at
+// http://freespace.virgin.net/hugo.elias/models/m_perlin.htm
 // with some modifications.
 package perlin
 
