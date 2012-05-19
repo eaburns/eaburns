@@ -76,6 +76,7 @@ func (n *NoiseImage) ColorModel() color.Model {
 	return color.GrayModel
 }
 
+// SavePng saves the noise to a PNG file.
 func (n *NoiseImage) SavePng(path string) error {
 	f, err := os.Create(path)
 	if err != nil {
