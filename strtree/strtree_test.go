@@ -1,6 +1,9 @@
 package strtree
 
 import (
+	"bufio"
+	"io"
+	"os"
 	"testing"
 )
 
@@ -262,7 +265,7 @@ func TestIterate(t *testing.T) {
 	}
 
 	n := 0
-	last := ""	// not in the list so less than all.
+	last := "" // not in the list so less than all.
 	tree.Iterate(func(s string) {
 		if last >= s {
 			t.Fatalf("[%s] came before [%s]\n", last, s)
@@ -279,7 +282,7 @@ func TestIterate(t *testing.T) {
 func TestLen(t *testing.T) {
 	tests := [...][]string{
 		{},
-		{ "a", "b", "c"},
+		{"a", "b", "c"},
 		{
 			"rubens",
 			"rubicon",
@@ -299,6 +302,43 @@ func TestLen(t *testing.T) {
 		l := tree.Len()
 		if l != len(test) {
 			t.Errorf("Expected a length of %d, got %d", len(test), l)
+		}
+	}
+}
+
+func TestInsertAlot(t *testing.T) {
+	const dict = "/usr/share/dict/american-english-huge"
+	f, err := os.Open(dict)
+	if err != nil {
+		if os.IsNotExist(err) {
+			t.Logf("%s does not exist", dict)
+			return
+		}
+		t.Fatal(err)
+	}
+	in := bufio.NewReader(f)
+
+	var tree T
+	var words []string
+	for {
+		bytes, prefix, err := in.ReadLine()
+		if prefix {
+			t.Fatal("Dictionary line is too long")
+		}
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+		word := string(bytes)
+		words = append(words, word)
+		tree.Insert(word)
+	}
+
+	for _, w := range words {
+		if !tree.Member(w) {
+			t.Fatal(w + " is not a member of the tree")
 		}
 	}
 }
