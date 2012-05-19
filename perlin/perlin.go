@@ -52,7 +52,7 @@ func (n *Noise2d) At(x, y float64) float64 {
 }
 
 // A NoiseImage implements the image.Image interface using
-// the given Perlin noise function.
+// a Perlin noise function.
 type NoiseImage Noise2d
 
 func (n *NoiseImage) At(x, y int) color.Color {
