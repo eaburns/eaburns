@@ -1,0 +1,15 @@
+* Instead of panicing everywhere, wrap it in a function or something.
+
+* Command-line opt -I<incl dir>
+
+* Arithmetic for #if statements.  I think this is necessary, but not
+  quite sure.
+
+* Handle system includes.  Currently, I am afraid of the things that
+  GNU may do in their include files.
+
+* Actually read the cpp spec.  Currently, I just kind of guessed on
+  things and tested against GCC a bit.
+
+* Don't bomb out if there are extra tokens at the end of a line when
+  those tokens are a comment
