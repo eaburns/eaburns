@@ -42,16 +42,16 @@ func TestInsertCasesLeft(t *testing.T) {
 	tree := New()
 	tree.root =
 		n(11, black,
-                  n(2, red,
-                    n(1, black, &nilNode, &nilNode),
-                    n(7, black,
-                      n(5, red,
-                        n(4, red, &nilNode, &nilNode),
-                        &nilNode),
-                      n(8, red, &nilNode, &nilNode))),
-                  n(14, black,
-                    &nilNode,
-                    n(15, red, &nilNode, &nilNode)))
+			n(2, red,
+				n(1, black, &nilNode, &nilNode),
+				n(7, black,
+					n(5, red,
+						n(4, red, &nilNode, &nilNode),
+						&nilNode),
+					n(8, red, &nilNode, &nilNode))),
+			n(14, black,
+				&nilNode,
+				n(15, red, &nilNode, &nilNode)))
 	z := tree.root.left.right.left.left
 	if z.Value.(int) != 4 {
 		t.Fatalf("Node 'z' is not value 4")
@@ -93,16 +93,16 @@ func TestInsertCasesRight(t *testing.T) {
 	tree := New()
 	tree.root =
 		n(11, black,
-		  n(2, black,
-                    n(1, red, &nilNode, &nilNode),
-                    &nilNode),
-	          n(16, red,
-                    n(13, black,
-                      n(12, red, &nilNode, &nilNode),
-                      n(14, red,
-                        &nilNode,
-                        n(15, red, &nilNode, &nilNode))),
-                    n(17, black, &nilNode, &nilNode)))
+			n(2, black,
+				n(1, red, &nilNode, &nilNode),
+				&nilNode),
+			n(16, red,
+				n(13, black,
+					n(12, red, &nilNode, &nilNode),
+					n(14, red,
+						&nilNode,
+						n(15, red, &nilNode, &nilNode))),
+				n(17, black, &nilNode, &nilNode)))
 	z := tree.root.right.left.right.right
 	if z.Value.(int) != 15 {
 		t.Fatalf("z value is not 15")

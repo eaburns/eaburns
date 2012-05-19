@@ -1,8 +1,8 @@
 package main
 
 import (
-	"regexp"
 	"fmt"
+	"regexp"
 	"strconv"
 )
 
@@ -37,7 +37,7 @@ const (
 )
 
 var (
-	lineno = 0;
+	lineno = 0
 
 	tokstr = map[ttype]string{
 		tokIf:     "#if",
@@ -64,7 +64,7 @@ var (
 		tokGt:     ">",
 	}
 
-	directives = map[string]ttype {
+	directives = map[string]ttype{
 		"if":      tokIf,
 		"ifdef":   tokIfdef,
 		"ifndef":  tokIfndef,
@@ -75,8 +75,8 @@ var (
 		"include": tokInc,
 	}
 
-	keywords = map[string]ttype {
-		"defined":  tokDefed,
+	keywords = map[string]ttype{
+		"defined": tokDefed,
 	}
 
 	opers = map[string]ttype{
@@ -138,7 +138,7 @@ func scan(line []byte) []token {
 				toks = append(toks, token{tokId, s})
 			}
 			line = line[len(id):len(line)]
-			if define && len(chompspace(line)) > 0  {
+			if define && len(chompspace(line)) > 0 {
 				// just grab the rest of the line for a define
 				toks = append(toks, token{tokId, string(chompspace(line))})
 				line = []byte{}
@@ -425,4 +425,3 @@ func expect(toks []token, t ttype) (token, []token) {
 	}
 	return toks[0], toks[1:len(toks)]
 }
-

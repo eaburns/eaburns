@@ -1,18 +1,18 @@
 package main
 
 import (
+	"errors"
+	"flag"
+	"log"
 	"net"
 	"net/rpc"
 	"os/exec"
-	"errors"
 	"strconv"
-	"log"
-	"flag"
 )
 
 var (
 	connect = flag.String("c", "", "Address of the manager to connect to")
-	port = flag.Int("p", 1234, "The port on which to listen")
+	port    = flag.Int("p", 1234, "The port on which to listen")
 )
 
 type Worker struct{}
@@ -35,7 +35,7 @@ func main() {
 	flag.Parse()
 
 	rpc.Register(new(Worker))
-	l, e := net.Listen("tcp", ":" + strconv.Itoa(*port))
+	l, e := net.Listen("tcp", ":"+strconv.Itoa(*port))
 	if e != nil {
 		log.Fatal("listen error:", e)
 	}
@@ -45,7 +45,7 @@ func main() {
 		log.Printf("calling %s\n", *connect)
 		conn, err := net.Dial("tcp", *connect)
 		if err != nil {
-			log.Fatalf("failed to connect to %s: %s", *connect, err);
+			log.Fatalf("failed to connect to %s: %s", *connect, err)
 		}
 		addr, _, err := net.SplitHostPort(conn.LocalAddr().String())
 		if err != nil {

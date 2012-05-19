@@ -5,13 +5,13 @@
 package cpp
 
 import (
-	"io"
-	"os"
-	"fmt"
-	"log"
 	"bufio"
-	"strings"
+	"fmt"
+	"io"
+	"log"
+	"os"
 	"path/filepath"
+	"strings"
 )
 
 const whiteSpace = " \t"

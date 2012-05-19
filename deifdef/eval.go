@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
-	"strconv"
-	"os"
 	"bufio"
+	"fmt"
+	"os"
 	"path/filepath"
+	"strconv"
 )
 
 func (c *cpp) proc(line []byte) (output bool) {
@@ -78,12 +78,12 @@ func (c *cpp) eval(n *nd) {
 func (c *cpp) evalInc(n *nd) {
 	s := c.evalStr(n.left)
 	if s[0] == '<' {
-		return		// ignore system includes
+		return // ignore system includes
 	}
-	dir, fname := filepath.Split(s[1 : len(s) - 1])
+	dir, fname := filepath.Split(s[1 : len(s)-1])
 	popdir := pushdir(dir)
 	f, err := os.Open(fname)
-	defer func () { f.Close() } ()
+	defer func() { f.Close() }()
 	if err != nil {
 		panic(fmt.Sprintf("line %d: %s", c.lineno, err))
 	}
@@ -94,7 +94,7 @@ func (c *cpp) evalInc(n *nd) {
 
 // Changes to the new directory and returns a function that pops back
 // to the previsou directory.
-func pushdir(newdir string) (func ()) {
+func pushdir(newdir string) func() {
 	curdir, err := os.Getwd()
 	if err != nil {
 		panic("Failed to get current directory")
@@ -102,7 +102,7 @@ func pushdir(newdir string) (func ()) {
 	if newdir != "" {
 		os.Chdir(newdir)
 	}
-	return func () {
+	return func() {
 		if newdir == "" {
 			return
 		}
