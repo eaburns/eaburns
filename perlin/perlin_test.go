@@ -8,8 +8,8 @@ import (
 
 // TestSavePng tests saving to a PNG file.
 func TestSavePng(t *testing.T) {
-	n := New(0.001, 0.02, 1, time.Now().UnixNano())
-	if err := (*NoiseImage)(n).SavePng("test.png"); err != nil {
+	n := Make(0.001, 0.02, 1, time.Now().UnixNano(), nil)
+	if err := NoiseImage(n).SavePng("test.png"); err != nil {
 		t.Error(err)
 	}
 }
@@ -41,9 +41,8 @@ func TestNoise2d(t *testing.T) {
 // TestSmoothNoise2d checks that the smoothNoise2d function
 // never returns a value out of its supposid range of 0 and 1.
 func TestSmoothedNoise2d(t *testing.T) {
-	n := New(0, 0, 0, 0)
 	f := func(x, y int) bool {
-		z := n.smooth2d(x, y)
+		z := smooth2d(x, y, 0)
 		return z <= 1.0 && z >= 0.0
 	}
 	if err := quick.Check(f, &quick.Config{MaxCount: 10000}); err != nil {

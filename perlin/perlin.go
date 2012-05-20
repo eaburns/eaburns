@@ -14,99 +14,45 @@ import (
 )
 
 // Noise2d defines the parameters for a 2D Perlin noise function.
-type Noise2d struct {
-	Persistance, Scale float64
-	Octaves            int
-	Seed               int64
-	Interp             func(a, b, x float64) float64
-	Noise              func(int, int, int64) float64
-}
+type Noise2d func(x, y float64) float64
 
-// New returns a new Perlin noise function with the given
+// Make returns a Perlin noise function with the given
 // parameters: persistance, scale, number of octaves, and seed.
-// The default uses cosine interpolation.
-func New(persist, scale float64, noct int, seed int64) *Noise2d {
-	return &Noise2d{
-		Persistance: persist,
-		Scale:       scale,
-		Octaves:     noct,
-		Seed:        seed,
-		Interp:      CosInterp,
-		Noise:       noise2d,
+// If interp is nil then cosine interpolation is used.
+func Make(per, scale float64, n int, seed int64, interp func(a, b, x float64)float64) Noise2d {
+	if interp == nil {
+		interp = CosInterp
 	}
-}
-
-// At returns the Perlin noise value at coordinate x,y
-func (n *Noise2d) At(x, y float64) float64 {
-	x *= n.Scale
-	y *= n.Scale
-	tot := 0.0
-	freq := 1.0
-	amp := 1.0
-	for i := 0; i < n.Octaves; i++ {
-		tot += n.interp2d(x*freq, y*freq) * amp
-		amp *= n.Persistance
-		freq *= 2
+	return func(x, y float64) float64 {
+		x *= scale
+		y *= scale
+		tot := 0.0
+		freq := 1.0
+		amp := 1.0
+		for i := 0; i < n; i++ {
+			tot += interp2d(x*freq, y*freq, seed, interp) * amp
+			amp *= per
+			freq *= 2
+		}
+		return tot
 	}
-	return tot
-}
-
-// A NoiseImage implements the image.Image interface using
-// a Perlin noise function.
-type NoiseImage Noise2d
-
-func (n *NoiseImage) At(x, y int) color.Color {
-	noise := (*Noise2d)(n)
-	f := noise.At(float64(x), float64(y))
-	switch {
-	case f > 1:
-		f = 1
-	case f < 0:
-		f = 0
-	}
-	return color.Gray{Y: uint8(255 * f)}
-}
-
-// Bounds returns the bounds on the image.
-func (n *NoiseImage) Bounds() image.Rectangle {
-	return image.Rect(0, 0, 500, 500)
-}
-
-// ColorModel returns the image's color model.
-func (n *NoiseImage) ColorModel() color.Model {
-	return color.GrayModel
-}
-
-// SavePng saves the noise to a PNG file.
-func (n *NoiseImage) SavePng(path string) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	if err := png.Encode(f, n); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // interp2d returns noise for x,y interpolated from
 // the given 2D noise function.
-func (n *Noise2d) interp2d(x, y float64) float64 {
+func interp2d(x, y float64, seed int64, interp func(a, b, x float64) float64) float64 {
 	intx, fracx := int(x), x-math.Trunc(x)
 	inty, fracy := int(y), y-math.Trunc(y)
 
-	v1 := n.smooth2d(intx, inty)
-	v2 := n.smooth2d(intx+1, inty)
-	i1 := n.Interp(v1, v2, fracx)
+	v1 := smooth2d(intx, inty, seed)
+	v2 := smooth2d(intx+1, inty, seed)
+	i1 := interp(v1, v2, fracx)
 
-	v3 := n.smooth2d(intx, inty+1)
-	v4 := n.smooth2d(intx+1, inty+1)
-	i2 := n.Interp(v3, v4, fracx)
+	v3 := smooth2d(intx, inty+1, seed)
+	v4 := smooth2d(intx+1, inty+1, seed)
+	i2 := interp(v3, v4, fracx)
 
-	return n.Interp(i1, i2, fracy)
+	return interp(i1, i2, fracy)
 }
 
 // LinearInterp linearly interpolates the value x that is
@@ -130,21 +76,17 @@ var (
 	corners = [...]struct{ dx, dy int }{{1, 1}, {-1, 1}, {1, -1}, {-1, -1}}
 )
 
-// smooth2d returns smoothed noise for the x,y
-// coordinate using the given underlying noise function.
-// If n.W > 0 then the resulting noise should line up in the
-// horizontal direction (i.e., the left and right edges should
-// be 'tileable'), and likewise with n.H and the vertical direction.
-func (n *Noise2d) smooth2d(x, y int) float64 {
+// smooth2d returns smoothed noise for the x,y coordinate.
+func smooth2d(x, y int, seed int64) float64 {
 	s := 0.0
 	for _, d := range sides {
-		s += n.Noise(x+d.dx, y+d.dy, n.Seed)
+		s += noise2d(x+d.dx, y+d.dy, seed)
 	}
 	c := 0.0
 	for _, d := range corners {
-		c += n.Noise(x+d.dx, y+d.dy, n.Seed)
+		c += noise2d(x+d.dx, y+d.dy, seed)
 	}
-	return n.Noise(x, y, n.Seed)/4 + s/8 + c/16
+	return noise2d(x, y, seed)/4 + s/8 + c/16
 }
 
 // noise1d returns an integer between 0 and 1.  Each value
@@ -162,4 +104,46 @@ func noise1d(n int, seed int64) float64 {
 // x, y will return the same integer each time.
 func noise2d(x, y int, seed int64) float64 {
 	return noise1d(x+y*57, seed)
+}
+
+// A NoiseImage implements the image.Image interface using
+// a Perlin noise function.
+type NoiseImage Noise2d
+
+// At returns the color at the given pixel of the image.
+func (n NoiseImage) At(x, y int) color.Color {
+	noise := Noise2d(n)
+	f := noise(float64(x), float64(y))
+	switch {
+	case f > 1:
+		f = 1
+	case f < 0:
+		f = 0
+	}
+	return color.Gray{Y: uint8(255 * f)}
+}
+
+// Bounds returns the bounds on the image.
+func (n NoiseImage) Bounds() image.Rectangle {
+	return image.Rect(0, 0, 500, 500)
+}
+
+// ColorModel returns the image's color model.
+func (n NoiseImage) ColorModel() color.Model {
+	return color.GrayModel
+}
+
+// SavePng saves the noise to a PNG file.
+func (n NoiseImage) SavePng(path string) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	if err := png.Encode(f, n); err != nil {
+		return err
+	}
+
+	return nil
 }
