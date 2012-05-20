@@ -7,11 +7,11 @@ import (
 )
 
 // TestNoise1d checks that the noise1d function never returns a value
-// out of its supposid range of 0 and 1.
+// out of its supposid range of ­1 and 1.
 func TestNoise1d(t *testing.T) {
 	f := func(x int) bool {
 		y := noise1d(x, 0)
-		return y <= 1 && y >= 0
+		return y <= 1 && y >= -1
 	}
 	if err := quick.Check(f, &quick.Config{MaxCount: 10000}); err != nil {
 		t.Error(err)
@@ -19,11 +19,11 @@ func TestNoise1d(t *testing.T) {
 }
 
 // TestNoise2d checks that the noise2d function never returns a value
-// out of its supposid range of 0 and 1.
+// out of its supposid range of ­1 and 1.
 func TestNoise2d(t *testing.T) {
 	f := func(x, y int) bool {
 		z := noise2d(x, y, 0)
-		return z <= 1 && z >= 0
+		return z <= 1 && z >= -1
 	}
 	if err := quick.Check(f, &quick.Config{MaxCount: 10000}); err != nil {
 		t.Error(err)
@@ -31,34 +31,13 @@ func TestNoise2d(t *testing.T) {
 }
 
 // TestSmooth2d checks that the smooth2d function
-// never returns a value out of its supposid range of 0 and 1.
+// never returns a value out of its supposid range of ­1 and 1.
 func TestSmooth2d(t *testing.T) {
 	f := func(x, y int) bool {
 		z := smooth2d(x, y, 0)
-		return z <= 1 && z >= 0
+		return z <= 1 && z >= -1
 	}
 	if err := quick.Check(f, &quick.Config{MaxCount: 10000}); err != nil {
-		t.Error(err)
-	}
-}
-
-// TestPerlinNoise checks that the Perlin noise function
-// never returns a negative value.
-func TestPerlinNoise(t *testing.T) {
-	n := Make(0.001, 0.02, 1, time.Now().UnixNano(), nil)
-	f := func(x, y float64) bool {
-		z := n(x, y)
-		return z >= 0
-	}
-	if err := quick.Check(f, &quick.Config{MaxCount: 10000}); err != nil {
-		t.Error(err)
-	}
-	n = Make(0.001, 0.02, 1, time.Now().UnixNano(), LinearInterp)
-	g := func(x, y float64) bool {
-		z := n(x, y)
-		return z >= 0
-	}
-	if err := quick.Check(g, &quick.Config{MaxCount: 10000}); err != nil {
 		t.Error(err)
 	}
 }
