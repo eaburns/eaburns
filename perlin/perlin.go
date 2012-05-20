@@ -6,8 +6,8 @@
 package perlin
 
 import (
-	"math"
 	"fmt"
+	"math"
 )
 
 // Noise2d defines the parameters for a 2D Perlin noise function.
@@ -15,7 +15,7 @@ type Noise2d func(x, y float64) float64
 
 // Make returns a Perlin noise function using the parameters.
 // If interp is nil then cosine interpolation is used.
-func Make(per, scale float64, n int, seed int64, interp func(a, b, x float64)float64) Noise2d {
+func Make(per, scale float64, n int, seed int64, interp func(a, b, x float64) float64) Noise2d {
 	if interp == nil {
 		interp = CosInterp
 	}
@@ -54,7 +54,7 @@ func interp2d(x, y float64, seed int64, interp func(a, b, x float64) float64) fl
 // LinearInterp linearly interpolates the value x that is
 // a factor of the distance between a and b.
 func LinearInterp(a, b, x float64) float64 {
-	v :=  a*(1-x) + b*x
+	v := a*(1-x) + b*x
 	if v < 0 {
 		panic(fmt.Sprintf("%g*(1-%g) + %g*%g < 0", a, x, b, x))
 	}
@@ -93,7 +93,7 @@ func smooth2d(x, y int, seed int64) float64 {
 // n will return the same integer each time.
 func noise1d(n int, seed int64) float64 {
 	m := (int32(n) << 13) ^ int32(n) + int32(seed*7)
-	return 1 - float64((m*(m*m*15731+789221)+1376312589)&0x7fffffff) / 1073741824
+	return 1 - float64((m*(m*m*15731+789221)+1376312589)&0x7fffffff)/1073741824
 }
 
 // noise2d returns an integer between ­1 and 1.  Each pair
