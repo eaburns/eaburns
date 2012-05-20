@@ -6,19 +6,17 @@
 package perlin
 
 import (
-	"image"
-	"image/color"
-	"image/png"
 	"math"
-	"os"
+	"fmt"
 )
 
 // Noise2d defines the parameters for a 2D Perlin noise function.
 type Noise2d func(x, y float64) float64
 
-// Make returns a Perlin noise function with the given
-// parameters: persistance, scale, number of octaves, and seed.
-// If interp is nil then cosine interpolation is used.
+// Make returns a Perlin noise function that gives non-negative
+//  noise values generated using the parameters: persistance,
+// scale, number of octaves, and seed.  If interp is nil then cosine
+// interpolation is used.
 func Make(per, scale float64, n int, seed int64, interp func(a, b, x float64)float64) Noise2d {
 	if interp == nil {
 		interp = CosInterp
@@ -58,7 +56,11 @@ func interp2d(x, y float64, seed int64, interp func(a, b, x float64) float64) fl
 // LinearInterp linearly interpolates the value x that is
 // a factor of the distance between a and b.
 func LinearInterp(a, b, x float64) float64 {
-	return a*(1-x) + b*x
+	v :=  a*(1-x) + b*x
+	if v < 0 {
+		panic(fmt.Sprintf("%g*(1-%g) + %g*%g < 0", a, x, b, x))
+	}
+	return v
 }
 
 // CosInterp cosine interpolates the value x that is
@@ -89,61 +91,15 @@ func smooth2d(x, y int, seed int64) float64 {
 	return noise2d(x, y, seed)/4 + s/8 + c/16
 }
 
-// noise1d returns an integer between 0 and 1.  Each value
+// noise1d returns an integer between ­1 and 1.  Each value
 // n will return the same integer each time.
 func noise1d(n int, seed int64) float64 {
 	m := (int32(n) << 13) ^ int32(n) + int32(seed*7)
-
-	// 2147483648 is two times 1073741824 (from the aformentioned
-	// website) this change moves the result to the range 0—1, not ­1—1,
-	// the remaining values are directly from the website.
-	return float64((m*(m*m*15731+789221)+1376312589)&0x7fffffff) / 2147483648
+	return 1 - float64((m*(m*m*15731+789221)+1376312589)&0x7fffffff) / (1073741824*2)
 }
 
-// noise2d returns an integer between 0 and 1.  Each pair
+// noise2d returns an integer between ­1 and 1.  Each pair
 // x, y will return the same integer each time.
 func noise2d(x, y int, seed int64) float64 {
 	return noise1d(x+y*57, seed)
-}
-
-// A NoiseImage implements the image.Image interface using
-// a Perlin noise function.
-type NoiseImage Noise2d
-
-// At returns the color at the given pixel of the image.
-func (n NoiseImage) At(x, y int) color.Color {
-	noise := Noise2d(n)
-	f := noise(float64(x), float64(y))
-	switch {
-	case f > 1:
-		f = 1
-	case f < 0:
-		f = 0
-	}
-	return color.Gray{Y: uint8(255 * f)}
-}
-
-// Bounds returns the bounds on the image.
-func (n NoiseImage) Bounds() image.Rectangle {
-	return image.Rect(0, 0, 500, 500)
-}
-
-// ColorModel returns the image's color model.
-func (n NoiseImage) ColorModel() color.Model {
-	return color.GrayModel
-}
-
-// SavePng saves the noise to a PNG file.
-func (n NoiseImage) SavePng(path string) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	if err := png.Encode(f, n); err != nil {
-		return err
-	}
-
-	return nil
 }
