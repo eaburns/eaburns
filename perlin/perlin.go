@@ -13,10 +13,8 @@ import (
 // Noise2d defines the parameters for a 2D Perlin noise function.
 type Noise2d func(x, y float64) float64
 
-// Make returns a Perlin noise function that gives non-negative
-//  noise values generated using the parameters: persistance,
-// scale, number of octaves, and seed.  If interp is nil then cosine
-// interpolation is used.
+// Make returns a Perlin noise function using the parameters.
+// If interp is nil then cosine interpolation is used.
 func Make(per, scale float64, n int, seed int64, interp func(a, b, x float64)float64) Noise2d {
 	if interp == nil {
 		interp = CosInterp
@@ -95,7 +93,7 @@ func smooth2d(x, y int, seed int64) float64 {
 // n will return the same integer each time.
 func noise1d(n int, seed int64) float64 {
 	m := (int32(n) << 13) ^ int32(n) + int32(seed*7)
-	return 1 - float64((m*(m*m*15731+789221)+1376312589)&0x7fffffff) / (1073741824*2)
+	return 1 - float64((m*(m*m*15731+789221)+1376312589)&0x7fffffff) / 1073741824
 }
 
 // noise2d returns an integer between ­1 and 1.  Each pair

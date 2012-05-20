@@ -10,6 +10,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"math"
 	"os"
 	"fmt"
 )
@@ -59,7 +60,7 @@ type noiseImg struct{
 
 // makeNoiseImg returns a noise image.
 func makeNoiseImg(w, h int, noise func(float64,float64)float64) noiseImg {
-	max := 0.0
+	min, max := math.Inf(1), 0.0
 	pts := make([]float64, w*h)
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
@@ -68,13 +69,13 @@ func makeNoiseImg(w, h int, noise func(float64,float64)float64) noiseImg {
 			if n > max {
 				max = n
 			}
-			if n < 0 {
-				panic("Negative noise!")
+			if n < min {
+				min = n
 			}
 		}
 	}
 	for i := range pts {
-		pts[i] /= max
+		pts[i] = (pts[i]-min)/(max-min)
 	}
 	return noiseImg{ w, h, pts }
 }
