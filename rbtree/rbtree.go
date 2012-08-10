@@ -1,6 +1,6 @@
 // Copyright 2011 Ethan Burns
 // Use of this source code is governed by a BSD-style
-// license that can be foudn in the LICENSE file.
+// license that can be found in the LICENSE file.
 
 // A self-balancing binary tree that can be used as an ordered map from
 // keys to values.
