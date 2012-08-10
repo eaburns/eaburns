@@ -1,9 +1,9 @@
 package gridpath
 
 import (
+	"bufio"
 	"fmt"
 	"os"
-	"bufio"
 	"testing"
 )
 
@@ -19,7 +19,7 @@ func TestSearch(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
- 
+
 	const expectedCost = 15.071067811865476
 	_, cost := Astar(m, m.start, m.goal)
 	if cost != expectedCost {
@@ -27,11 +27,10 @@ func TestSearch(t *testing.T) {
 	}
 }
 
-
 // A gridmap is a simple grid pathfinding instance.
 type gridmap struct {
-	w, h int
-	blkd []bool
+	w, h        int
+	blkd        []bool
 	start, goal Loc
 }
 
@@ -44,7 +43,7 @@ func (m gridmap) Height() int {
 }
 
 func (m gridmap) Blocked(x, y int) bool {
-	return m.blkd[x*m.h + y]
+	return m.blkd[x*m.h+y]
 }
 
 // loadGridMap loads a grid map from a file.
@@ -80,7 +79,7 @@ func readGridMap(in *bufio.Reader) (m gridmap, err error) {
 				return
 			}
 			if b != '.' {
-				m.blkd[x*m.h + y] = true
+				m.blkd[x*m.h+y] = true
 			}
 		}
 		b, err = in.ReadByte()

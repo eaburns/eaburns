@@ -3,21 +3,21 @@ package gridpath
 
 import (
 	"container/heap"
+	"fmt"
 	"math"
 	"time"
-	"fmt"
 )
 
 // A GridMap represents a grid-based map of blocked
 // and unblocked cells.
-type GridMap interface{
+type GridMap interface {
 	Blocked(int, int) bool
 	Width() int
 	Height() int
 }
 
 // A Loc is a location in a grid.
-type Loc struct{
+type Loc struct {
 	X, Y int
 }
 
@@ -29,7 +29,7 @@ func Astar(m GridMap, start, goal Loc) ([]Loc, float64) {
 	open := make(openList, 0, m.Width()*m.Height())
 	closed := makeClosedList(m)
 
-	starti := start.X*stride+start.Y
+	starti := start.X*stride + start.Y
 	closed[starti].g = 0
 	closed[starti].f = 0
 	heap.Push(&open, &closed[starti])
@@ -51,7 +51,7 @@ func Astar(m GridMap, start, goal Loc) ([]Loc, float64) {
 				continue
 			}
 			gend++
-			kidx, kidy := x + mv.dx, y + mv.dy
+			kidx, kidy := x+mv.dx, y+mv.dy
 			kidi := kidx*stride + kidy
 			kid := &closed[kidi]
 			cost := n.g + mv.cost
@@ -68,7 +68,7 @@ func Astar(m GridMap, start, goal Loc) ([]Loc, float64) {
 				heap.Remove(&open, kid.pqindex)
 			}
 			heap.Push(&open, kid)
-		}		
+		}
 	}
 
 	fmt.Println("path cost", closed[goali].g)
@@ -94,7 +94,7 @@ func octiledist(x0, y0, x1, y1 int) float64 {
 	if straight < diag {
 		diag, straight = straight, diag
 	}
-	return float64(straight-diag) + float64(diag)*math.Sqrt(2)	
+	return float64(straight-diag) + float64(diag)*math.Sqrt(2)
 }
 
 // A move is a legal move within the grid specified
@@ -102,28 +102,28 @@ func octiledist(x0, y0, x1, y1 int) float64 {
 // cost.
 type move struct {
 	dx, dy int
-	other []Loc	// locations that must also be free
-	cost float64
+	other  []Loc // locations that must also be free
+	cost   float64
 }
 
 var (
 	// moves is the array of all valid moves.
 	moves = [...]move{
-		{ 1, 0, []Loc{}, 1 },
-		{ -1, 0, []Loc{}, 1 },
-		{ 0, 1, []Loc{}, 1 },
-		{ 0, -1, []Loc{}, 1 },
-		{ 1, 1, []Loc{{1, 0}, {0, 1}}, math.Sqrt(2) },
-		{ 1, -1, []Loc{{1, 0}, {0, -1}}, math.Sqrt(2) },
-		{ -1, 1, []Loc{{-1, 0}, {0, 1}}, math.Sqrt(2) },
-		{ -1, -1, []Loc{{-1, 0}, {0, -1}}, math.Sqrt(2) },
+		{1, 0, []Loc{}, 1},
+		{-1, 0, []Loc{}, 1},
+		{0, 1, []Loc{}, 1},
+		{0, -1, []Loc{}, 1},
+		{1, 1, []Loc{{1, 0}, {0, 1}}, math.Sqrt(2)},
+		{1, -1, []Loc{{1, 0}, {0, -1}}, math.Sqrt(2)},
+		{-1, 1, []Loc{{-1, 0}, {0, 1}}, math.Sqrt(2)},
+		{-1, -1, []Loc{{-1, 0}, {0, -1}}, math.Sqrt(2)},
 	}
 )
 
 // ok returns true if the given move is allowed in the grid.
 func (mv move) ok(m GridMap, x, y int) bool {
 	for _, d := range mv.other {
-		i, j := x + d.X, y + d.Y
+		i, j := x+d.X, y+d.Y
 		if !clear(m, i, j) {
 			return false
 		}
@@ -157,13 +157,13 @@ func makePath(m GridMap, nodes []node, goali int) (path []Loc) {
 }
 
 // node is an A* node structure.
-type node struct{
-	ind int	// The closed list index of this node.
-	parent int	// The index of the parent node, -1 means no parent.
-	pqindex int	 // The priority queue index of the node, -1 indicates not in the queue.
-	g float64	// The cost from the start node to this node, -1 indicates unreached.
-	h float64	// Cached heuristic value, -1 means that it was yet to be computed.
-	f float64	// f = g + h
+type node struct {
+	ind     int     // The closed list index of this node.
+	parent  int     // The index of the parent node, -1 means no parent.
+	pqindex int     // The priority queue index of the node, -1 indicates not in the queue.
+	g       float64 // The cost from the start node to this node, -1 indicates unreached.
+	h       float64 // Cached heuristic value, -1 means that it was yet to be computed.
+	f       float64 // f = g + h
 }
 
 // openList is an open list of node pointers for use with A*.
@@ -196,7 +196,7 @@ func (o openList) Swap(i, j int) {
 // Push pushes a new element to the back of the slice.
 func (o *openList) Push(n interface{}) {
 	*o = append(*o, n.(*node))
-	(*o)[len(*o)-1].pqindex = len(*o)-1
+	(*o)[len(*o)-1].pqindex = len(*o) - 1
 }
 
 // Pop pops the last element off of the slice.
@@ -210,7 +210,7 @@ func (o *openList) Pop() interface{} {
 
 // closedList creates a closed list for the given map.
 func makeClosedList(m GridMap) []node {
-	sz := m.Width()*m.Height()
+	sz := m.Width() * m.Height()
 	closed := make([]node, sz)
 	for i := range closed {
 		closed[i].ind = i
