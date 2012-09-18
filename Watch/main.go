@@ -1,8 +1,5 @@
-// Like code.google.com/p/rsc/cmd/Watch,
-// but doesn't use kevent which doesn't seem
-// to exist on Linux.
-//
-// A bunch of main is copied from the original.
+// More portable implementation of
+// code.google.com/p/rsc/cmd/Watch.
 package main
 
 import (
