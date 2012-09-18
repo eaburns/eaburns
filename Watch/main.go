@@ -117,9 +117,7 @@ func runCommand(win *acme.Win) {
 		return
 	}
 	w.Close()
-
-	go io.Copy(BodyWriter{win}, r)
-
+	io.Copy(BodyWriter{win}, r)
 	if err := cmd.Wait(); err != nil {
 		win.Fprintf("body", "%s: %s\n", cmdStr, err)
 	}
