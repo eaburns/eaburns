@@ -54,16 +54,16 @@ func watcher(wd string, run chan<- runRequest) {
 	for {
 		select {
 		case ev := <-w.Event:
-			switch info, err := os.Stat(ev.Name); {
-			case os.IsNotExist(err):
-				run <- runRequest{time.Now(), done}
-			case err != nil:
-				log.Println(err)
-				continue
-			default:
-				run <- runRequest{info.ModTime(), done}
+			info, err := os.Stat(ev.Name)
+			if os.IsNotExist(err) {
+				info, err = os.Stat(wd)
 			}
+			if err != nil {
+				log.Fatal(err)
+			}
+			run <- runRequest{ info.ModTime(), done }
 			<-done
+
 		case err := <-w.Error:
 			log.Fatal(err)
 		}
