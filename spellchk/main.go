@@ -17,7 +17,7 @@ import (
 )
 
 // This file is available on Ubuntu.
-const defaultDict = "/usr/share/dict/american-english"
+const defaultDict = "/usr/share/dict/words"
 
 var dict = flag.String("d", defaultDict, "specify the dictionary file")
 
