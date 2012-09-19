@@ -77,8 +77,8 @@ func runner(win *acme.Win, reqs <-chan runRequest) {
 	for req := range reqs {
 		if last.Before(req.time) {
 			runCommand(win)
+			last = time.Now()
 		}
-		last = time.Now()
 		req.done <- true
 	}
 }
