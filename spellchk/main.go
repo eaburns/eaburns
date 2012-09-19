@@ -36,11 +36,27 @@ func main() {
 		if w.text[0] == '\\' {
 			continue
 		}
-		if dict[w.text] || dict[strings.ToLower(w.text)] {
+		word := strings.TrimRight(w.text, "\\")
+
+		if correct(dict, word) {
 			continue
 		}
 		fmt.Printf("%s:%d-+#%d	[%s]\n", path, w.line, w.start, w.text)
 	}
+}
+
+func correct(dict map[string]bool, word string) bool {
+	parts := strings.Split(word, "-")
+	badPart := false
+	for _, p := range parts {
+		if p == "" {
+			continue
+		}
+		if !dict[p] && !dict[strings.ToLower(p)] {
+			badPart = true
+		}
+	}
+	return !badPart
 }
 
 type Lexer struct {
