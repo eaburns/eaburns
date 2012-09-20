@@ -114,6 +114,10 @@ func watcher(path string, run chan<- runRequest) {
 // a directory then watchDeep is a no-op.
 func watchDeep(w *fsnotify.Watcher, path string) {
 	info, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		// This file disapeared on us, fine.
+		return
+	}
 	if err != nil {
 		die(err)
 	}
