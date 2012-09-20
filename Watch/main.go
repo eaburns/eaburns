@@ -6,29 +6,35 @@ import (
 	"code.google.com/p/goplan9/plan9/acme"
 	"github.com/howeyc/fsnotify"
 	"io"
-	"log"
 	"os"
+	"errors"
+	"log"
 	"os/exec"
 	"strings"
 	"time"
 	"flag"
+	"path/filepath"
 )
 
 var path = flag.String("p", ".", "specify the path to watch")
 
+// Win is the acme window.
+var win *acme.Win
+
 func main() {
 	flag.Parse()
 
-	win, err := acme.New()
+	var err error
+	win, err = acme.New()
 	if err != nil {
-		log.Fatal(err)
+		die(err)
 	}
 
 	p := *path
 	if p == "." {
 		p, err = os.Getwd()
 		if err != nil {
-			log.Fatal(err)
+			die(err)
 		}
  	}
 
@@ -37,8 +43,8 @@ func main() {
 	win.Fprintf("tag", "Get ")
 
 	run := make(chan runRequest)
-	go events(win, run)
-	go runner(win, run)
+	go events(run)
+	go runner(run)
 	watcher(p, run)
 }
 
@@ -56,50 +62,93 @@ type runRequest struct {
 	done chan<- bool
 }
 
-// Everything but the FSN_CREATE flag since create
-// seems to imply a modify.	
-const watchFlags = fsnotify.FSN_MODIFY | fsnotify.FSN_DELETE | fsnotify.FSN_RENAME
-
 // Watcher watches the directory and sends a
 // runRequest when the watched path changes.
 func watcher(path string, run chan<- runRequest) {
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Fatal(err)
+		die(err)
 	}
-	if err := w.WatchFlags(path, watchFlags); err != nil {
-		log.Fatal(err)
+
+	info, err := os.Stat(path)
+	if err != nil {
+		die(err)
+	}
+	if !info.IsDir() {
+		// watchDeep is a no-op on regular files.
+		if err := w.Watch(path); err != nil {
+			die(err)
+		}
+	} else {
+		watchDeep(w, path)
 	}
 
 	done := make(chan bool)
 	for {
 		select {
 		case ev := <-w.Event:
+			if ev.IsCreate() {
+				watchDeep(w, ev.Name)
+			}
+
 			info, err := os.Stat(ev.Name)
 			if os.IsNotExist(err) {
-				info, err = os.Stat(path)
+				dir, _ := filepath.Split(ev.Name)
+				info, err = os.Stat(dir)
 			}
 			if err != nil {
-				log.Fatal(err)
+				panic(err.Error())
+				die(err)
 			}
 			run <- runRequest{ info.ModTime(), done }
 			<-done
 
 		case err := <-w.Error:
-			log.Fatal(err)
+			die(err)
 		}
+	}
+}
+
+// WatchDeep watches a directory and all
+// of its subdirectories.  If the path is not
+// a directory then watchDeep is a no-op.
+func watchDeep(w *fsnotify.Watcher, path string) {
+	info, err := os.Stat(path)
+	if err != nil {
+		die(err)
+	}
+	if !info.IsDir() {
+		return
+	}
+
+	if err := w.Watch(path); err != nil {
+		die(err)
+	}
+
+	f, err := os.Open(path)
+	if err != nil {
+		die(err)
+	}
+	ents, err := f.Readdirnames(-1)
+	if err != nil {
+		die(err)
+	}
+	f.Close()
+
+	for _, e := range ents {
+		watchDeep(w, filepath.Join(path, e))
 	}
 }
 
 // Runner runs the commond upon
 // receiving an up-to-date runRequest.
-func runner(win *acme.Win, reqs <-chan runRequest) {
-	runCommand(win)
+func runner(reqs <-chan runRequest) {
+	runCommand()
 	last := time.Now()
 
 	for req := range reqs {
 		if last.Before(req.time) {
-			runCommand(win)
+			runCommand()
 			last = time.Now()
 		}
 		req.done <- true
@@ -118,10 +167,10 @@ func (b BodyWriter) Write(data []byte) (int, error) {
 
 // RunCommand runs the command and sends
 // the result to the given acme window.
-func runCommand(win *acme.Win) {
+func runCommand() {
 	args := flag.Args()
 	if len(args) == 0 {
-		log.Fatal("Must supply a command")
+		die(errors.New("Must supply a command"))
 	}
 	cmdStr := strings.Join(args, " ")
 
@@ -133,7 +182,7 @@ func runCommand(win *acme.Win) {
 	cmd := exec.Command(args[0], args[1:]...)
 	r, w, err := os.Pipe()
 	if err != nil {
-		log.Fatal(err)
+		die(err)
 	}
 	defer r.Close()
 	cmd.Stdout = w
@@ -158,7 +207,7 @@ func runCommand(win *acme.Win) {
 
 // Events handles events coming from the
 // acme window.
-func events(win *acme.Win, run chan<- runRequest) {
+func events(run chan<- runRequest) {
 	done := make(chan bool)
 	for e := range win.EventChan() {
 		switch e.C2 {
@@ -175,4 +224,10 @@ func events(win *acme.Win, run chan<- runRequest) {
 		win.WriteEvent(e)
 	}
 	os.Exit(0)
+}
+
+// Die closes the acme window and prints an error.
+func die(err error) {
+	win.Ctl("delete")
+	log.Fatal(err.Error())
 }
