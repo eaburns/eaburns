@@ -95,9 +95,7 @@ func watcher(path string, run chan<- runRequest) {
 			if os.IsNotExist(err) {
 				dir, _ := filepath.Split(ev.Name)
 				info, err = os.Stat(dir)
-			}
-			if err != nil {
-				panic(err.Error())
+			} else if err != nil {
 				die(err)
 			}
 			run <- runRequest{ info.ModTime(), done }
