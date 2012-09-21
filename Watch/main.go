@@ -37,8 +37,11 @@ func main() {
 			die(err)
 		}
  	}
-
-	win.Name(p + "/+watch")
+	abs, err := filepath.Abs(p)
+	if err != nil {
+		die(err)
+	}
+	win.Name(abs + "/+watch")
 	win.Ctl("clean")
 	win.Fprintf("tag", "Get ")
 
