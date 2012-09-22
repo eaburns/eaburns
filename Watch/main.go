@@ -30,25 +30,26 @@ func main() {
 		die(err)
 	}
 
-	p := *path
-	if p == "." {
-		p, err = os.Getwd()
-		if err != nil {
-			die(err)
-		}
- 	}
-	abs, err := filepath.Abs(p)
+	abs, err := filepath.Abs(*path)
 	if err != nil {
 		die(err)
 	}
-	win.Name(abs + "/+watch")
+	info, err := os.Stat(abs)
+	if err != nil {
+		die(err)
+	}
+	if info.IsDir() {
+		abs += "/"
+	}
+
+	win.Name(abs + "+watch")
 	win.Ctl("clean")
 	win.Fprintf("tag", "Get ")
 
 	run := make(chan runRequest)
 	go events(run)
 	go runner(run)
-	watcher(p, run)
+	watcher(*path, run)
 }
 
 // A runRequests is sent to the runner to request
