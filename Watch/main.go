@@ -168,7 +168,21 @@ type BodyWriter struct {
 }
 
 func (b BodyWriter) Write(data []byte) (int, error) {
-	return b.Win.Write("body", data)
+	// Don't write too much at once, or else acme
+	// can crash…
+	sz := len(data)
+	for len(data) > 0 {
+		n := 1024
+		if len(data) < n {
+			n = len(data)
+		}
+		m, err := b.Win.Write("body", data[:n])
+		if err != nil {
+			return m, err
+		}
+		data = data[m:]
+	}
+	return sz, nil
 }
 
 // RunCommand runs the command and sends
