@@ -96,17 +96,20 @@ func watcher(path string, run chan<- runRequest) {
 			}
 
 			info, err := os.Stat(ev.Name)
-			if os.IsNotExist(err) {
+			for os.IsNotExist(err) {
 				dir, _ := filepath.Split(ev.Name)
+				if dir == "" {
+					break
+				}
 				info, err = os.Stat(dir)
-			} else if err != nil {
+				if dir == path && os.IsNotExist(err) {
+					die(errors.New("Watch point " + path + " deleted"))
+				}
+			}
+			if err != nil {
 				die(err)
 			}
-			t := time.Now()
-			if info != nil {
-				t = info.ModTime()
-			}
-			run <- runRequest{ t, done }
+			run <- runRequest{ info.ModTime(), done }
 			<-done
 
 		case err := <-w.Error:
