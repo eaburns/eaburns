@@ -102,7 +102,11 @@ func watcher(path string, run chan<- runRequest) {
 			} else if err != nil {
 				die(err)
 			}
-			run <- runRequest{ info.ModTime(), done }
+			t := time.Now()
+			if info != nil {
+				t = info.ModTime()
+			}
+			run <- runRequest{ t, done }
 			<-done
 
 		case err := <-w.Error:
