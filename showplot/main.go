@@ -14,12 +14,19 @@ import (
 	"image/draw"
 	"math"
 	"math/rand"
+	"os"
+	"runtime/pprof"
 )
 
 type plots [2]struct {
-	plot *plot.Plot
+	plot     *plot.Plot
 	dataArea plot.DrawArea
 }
+
+var (
+	cpuProfile = "cpu.prof"
+	memProfile = "mem.prof"
+)
 
 var ps plots
 
@@ -43,10 +50,27 @@ func main() {
 	drawPlots(win.Screen())
 	win.FlushImage()
 
+	if cpuProfile != "" {
+		f, err := os.Create(cpuProfile)
+		if err != nil {
+			panic(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+	if memProfile != "" {
+		f, err := os.Create(memProfile)
+		if err != nil {
+			panic(err)
+		}
+		pprof.WriteHeapProfile(f)
+		f.Close()
+	}
+
 	events := win.EventChan()
 	for ev := range events {
-		if m, ok := ev.(ui.MouseEvent); ok && m.Buttons == 1{
-			winHeight := 600	// hard-coded for ui/x11…
+		if m, ok := ev.(ui.MouseEvent); ok && m.Buttons == 1 {
+			winHeight := 600 // hard-coded for ui/x11…
 			p, x, y := dataCoord(m.Loc.X, winHeight-m.Loc.Y)
 			if p >= 0 {
 				str := fmt.Sprintf("plot: %d, coord: %g, %g\n", p, x, y)
@@ -88,10 +112,10 @@ func crosshair(img draw.Image, x, y int, str string) {
 	// recreated at each redraw.
 	drawPlots(img)
 
-	c.SetColor(color.RGBA{R:255, A:255})
+	c.SetColor(color.RGBA{R: 255, A: 255})
 
-	xc := vg.Inches(float64(x)/c.DPI())
-	yc := vg.Inches(float64(y)/c.DPI())
+	xc := vg.Inches(float64(x) / c.DPI())
+	yc := vg.Inches(float64(y) / c.DPI())
 	radius := vg.Points(5)
 
 	var p vg.Path
@@ -115,18 +139,18 @@ func crosshair(img draw.Image, x, y int, str string) {
 func dataCoord(x, y int) (int, float64, float64) {
 	dpi := ps[0].dataArea.DPI()
 	pt := plot.Point{
-		X: vg.Inches(float64(x)/dpi),
-		Y: vg.Inches(float64(y)/dpi),
+		X: vg.Inches(float64(x) / dpi),
+		Y: vg.Inches(float64(y) / dpi),
 	}
 	for i, p := range ps {
 		if p.dataArea.Contains(pt) {
 			da := p.dataArea
-			x := float64((pt.X - da.Min.X)/(da.Max().X-da.Min.X))
-			x *= (p.plot.X.Max-p.plot.X.Min)
+			x := float64((pt.X - da.Min.X) / (da.Max().X - da.Min.X))
+			x *= (p.plot.X.Max - p.plot.X.Min)
 			x += p.plot.X.Min
 
-			y := float64((pt.Y - da.Min.Y)/(da.Max().Y-da.Min.Y))
-			y *= (p.plot.Y.Max-p.plot.Y.Min)
+			y := float64((pt.Y - da.Min.Y) / (da.Max().Y - da.Min.Y))
+			y *= (p.plot.Y.Max - p.plot.Y.Min)
 			y += p.plot.Y.Min
 			return i, x, y
 		}
