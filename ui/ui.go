@@ -2,6 +2,7 @@ package ui
 
 import (
 	"code.google.com/p/freetype-go/freetype"
+	"code.google.com/p/freetype-go/freetype/truetype"
 	"errors"
 	"fmt"
 	"github.com/banthar/gl"
@@ -9,9 +10,9 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"image/draw"
 	"io/ioutil"
 	"os"
-	"unicode/utf8"
 )
 
 // Init initializes the user interface.  This must be
@@ -147,7 +148,8 @@ func (img Image) Release() {
 // A Font describes the look of and draw text.
 type Font struct {
 	ctx  *freetype.Context
-	emPx int // An em-box size in pixels
+	fnt *truetype.Font
+	sz float64
 }
 
 // LoadTtf returns a truetype font loaded from the given file.
@@ -167,22 +169,19 @@ func LoadTtf(file string, sz int, c color.Color) (font Font, err error) {
 	font.ctx.SetFont(fnt)
 	font.ctx.SetFontSize(float64(sz))
 	font.ctx.SetSrc(image.NewUniform(c))
-	font.emPx = font.ctx.FUnitToPixelRU(fnt.UnitsPerEm())
+	font.fnt = fnt
+	font.sz = float64(sz)
 	return
-}
-
-// Height returns the height of text in this font in pixels.
-func (font Font) Height() int {
-	return font.emPx
 }
 
 // Render renders the text in the given font and returns an image
 // of the formatted string.
 func (font Font) Render(format string, vls ...interface{}) (img Image, err error) {
 	str := fmt.Sprintf(format, vls...)
-	width, height := utf8.RuneCountInString(str)*font.emPx, font.emPx
+	width, height := font.textSize(str)
 
 	rgba := image.NewNRGBA(image.Rect(0, 0, width, height))
+	draw.Draw(rgba, rgba.Bounds(), image.Black, image.ZP, draw.Src)
 	font.ctx.SetDst(rgba)
 	font.ctx.SetClip(rgba.Bounds())
 
@@ -194,6 +193,27 @@ func (font Font) Render(format string, vls ...interface{}) (img Image, err error
 
 	img = MakeImage(rgba)
 	return
+}
+
+func (f Font) textSize(s string) (int, int) {
+	// scale converts truetype.FUnit to float64
+	scale := f.sz / float64(f.fnt.FUnitsPerEm())
+
+	width := 0
+	prev, hasPrev := truetype.Index(0), false
+	for _, rune := range s {
+		index := f.fnt.Index(rune)
+		if hasPrev {
+			width += int(f.fnt.Kerning(f.fnt.FUnitsPerEm(), prev, index))
+		}
+		width += int(f.fnt.HMetric(f.fnt.FUnitsPerEm(), index).AdvanceWidth)
+		prev, hasPrev = index, true
+	}
+	width = int(float64(width)*scale + 0.5)
+
+	b := f.fnt.Bounds(f.fnt.FUnitsPerEm())
+	height := int(float64(b.YMax-b.YMin)*scale + 0.5)
+	return width, height
 }
 
 // Draw draws text at the given location using the given font,
