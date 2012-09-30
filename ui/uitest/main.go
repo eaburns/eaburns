@@ -21,7 +21,7 @@ func main() {
 	defer img.Release()
 	fmt.Printf("Loaded the image\n")
 
-	font, err := ui.LoadTtf("prstartk.ttf", 16, color.RGBA{R: 0, G: 255, B: 0, A: 255})
+	font, err := ui.LoadTtf("prstartk.ttf", 12, color.RGBA{R: 0, G: 255, B: 0, A: 255})
 	if err != nil {
 		panic(err)
 	}
@@ -31,6 +31,7 @@ func main() {
 	img.Draw(0, 0)
 	font.Draw(200, 10, "Hello")
 	font.Draw(10, 100, "World")
+	font.Draw(100, 200, "Eloquent")
 	ui.Flip()
 
 	for {

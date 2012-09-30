@@ -152,6 +152,11 @@ type Font struct {
 	sz float64
 }
 
+const (
+	dpi = 96.0
+	ptInch = 72.0
+)
+
 // LoadTtf returns a truetype font loaded from the given file.
 func LoadTtf(file string, sz int, c color.Color) (font Font, err error) {
 	bytes, err := ioutil.ReadFile(file)
@@ -165,7 +170,7 @@ func LoadTtf(file string, sz int, c color.Color) (font Font, err error) {
 	}
 
 	font.ctx = freetype.NewContext()
-	font.ctx.SetDPI(72)
+	font.ctx.SetDPI(dpi)
 	font.ctx.SetFont(fnt)
 	font.ctx.SetFontSize(float64(sz))
 	font.ctx.SetSrc(image.NewUniform(c))
@@ -178,14 +183,14 @@ func LoadTtf(file string, sz int, c color.Color) (font Font, err error) {
 // of the formatted string.
 func (font Font) Render(format string, vls ...interface{}) (img Image, err error) {
 	str := fmt.Sprintf(format, vls...)
-	width, height := font.textSize(str)
+	width, height, descent := font.textSize(str)
 
 	rgba := image.NewNRGBA(image.Rect(0, 0, width, height))
 	draw.Draw(rgba, rgba.Bounds(), image.Black, image.ZP, draw.Src)
 	font.ctx.SetDst(rgba)
 	font.ctx.SetClip(rgba.Bounds())
 
-	pt := freetype.Pt(0, height)
+	pt := freetype.Pt(0, height+descent)
 	pt, err = font.ctx.DrawString(str, pt)
 	if err != nil {
 		return
@@ -195,9 +200,9 @@ func (font Font) Render(format string, vls ...interface{}) (img Image, err error
 	return
 }
 
-func (f Font) textSize(s string) (int, int) {
+func (f Font) textSize(s string) (int, int, int) {
 	// scale converts truetype.FUnit to float64
-	scale := f.sz / float64(f.fnt.FUnitsPerEm())
+	scale := f.sz / float64(f.fnt.FUnitsPerEm()) * (dpi/ptInch)
 
 	width := 0
 	prev, hasPrev := truetype.Index(0), false
@@ -213,7 +218,8 @@ func (f Font) textSize(s string) (int, int) {
 
 	b := f.fnt.Bounds(f.fnt.FUnitsPerEm())
 	height := int(float64(b.YMax-b.YMin)*scale + 0.5)
-	return width, height
+	descent := int(float64(b.YMin)*scale + 0.5)
+	return width, height, descent
 }
 
 // Draw draws text at the given location using the given font,
