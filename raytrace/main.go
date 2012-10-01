@@ -5,7 +5,6 @@ import (
 	"image/color"
 	"image/png"
 	"math"
-	"math/rand"
 	"os"
 )
 
@@ -42,8 +41,6 @@ var (
 	up = Point{0, 1, 0}
 )
 
-const NSamples = 8
-
 func main() {
 	img := image.NewRGBA(image.Rect(0, 0, 480, 480))
 	b := img.Bounds()
@@ -52,21 +49,15 @@ func main() {
 
 	for x := b.Min.X; x < b.Max.X; x++ {
 		for y := b.Min.Y; y < b.Max.Y; y++ {
-			color := Color{0, 0, 0}
-			for i := 0; i < NSamples; i++ {
-				xjitter := rand.Float64()/2 - 1/4.0
-				yjitter := rand.Float64()/2 - 1/4.0
-				px := image2World(float64(x)+xjitter, float64(y)+yjitter)
-				dir := px.Minus(eye)
+			px := image2World(float64(x), float64(y))
+			dir := px.Minus(eye)
 	
-				hit, ok := scene.Hit(eye, dir)
-				c := Color{0, 0, 0}
-				if ok {
+			hit, ok := scene.Hit(eye, dir)
+			c := Color{0, 0, 0}
+			if ok {
 					c = hit.Object.Color(scene, hit, 0)
-				}
-				color = Color(Point(color).Plus(Point(c).Scale(1.0/NSamples)))
 			}
-			img.Set(x, y, Color(color).ImageColor())
+			img.Set(x, y, c.ImageColor())
 		}
 	}
 
