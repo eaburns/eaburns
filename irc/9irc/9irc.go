@@ -194,7 +194,10 @@ func getUser(nick string) *user {
 // handleWindowEvent handles events from
 // any of the acme windows.
 func handleWindowEvent(ev windowEvent) {
-	if ev.C2 == 'x' || ev.C2 == 'X' {	// execute
+	if *debug {
+		log.Printf("%#v\n\n", *ev.Event)
+	}
+	if ev.C2 == 'x' || ev.C2 == 'X' {	// execute tag or body
 		fs := strings.Fields(string(ev.Text))
 		if len(fs) > 0 {
 			handleExecute(ev, fs[0], fs[1:])
@@ -251,7 +254,7 @@ func handleExecute(ev windowEvent, cmd string, args []string) {
 // the server.
 func handleMsg(msg irc.Msg) {
 	if *debug {
-		log.Printf("%#v", msg)
+		log.Printf("%#v\n\n", msg)
 	}
 	switch msg.Cmd {
 	case irc.ERROR:
