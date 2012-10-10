@@ -510,6 +510,7 @@ func doRplNamReply(ch string, names string) {
 func doJoin(ch, who string) {
 	w := getWindow(ch)
 	w.WriteString("+" + who)
+	w.lastSpeaker = ""
 	if who != *nick {
 		u := getUser(who)
 		w.users[who] = u
@@ -527,6 +528,7 @@ func doPart(ch, who string) {
 		delete(wins, w.target)
 	} else {
 		w.WriteString("-" + who)
+		w.lastSpeaker = ""
 		delete(w.users, who)
 		u := getUser(who)
 		u.nChans--
@@ -548,6 +550,7 @@ func doQuit(who, txt string) {
 			s += ": " + txt
 		}
 		w.WriteString(s)
+		w.lastSpeaker = ""
 	}
 }
 
@@ -564,6 +567,7 @@ func doNick(prev, cur string) {
 		*nick = cur
 		for _, w := range wins {
 			w.WriteString(prev + " -> " + cur)
+			w.lastSpeaker = ""
 		}
 		return
 	}
@@ -581,6 +585,7 @@ func doNick(prev, cur string) {
 		delete(w.users, prev)
 		w.users[cur] = u
 		w.WriteString(prev + " -> " + cur)
+		w.lastSpeaker = ""
 	}
 }
 
@@ -613,6 +618,7 @@ func doEndOfWho(ch string) {
 	}
 	w.who = []string{}
 	w.WriteString(s)
+	w.lastSpeaker = ""
 }
 
 // lastArg returns the last message
