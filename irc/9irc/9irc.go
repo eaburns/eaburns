@@ -309,10 +309,11 @@ func (w *win) typing(q0, q1 int) {
 		w.Addr("#%d,#%d", w.pAddr, w.eAddr+utf8.RuneCountInString(t))
 		if strings.HasPrefix(t, meCmd) {
 			act := strings.TrimLeft(t[len(meCmd):], " \t")
+			act = strings.TrimRight(act, "\n")
 			if act == "\n" {
 				t = "\n"
 			} else {
-				t = actionPrefix + " " + act + "\x01"
+				t = actionPrefix + " " + act + "\x01\n"
 			}
 		}
 
