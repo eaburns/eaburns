@@ -404,22 +404,28 @@ func handleWindowEvent(ev winEvent) {
 	if *debug {
 		log.Printf("%#v\n\n", *ev.Event)
 	}
-	if ev.C2 == 'x' || ev.C2 == 'X' { // execute tag or body
+
+	switch {
+	case ev.C2 == 'x' || ev.C2 == 'X':
 		fs := strings.Fields(string(ev.Text))
-		if len(fs) > 0 {
-			handleExecute(ev, fs[0], fs[1:])
+		if len(fs) > 0 && handleExecute(ev, fs[0], fs[1:]) {
+			return
 		}
-	}
-	if (ev.C1 == 'M' || ev.C1 == 'K') && ev.C2 == 'I' {
+		ev.WriteEvent(ev.Event)
+
+	case (ev.C1 == 'M' || ev.C1 == 'K') && ev.C2 == 'I':
 		ev.typing(ev.Q0, ev.Q1)
 
-	} else if (ev.C1 == 'M' || ev.C1 == 'K') && ev.C2 == 'D' {
+	case (ev.C1 == 'M' || ev.C1 == 'K') && ev.C2 == 'D':
 		ev.deleting(ev.Q0, ev.Q1)
+
+	case ev.C2 == 'l' || ev.C2 == 'L':
+		ev.WriteEvent(ev.Event)
 	}
 }
 
 // HandleExecute handles acme execte commands.
-func handleExecute(ev winEvent, cmd string, args []string) {
+func handleExecute(ev winEvent, cmd string, args []string) bool {
 	switch cmd {
 	case "Del":
 		t := ev.target
@@ -458,7 +464,12 @@ func handleExecute(ev winEvent, cmd string, args []string) {
 		}
 		ev.win.who = []string{}
 		client.Out <- irc.Msg{Cmd: irc.WHO, Args: []string{ev.target}}
+
+	default:
+		return false
 	}
+
+	return true
 }
 
 // SendRawMsg sends a raw message to the server.
