@@ -1,16 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"code.google.com/p/eaburns/irc"
 	"code.google.com/p/goplan9/plan9/acme"
 	"flag"
-	"net"
 	"log"
+	"net"
 	"os"
-	"strings"
 	"sort"
+	"strings"
 	"time"
-	"bytes"
 	"unicode/utf8"
 )
 
@@ -21,11 +21,11 @@ const prompt = "\n> "
 const meCmd = "/me"
 
 var (
-	nick = flag.String("n", os.Getenv("USER"), "nick name")
-	full = flag.String("f", os.Getenv("USER"), "full name")
-	pass = flag.String("p", "", "password")
-	debug = flag.Bool("d", false, "debugging")
-	server =""
+	nick   = flag.String("n", os.Getenv("USER"), "nick name")
+	full   = flag.String("f", os.Getenv("USER"), "full name")
+	pass   = flag.String("p", "", "password")
+	debug  = flag.Bool("d", false, "debugging")
+	server = ""
 )
 
 var (
@@ -46,7 +46,7 @@ var (
 )
 
 func main() {
-	flag.Usage = func(){
+	flag.Usage = func() {
 		os.Stdout.WriteString("usage: 9irc [options] <server>[:<port>]\n")
 		flag.PrintDefaults()
 	}
@@ -64,7 +64,7 @@ func main() {
 	}
 
 	serverWin = newWindow("")
-	client, err = irc.DialServer(server+ ":" + port, *nick, *full, *pass)
+	client, err = irc.DialServer(server+":"+port, *nick, *full, *pass)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,10 +72,10 @@ func main() {
 
 	for {
 		select {
-		case ev := <- winEvents:
+		case ev := <-winEvents:
 			handleWindowEvent(ev)
 
-		case msg, ok := <-client.In:	
+		case msg, ok := <-client.In:
 			if !ok {
 				serverWin.WriteString("Disconnected")
 				os.Exit(0)
@@ -167,14 +167,14 @@ func newWindow(target string) *win {
 		aw.Fprintf("tag", "Who ")
 	}
 
-	w := &win {
-		Win: aw,
-		eAddr: utf8.RuneCountInString(prompt),
-		target: target,
-		users: make(map[string]*user),
+	w := &win{
+		Win:      aw,
+		eAddr:    utf8.RuneCountInString(prompt),
+		target:   target,
+		users:    make(map[string]*user),
 		lastTime: time.Now(),
 	}
-	go func() {	
+	go func() {
 		for ev := range aw.EventChan() {
 			winEvents <- winEvent{w, ev}
 		}
@@ -224,7 +224,7 @@ func (w *win) privMsgString(who, text string) string {
 	w.lastSpeaker = who
 	w.lastTime = time.Now()
 
-	if strings.HasPrefix(text, *nick + ":") {
+	if strings.HasPrefix(text, *nick+":") {
 		buf.WriteRune('*')
 	}
 	buf.WriteRune('\t')
@@ -284,7 +284,7 @@ func (w *win) typing(q0, q1 int) {
 		}
 
 		t := string(text[:i+1])
-		w.Addr("#%d,#%d", w.pAddr, w.eAddr + utf8.RuneCountInString(t))
+		w.Addr("#%d,#%d", w.pAddr, w.eAddr+utf8.RuneCountInString(t))
 		if strings.HasPrefix(t, meCmd) {
 			act := strings.TrimLeft(t[len(meCmd):], " \t")
 			if act == "\n" {
@@ -302,7 +302,7 @@ func (w *win) typing(q0, q1 int) {
 		} else {
 			msg = w.privMsgString(*nick, t)
 		}
-		w.writeData([]byte(msg+prompt))
+		w.writeData([]byte(msg + prompt))
 
 		w.pAddr += utf8.RuneCountInString(msg)
 		w.eAddr = w.pAddr + utf8.RuneCountInString(prompt)
@@ -312,10 +312,10 @@ func (w *win) typing(q0, q1 int) {
 			continue
 		}
 		if w == serverWin {
-			sendRawMsg(t)			
+			sendRawMsg(t)
 		} else {
 			client.Out <- irc.Msg{
-				Cmd: "PRIVMSG",
+				Cmd:  "PRIVMSG",
 				Args: []string{w.target, t},
 			}
 		}
@@ -368,7 +368,7 @@ type user struct {
 func getUser(nick string) *user {
 	u, ok := users[nick]
 	if !ok {
-		u = &user{nick: nick, origNick: nick, lastChange: time.Now() }
+		u = &user{nick: nick, origNick: nick, lastChange: time.Now()}
 		users[nick] = u
 	}
 	return u
@@ -380,7 +380,7 @@ func handleWindowEvent(ev winEvent) {
 	if *debug {
 		log.Printf("%#v\n\n", *ev.Event)
 	}
-	if ev.C2 == 'x' || ev.C2 == 'X' {	// execute tag or body
+	if ev.C2 == 'x' || ev.C2 == 'X' { // execute tag or body
 		fs := strings.Fields(string(ev.Text))
 		if len(fs) > 0 {
 			handleExecute(ev, fs[0], fs[1:])
@@ -400,22 +400,22 @@ func handleExecute(ev winEvent, cmd string, args []string) {
 	case "Del":
 		t := ev.target
 		if ev.win == serverWin {
-			client.Out <- irc.Msg{ Cmd: irc.QUIT }
+			client.Out <- irc.Msg{Cmd: irc.QUIT}
 			serverWin.Ctl("delete")
-		} else if t != "" && t[0] == '#' {	// channel
-			client.Out <- irc.Msg{ Cmd: irc.PART, Args: []string{t} }
-		} else {	// private message
+		} else if t != "" && t[0] == '#' { // channel
+			client.Out <- irc.Msg{Cmd: irc.PART, Args: []string{t}}
+		} else { // private message
 			delete(wins, ev.win.target)
 			ev.win.Ctl("delete")
 		}
 
 	case "Chat":
-		if len(args) != 1{
+		if len(args) != 1 {
 			break
 		}
 		if args[0][0] == '#' {
-			client.Out <- irc.Msg{ Cmd: irc.JOIN, Args: []string{args[0]} }
-		} else {	// private message
+			client.Out <- irc.Msg{Cmd: irc.JOIN, Args: []string{args[0]}}
+		} else { // private message
 			getWindow(args[0])
 		}
 
@@ -423,7 +423,7 @@ func handleExecute(ev winEvent, cmd string, args []string) {
 		if len(args) != 1 {
 			break
 		}
-		client.Out <- irc.Msg{ Cmd: irc.NICK, Args: []string{args[0]} }
+		client.Out <- irc.Msg{Cmd: irc.NICK, Args: []string{args[0]}}
 
 	case "Msg":
 		sendRawMsg(string(ev.Text)[len("Msg"):])
@@ -433,7 +433,7 @@ func handleExecute(ev winEvent, cmd string, args []string) {
 			break
 		}
 		ev.win.who = []string{}
-		client.Out <- irc.Msg{ Cmd: irc.WHO, Args: []string{ev.target} }
+		client.Out <- irc.Msg{Cmd: irc.WHO, Args: []string{ev.target}}
 	}
 }
 
@@ -460,13 +460,13 @@ func handleMsg(msg irc.Msg) {
 		os.Exit(0)
 
 	case irc.PING:
-		client.Out <- irc.Msg{ Cmd: irc.PONG }
+		client.Out <- irc.Msg{Cmd: irc.PONG}
 
 	case irc.RPL_MOTD:
 		serverWin.WriteString(lastArg(msg))
 
 	case irc.RPL_NAMREPLY:
-		doRplNamReply(msg.Args[len(msg.Args)-2], lastArg(msg))		
+		doRplNamReply(msg.Args[len(msg.Args)-2], lastArg(msg))
 
 	case irc.JOIN:
 		doJoin(msg.Args[0], msg.Origin)
@@ -599,7 +599,7 @@ func doEndOfWho(ch string) {
 	s := ""
 	sort.Strings(w.who)
 	for i, n := range w.who {
-		if i % 4 == 0 {
+		if i%4 == 0 {
 			if i > 0 {
 				s += "\n"
 			}
