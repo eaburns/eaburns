@@ -197,7 +197,7 @@ func (w *win) privMsgString(who, text string) string {
 			w.lastSpeaker = ""
 		}
 		w.lastTime = time.Now()
-		return who + text
+		return "*" + who + text
 	}
 
 	buf := bytes.NewBuffer(make([]byte, 0, 512))
@@ -227,7 +227,7 @@ func (w *win) privMsgString(who, text string) string {
 	w.lastTime = time.Now()
 
 	if strings.HasPrefix(text, *nick+":") {
-		buf.WriteRune('*')
+		buf.WriteRune('!')
 	}
 	buf.WriteRune('\t')
 	buf.WriteString(text)
