@@ -427,6 +427,9 @@ func handleWindowEvent(ev winEvent) {
 // HandleExecute handles acme execte commands.
 func handleExecute(ev winEvent, cmd string, args []string) bool {
 	switch cmd {
+	case "Debug":
+		*debug = !*debug
+
 	case "Del":
 		t := ev.target
 		if ev.win == serverWin {
