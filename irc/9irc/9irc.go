@@ -4,7 +4,6 @@ import (
 	"code.google.com/p/eaburns/irc"
 	"code.google.com/p/goplan9/plan9/acme"
 	"flag"
-	"fmt"
 	"net"
 	"log"
 	"os"
@@ -19,6 +18,8 @@ const defaultPort = "6667"
 
 const prompt = "\n> "
 
+const meCmd = "/me"
+
 var (
 	nick = flag.String("n", os.Getenv("USER"), "nick name")
 	full = flag.String("f", os.Getenv("USER"), "full name")
@@ -31,14 +32,14 @@ var (
 	// client is the IRC client connection.
 	client *irc.Client
 
-	// serverWin is the server window.
-	serverWin *window
+	// serverWin is the server win.
+	serverWin *win
 
-	// windows contains the windows, indexed by their targets.
-	windows = map[string]*window{}
+	// wins contains the wins, indexed by their targets.
+	wins = map[string]*win{}
 
-	// winEvents multiplexes all window events.
-	winEvents = make(chan windowEvent)
+	// winEvents multiplexes all win events.
+	winEvents = make(chan winEvent)
 
 	// users contains all known users.
 	users = map[string]*user{}
@@ -63,33 +64,16 @@ func main() {
 	}
 
 	serverWin = newWindow("")
-
-/*
-	var err error
 	client, err = irc.DialServer(server+ ":" + port, *nick, *full, *pass)
 	if err != nil {
 		log.Fatal(err)
 	}
-	serverWin.Fprintf("tag", "Join ")
-*/
-	_ = port
-	client = new(irc.Client)
-	client.In = make(chan irc.Msg)
-	o := make(chan irc.Msg)
-	client.Out = o
-	client.Errors = make(chan error)
-	go func() {
-		for _ = range o {
-		}
-	}()
-	tick := time.NewTicker(time.Second*time.Duration(5))
+	serverWin.Fprintf("tag", "Chat ")
 
 	for {
 		select {
 		case ev := <- winEvents:
-			fmt.Printf("paddr=%d, eaddr=%d\n", ev.promptAddr, ev.entryAddr)
 			handleWindowEvent(ev)
-			fmt.Printf("	-> paddr=%d, eaddr=%d\n", ev.promptAddr, ev.entryAddr)
 
 		case msg, ok := <-client.In:	
 			if !ok {
@@ -104,35 +88,29 @@ func main() {
 				log.Println(err)
 			}
 			os.Exit(1)
-
-		case <-tick.C:
-			s := serverWin.privMsgString("tick", fmt.Sprintf("%d %d %s",
-				serverWin.promptAddr,
-				serverWin.entryAddr,
-				time.Now().Format("15:04:05")))
-			serverWin.WriteString(s)
 		}
 	}
 }
 
-// window is an open acme window.
-type window struct {
+// win is an open acme windown for either
+// the server, a channel, or a private message.
+type win struct {
 	*acme.Win
 
 	// PromptAddr is the address of the empty
 	// string just before the prompt.  This is
 	// the address at which incoming messages
 	// will be displayed.
-	promptAddr int
+	pAddr int
 
 	// EntryAddr is the address of the empty
 	// byte just after the prompt after which
 	// is the user's input.
-	entryAddr int
+	eAddr int
 
-	// Target is the target of this window.  It
+	// Target is the target of this win.  It
 	// is either a channel name, a nick name
-	// or empty (for the server window).
+	// or empty (for the server win).
 	target string
 
 	// Users is all users currently in this channel
@@ -145,34 +123,36 @@ type window struct {
 
 	// LastMsgOrigin is the nick name of the last
 	// user to send a private message.
-	lastMsgOrigin string
+	lastSpeaker string
 
 	// LastMsgTime is the time at which the last
 	// private message was sent.
-	lastMsgTime time.Time
+	lastTime time.Time
 }
 
-// windowEvent is an event coming in on a window.
-type windowEvent struct {
-	*window
+// winEvent is an event coming in on a win.
+type winEvent struct {
+	*win
 	*acme.Event
 }
 
-// getWindow returns the window for the given target.
-// If the window already exists then it is returned,
+// getWindow returns the win for the given target.
+// If the win already exists then it is returned,
 // otherwise it is created.
-func getWindow(target string) *window {
-	w, ok := windows[target]
+func getWindow(target string) *win {
+	w, ok := wins[target]
 	if !ok {
 		w = newWindow(target)
-		windows[target] = w
+		wins[target] = w
 	}
 	return w
 }
 
-// newWindow creates a new acme window.
-func newWindow(target string) *window {
-	win, err := acme.New()
+// newWindow creates a new win and starts
+// a go routine sending its events to the
+// winEvents channel.
+func newWindow(target string) *win {
+	aw, err := acme.New()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -180,37 +160,41 @@ func newWindow(target string) *window {
 	if target != "" {
 		name += "/" + target
 	}
-	win.Name(name)
-	win.Ctl("clean")
-	win.Write("body", []byte(prompt))
+	aw.Name(name)
+	aw.Ctl("clean")
+	aw.Write("body", []byte(prompt))
 	if len(target) > 0 && target[0] == '#' {
-		win.Fprintf("tag", "Who ")
+		aw.Fprintf("tag", "Who ")
 	}
 
-	w := &window {
-		Win: win,
-		entryAddr: utf8.RuneCountInString(prompt),
+	w := &win {
+		Win: aw,
+		eAddr: utf8.RuneCountInString(prompt),
 		target: target,
 		users: make(map[string]*user),
-		lastMsgTime: time.Now(),
+		lastTime: time.Now(),
 	}
 	go func() {	
-		for ev := range win.EventChan() {
-			winEvents <- windowEvent{w, ev}
+		for ev := range aw.EventChan() {
+			winEvents <- winEvent{w, ev}
 		}
 	}()
-
 	return w
 }
 
+const actionPrefix = "\x01ACTION"
+
 // privMsgString returns the string that should
-// be written to this window for a message.
-func (w *window) privMsgString(who, text string) string {
-	const actionPrefix = "\x01ACTION"
+// be written to this win for a message.
+func (w *win) privMsgString(who, text string) string {
+	if text == "\n" {
+		return ""
+	}
+
 	if strings.HasPrefix(text, actionPrefix) {
 		text = strings.TrimRight(text[len(actionPrefix):], "\x01")
-		w.lastMsgOrigin = ""
-		w.lastMsgTime = time.Now()
+		w.lastSpeaker = ""
+		w.lastTime = time.Now()
 		return who + text
 	}
 
@@ -218,7 +202,7 @@ func (w *window) privMsgString(who, text string) string {
 
 	// Only print the user name if there is a
 	// new speaker or if two minutes has passed.
-	if who != w.lastMsgOrigin || time.Since(w.lastMsgTime).Minutes() > 2 {
+	if who != w.lastSpeaker || time.Since(w.lastTime).Minutes() > 2 {
 		buf.WriteRune('<')
 		buf.WriteString(who)
 		buf.WriteRune('>')
@@ -237,12 +221,11 @@ func (w *window) privMsgString(who, text string) string {
 		}
 		buf.WriteRune('\n')
 	}
-	w.lastMsgOrigin = who
-	w.lastMsgTime = time.Now()
+	w.lastSpeaker = who
+	w.lastTime = time.Now()
 
 	if strings.HasPrefix(text, *nick + ":") {
 		buf.WriteRune('*')
-		buf.WriteString(text)
 	}
 	buf.WriteRune('\t')
 	buf.WriteString(text)
@@ -252,7 +235,7 @@ func (w *window) privMsgString(who, text string) string {
 // writeData writes all of the given bytes to the
 // data file.  Uses a chunk size that is small enough
 // that acme won't choke on it.
-func (w *window) writeData(data []byte) {
+func (w *win) writeData(data []byte) {
 	const maxWrite = 512
 	for len(data) > 0 {
 		sz := len(data)
@@ -267,36 +250,33 @@ func (w *window) writeData(data []byte) {
 	}
 }
 
-// WriteString writes a string to the body of a window.
-func (w *window) WriteString(str string) {
-	w.Addr("#%d", w.promptAddr)
+// WriteString writes a string to the body of a win.
+func (w *win) WriteString(str string) {
+	w.Addr("#%d", w.pAddr)
 	data := []byte(str + "\n")
 	w.writeData(data)
 
 	nr := utf8.RuneCount(data)
-	w.promptAddr += nr
-	w.entryAddr += nr
+	w.pAddr += nr
+	w.eAddr += nr
 }
 
-func (w *window) typing(q0, q1 int) {
-	const maxWrite = 512
-
-	if q0 < w.promptAddr {
-		w.promptAddr += q1 - q0
-		// w.textAddr >= w.promptAddr so this
+func (w *win) typing(q0, q1 int) {
+	if q0 < w.pAddr {
+		w.pAddr += q1 - q0
+		// w.textAddr >= w.pAddr so this
 		// call returns in the next if clause.
 	}
-	if q0 < w.entryAddr {
-		w.entryAddr += q1 - q0
+	if q0 < w.eAddr {
+		w.eAddr += q1 - q0
 		return
 	}
 
-	w.Addr("#%d", w.entryAddr)
+	w.Addr("#%d", w.eAddr)
 	text, err := w.ReadAll("data")
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("text after prompt=[%s]", text)
 	for {
 		i := bytes.IndexRune(text, '\n')
 		if i < 0 {
@@ -304,37 +284,51 @@ func (w *window) typing(q0, q1 int) {
 		}
 
 		t := string(text[:i+1])
-		w.Addr("#%d,#%d", w.promptAddr, w.entryAddr + utf8.RuneCountInString(t))
-		msg := ""
-		if t != "\n" {
-			msg = w.privMsgString(*nick, t)
+		w.Addr("#%d,#%d", w.pAddr, w.eAddr + utf8.RuneCountInString(t))
+		if strings.HasPrefix(t, meCmd) {
+			act := strings.TrimLeft(t[len(meCmd):], " \t")
+			if act == "\n" {
+				t = "\n"
+			} else {
+				t = actionPrefix + " " + act + "\x01"
+			}
 		}
+
+		msg := w.privMsgString(*nick, t)
 		w.writeData([]byte(msg+prompt))
 
-		w.promptAddr += utf8.RuneCountInString(msg)
-		w.entryAddr = w.promptAddr + utf8.RuneCountInString(prompt)
+		w.pAddr += utf8.RuneCountInString(msg)
+		w.eAddr = w.pAddr + utf8.RuneCountInString(prompt)
 		text = text[i+1:]
+
+		if t == "\n" {
+			continue
+		}
+		client.Out <- irc.Msg{
+			Cmd: "PRIVMSG",
+			Args: []string{w.target, t},
+		}
 	}
-	w.Addr("#%d", w.promptAddr)
+	w.Addr("#%d", w.pAddr)
 }
 
-func (w *window) deleting(q0, q1 int) {
-	if q0 >= w.entryAddr {
+func (w *win) deleting(q0, q1 int) {
+	if q0 >= w.eAddr {
 		return
 	}
-	if q1 >= w.entryAddr {
-		w.entryAddr = q0
+	if q1 >= w.eAddr {
+		w.eAddr = q0
 	} else {
-		w.entryAddr -= q1 - q0
+		w.eAddr -= q1 - q0
 	}
 
-	if q0 >= w.promptAddr {
+	if q0 >= w.pAddr {
 		return
 	}
-	if q1 >= w.promptAddr {
-		w.promptAddr = q0
+	if q1 >= w.pAddr {
+		w.pAddr = q0
 	} else {
-		w.promptAddr -= q1 - q0
+		w.pAddr -= q1 - q0
 	}
 }
 
@@ -370,8 +364,8 @@ func getUser(nick string) *user {
 }
 
 // handleWindowEvent handles events from
-// any of the acme windows.
-func handleWindowEvent(ev windowEvent) {
+// any of the acme wins.
+func handleWindowEvent(ev winEvent) {
 	if *debug {
 		log.Printf("%#v\n\n", *ev.Event)
 	}
@@ -380,7 +374,13 @@ func handleWindowEvent(ev windowEvent) {
 		if len(fs) > 0 {
 			handleExecute(ev, fs[0], fs[1:])
 		}
-	} else if (ev.C1 == 'M' || ev.C1 == 'K') && ev.C2 == 'I' {
+	}
+
+	// Ignore typing in the server window.
+	if ev.win == serverWin {
+		return
+	}
+	if (ev.C1 == 'M' || ev.C1 == 'K') && ev.C2 == 'I' {
 		ev.typing(ev.Q0, ev.Q1)
 
 	} else if (ev.C1 == 'M' || ev.C1 == 'K') && ev.C2 == 'D' {
@@ -389,25 +389,29 @@ func handleWindowEvent(ev windowEvent) {
 }
 
 // handleExecute handles acme execte commands.
-func handleExecute(ev windowEvent, cmd string, args []string) {
+func handleExecute(ev winEvent, cmd string, args []string) {
 	switch cmd {
 	case "Del":
 		t := ev.target
-		if ev.window == serverWin {
+		if ev.win == serverWin {
 			client.Out <- irc.Msg{ Cmd: irc.QUIT }
 			serverWin.Ctl("delete")
 		} else if t != "" && t[0] == '#' {	// channel
 			client.Out <- irc.Msg{ Cmd: irc.PART, Args: []string{t} }
 		} else {	// private message
-			delete(windows, ev.window.target)
-			ev.window.Ctl("delete")
+			delete(wins, ev.win.target)
+			ev.win.Ctl("delete")
 		}
 
-	case "Join":
+	case "Chat":
 		if len(args) != 1{
 			break
 		}
-		client.Out <- irc.Msg{ Cmd: irc.JOIN, Args: []string{args[0]} }
+		if args[0][0] == '#' {
+			client.Out <- irc.Msg{ Cmd: irc.JOIN, Args: []string{args[0]} }
+		} else {	// private message
+			getWindow(args[0])
+		}
 
 	case "Nick":
 		if len(args) != 1 {
@@ -428,7 +432,7 @@ func handleExecute(ev windowEvent, cmd string, args []string) {
 		if ev.target[0] != '#' {
 			break
 		}
-		ev.window.who = []string{}
+		ev.win.who = []string{}
 		client.Out <- irc.Msg{ Cmd: irc.WHO, Args: []string{ev.target} }
 	}
 }
@@ -502,13 +506,13 @@ func doJoin(ch, who string) {
 }
 
 func doPart(ch, who string) {
-	w, ok := windows[ch]
+	w, ok := wins[ch]
 	if !ok {
 		return
 	}
 	if who == *nick {
 		w.Ctl("delete")
-		delete(windows, w.target)
+		delete(wins, w.target)
 	} else {
 		w.WriteString("-" + who)
 		delete(w.users, who)
@@ -522,7 +526,7 @@ func doPart(ch, who string) {
 
 func doQuit(who, txt string) {
 	delete(users, who)
-	for _, w := range windows {
+	for _, w := range wins {
 		if _, ok := w.users[who]; !ok {
 			continue
 		}
@@ -555,7 +559,7 @@ func doNick(prev, cur string) {
 	u.nick = cur
 	u.lastChange = time.Now()
 
-	for _, w := range windows {
+	for _, w := range wins {
 		if _, ok := w.users[prev]; !ok {
 			continue
 		}
