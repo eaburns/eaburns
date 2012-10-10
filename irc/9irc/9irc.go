@@ -294,7 +294,14 @@ func (w *win) typing(q0, q1 int) {
 			}
 		}
 
-		msg := w.privMsgString(*nick, t)
+		msg := ""
+		if w == serverWin {
+			if msg = t; msg == "\n" {
+				msg = ""
+			}
+		} else {
+			msg = w.privMsgString(*nick, t)
+		}
 		w.writeData([]byte(msg+prompt))
 
 		w.pAddr += utf8.RuneCountInString(msg)
@@ -304,9 +311,13 @@ func (w *win) typing(q0, q1 int) {
 		if t == "\n" {
 			continue
 		}
-		client.Out <- irc.Msg{
-			Cmd: "PRIVMSG",
-			Args: []string{w.target, t},
+		if w == serverWin {
+			sendRawMsg(t)			
+		} else {
+			client.Out <- irc.Msg{
+				Cmd: "PRIVMSG",
+				Args: []string{w.target, t},
+			}
 		}
 	}
 	w.Addr("#%d", w.pAddr)
@@ -375,11 +386,6 @@ func handleWindowEvent(ev winEvent) {
 			handleExecute(ev, fs[0], fs[1:])
 		}
 	}
-
-	// Ignore typing in the server window.
-	if ev.win == serverWin {
-		return
-	}
 	if (ev.C1 == 'M' || ev.C1 == 'K') && ev.C2 == 'I' {
 		ev.typing(ev.Q0, ev.Q1)
 
@@ -420,13 +426,7 @@ func handleExecute(ev winEvent, cmd string, args []string) {
 		client.Out <- irc.Msg{ Cmd: irc.NICK, Args: []string{args[0]} }
 
 	case "Msg":
-		str := string(ev.Text)[len("Msg"):]
-		str = strings.TrimLeft(str, " \t")
-		if msg, err := irc.ParseMsg(str); err != nil {
-			log.Println(err.Error())
-		} else {
-			client.Out <- msg
-		}
+		sendRawMsg(string(ev.Text)[len("Msg"):])
 
 	case "Who":
 		if ev.target[0] != '#' {
@@ -434,6 +434,18 @@ func handleExecute(ev winEvent, cmd string, args []string) {
 		}
 		ev.win.who = []string{}
 		client.Out <- irc.Msg{ Cmd: irc.WHO, Args: []string{ev.target} }
+	}
+}
+
+// sendRawMsg sends a raw message to the server.
+// If there is an error parsing a message  from the
+// string then it is logged.
+func sendRawMsg(str string) {
+	str = strings.TrimLeft(str, " \t")
+	if msg, err := irc.ParseMsg(str); err != nil {
+		log.Println(err.Error())
+	} else {
+		client.Out <- msg
 	}
 }
 
