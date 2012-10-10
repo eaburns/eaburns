@@ -193,7 +193,9 @@ func (w *win) privMsgString(who, text string) string {
 
 	if strings.HasPrefix(text, actionPrefix) {
 		text = strings.TrimRight(text[len(actionPrefix):], "\x01")
-		w.lastSpeaker = ""
+		if w.lastSpeaker != who {
+			w.lastSpeaker = ""
+		}
 		w.lastTime = time.Now()
 		return who + text
 	}
