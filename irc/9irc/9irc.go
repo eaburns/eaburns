@@ -313,7 +313,7 @@ func (w *win) typing(q0, q1 int) {
 			if act == "\n" {
 				t = "\n"
 			} else {
-				t = actionPrefix + " " + act + "\x01\n"
+				t = actionPrefix + " " + act + "\x01"
 			}
 		}
 
@@ -324,6 +324,14 @@ func (w *win) typing(q0, q1 int) {
 			}
 		} else {
 			msg = w.privMsgString(*nick, t)
+
+			// Always tack on a newline.
+			// In the case of a /me command, the
+			// newline will be missing, it is added
+			// here.
+			if len(msg) > 0 && msg[len(msg)-1] != '\n' {
+				msg = msg + "\n"
+			}
 		}
 		w.writeData([]byte(msg + prompt))
 
