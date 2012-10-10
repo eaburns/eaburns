@@ -562,6 +562,9 @@ func doPrivMsg(ch, who, text string) {
 func doNick(prev, cur string) {
 	if prev == *nick {
 		*nick = cur
+		for _, w := range wins {
+			w.WriteString(prev + " -> " + cur)
+		}
 		return
 	}
 
