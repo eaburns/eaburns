@@ -92,7 +92,7 @@ func main() {
 	}
 }
 
-// win is an open acme windown for either
+// Win is an open acme windown for either
 // the server, a channel, or a private message.
 type win struct {
 	*acme.Win
@@ -130,13 +130,13 @@ type win struct {
 	lastTime time.Time
 }
 
-// winEvent is an event coming in on a win.
+// WinEvent is an event coming in on a win.
 type winEvent struct {
 	*win
 	*acme.Event
 }
 
-// getWindow returns the win for the given target.
+// GetWindow returns the win for the given target.
 // If the win already exists then it is returned,
 // otherwise it is created.
 func getWindow(target string) *win {
@@ -148,7 +148,7 @@ func getWindow(target string) *win {
 	return w
 }
 
-// newWindow creates a new win and starts
+// NewWindow creates a new win and starts
 // a go routine sending its events to the
 // winEvents channel.
 func newWindow(target string) *win {
@@ -184,7 +184,7 @@ func newWindow(target string) *win {
 
 const actionPrefix = "\x01ACTION"
 
-// privMsgString returns the string that should
+// PrivMsgString returns the string that should
 // be written to this win for a message.
 func (w *win) privMsgString(who, text string) string {
 	if text == "\n" {
@@ -232,7 +232,34 @@ func (w *win) privMsgString(who, text string) string {
 	return buf.String()
 }
 
-// writeData writes all of the given bytes to the
+// WritePrivMsg writes the private message text
+// to the window.  The message is decorated with
+// the name of the sender unless the last message
+// to this window was from the same sender within
+// a specified time.
+func (w *win) writePrivMsg(who, text string) {
+	w.WriteString(w.privMsgString(who, text))
+}
+
+// WriteMsg writes non-private message text to
+// the window.
+func (w *win) writeMsg(text string) {
+	w.WriteString(text)
+	w.lastSpeaker = ""
+}
+
+// WriteString writes a string to the body of a win.
+func (w *win) WriteString(str string) {
+	w.Addr("#%d", w.pAddr)
+	data := []byte(str + "\n")
+	w.writeData(data)
+
+	nr := utf8.RuneCount(data)
+	w.pAddr += nr
+	w.eAddr += nr
+}
+
+// WriteData writes all of the given bytes to the
 // data file.  Uses a chunk size that is small enough
 // that acme won't choke on it.
 func (w *win) writeData(data []byte) {
@@ -250,17 +277,10 @@ func (w *win) writeData(data []byte) {
 	}
 }
 
-// WriteString writes a string to the body of a win.
-func (w *win) WriteString(str string) {
-	w.Addr("#%d", w.pAddr)
-	data := []byte(str + "\n")
-	w.writeData(data)
-
-	nr := utf8.RuneCount(data)
-	w.pAddr += nr
-	w.eAddr += nr
-}
-
+// Typing moves addresses around when text
+// is typed.  If the the user enters a newline after
+// the prompt then the text is sent to the
+// target of the window.
 func (w *win) typing(q0, q1 int) {
 	if q0 < w.pAddr {
 		w.pAddr += q1 - q0
@@ -323,6 +343,8 @@ func (w *win) typing(q0, q1 int) {
 	w.Addr("#%d", w.pAddr)
 }
 
+// Deleting moves the addresses around when
+// text is deleted from the window.
 func (w *win) deleting(q0, q1 int) {
 	if q0 >= w.eAddr {
 		return
@@ -343,7 +365,7 @@ func (w *win) deleting(q0, q1 int) {
 	}
 }
 
-// user has information on a single user.
+// User has information on a single user.
 type user struct {
 	// nick is the user's current nick name.
 	nick string
@@ -362,7 +384,7 @@ type user struct {
 	nChans int
 }
 
-// getUser returns the nick for the given user.
+// GetUser returns the nick for the given user.
 // If there is no known user for this nick then
 // one is created.
 func getUser(nick string) *user {
@@ -374,7 +396,7 @@ func getUser(nick string) *user {
 	return u
 }
 
-// handleWindowEvent handles events from
+// HandleWindowEvent handles events from
 // any of the acme wins.
 func handleWindowEvent(ev winEvent) {
 	if *debug {
@@ -394,7 +416,7 @@ func handleWindowEvent(ev winEvent) {
 	}
 }
 
-// handleExecute handles acme execte commands.
+// HandleExecute handles acme execte commands.
 func handleExecute(ev winEvent, cmd string, args []string) {
 	switch cmd {
 	case "Del":
@@ -437,7 +459,7 @@ func handleExecute(ev winEvent, cmd string, args []string) {
 	}
 }
 
-// sendRawMsg sends a raw message to the server.
+// SendRawMsg sends a raw message to the server.
 // If there is an error parsing a message  from the
 // string then it is logged.
 func sendRawMsg(str string) {
@@ -449,7 +471,7 @@ func sendRawMsg(str string) {
 	}
 }
 
-// handleMsg handles IRC messages from
+// HandleMsg handles IRC messages from
 // the server.
 func handleMsg(msg irc.Msg) {
 	if *debug {
@@ -509,8 +531,7 @@ func doRplNamReply(ch string, names string) {
 
 func doJoin(ch, who string) {
 	w := getWindow(ch)
-	w.WriteString("+" + who)
-	w.lastSpeaker = ""
+	w.writeMsg("+" + who)
 	if who != *nick {
 		u := getUser(who)
 		w.users[who] = u
@@ -527,8 +548,7 @@ func doPart(ch, who string) {
 		w.Ctl("delete")
 		delete(wins, w.target)
 	} else {
-		w.WriteString("-" + who)
-		w.lastSpeaker = ""
+		w.writeMsg("-" + who)
 		delete(w.users, who)
 		u := getUser(who)
 		u.nChans--
@@ -549,8 +569,7 @@ func doQuit(who, txt string) {
 		if txt != "" {
 			s += ": " + txt
 		}
-		w.WriteString(s)
-		w.lastSpeaker = ""
+		w.writeMsg(s)
 	}
 }
 
@@ -558,16 +577,14 @@ func doPrivMsg(ch, who, text string) {
 	if ch == *nick {
 		ch = who
 	}
-	w := getWindow(ch)
-	w.WriteString(w.privMsgString(who, text))
+	getWindow(ch).writePrivMsg(who, text)
 }
 
 func doNick(prev, cur string) {
 	if prev == *nick {
 		*nick = cur
 		for _, w := range wins {
-			w.WriteString(prev + " -> " + cur)
-			w.lastSpeaker = ""
+			w.writeMsg(prev + " -> " + cur)
 		}
 		return
 	}
@@ -584,8 +601,7 @@ func doNick(prev, cur string) {
 		}
 		delete(w.users, prev)
 		w.users[cur] = u
-		w.WriteString(prev + " -> " + cur)
-		w.lastSpeaker = ""
+		w.writeMsg(prev + " -> " + cur)
 	}
 }
 
@@ -616,12 +632,11 @@ func doEndOfWho(ch string) {
 		}
 		s += "[" + n + "]"
 	}
+	w.writeMsg(s)
 	w.who = []string{}
-	w.WriteString(s)
-	w.lastSpeaker = ""
 }
 
-// lastArg returns the last message
+// LastArg returns the last message
 // argument or the empty string if there
 // are no arguments.
 func lastArg(msg irc.Msg) string {
