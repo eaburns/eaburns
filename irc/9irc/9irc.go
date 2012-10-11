@@ -1,3 +1,4 @@
+// 9irc is an IRC client for the acme editor.
 package main
 
 import (
@@ -84,10 +85,7 @@ func main() {
 
 		case err := <-client.Errors:
 			log.Println(err)
-			for err := range client.Errors {
-				log.Println(err)
-			}
-			os.Exit(1)
+
 		}
 	}
 }

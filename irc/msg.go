@@ -45,12 +45,15 @@ type Msg struct {
 // RawString returns the raw string representation
 // of a message.  If Raw is non-empty then it is
 // returned, otherwise a raw string is built from
-// the fields of the message.
-func (m Msg) RawString() string {
-	if m.Raw != "" {
-		return m.Raw
-	}
+// the fields of the message.  If there is an error
+// generating the raw string then the string is
+// invalid and an error is returned.
+func (m Msg) RawString() (string, error) {
 	raw := ""
+	if m.Raw != "" {
+		raw = m.Raw
+		goto out
+	}	
 	if m.Origin != "" {
 		raw += ":" + m.Origin
 		if m.User != "" {
@@ -66,7 +69,11 @@ func (m Msg) RawString() string {
 			raw += " " + a
 		}
 	}
-	return raw
+out:
+	if len(raw) > MaxMsgLength - len(MsgMarker) {
+		return "", errors.New("message is too long")
+	}
+	return raw, nil
 }
 
 // ParseMsg parses a message from
@@ -135,6 +142,10 @@ func splitString(s string, delim rune) (string, string) {
 // MaxMsgLength is the maximum length
 // of a message in bytes.
 const MaxMsgLength = 512
+
+// MsgMarker is the marker delineating messages
+// in the TCP stream.
+const MsgMarker = "\r\n"
 
 // readMsgData returns the raw data for the
 // next message from the stream.  On error the

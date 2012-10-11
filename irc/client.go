@@ -18,14 +18,10 @@ type Client struct {
 	// from the server.
 	In <-chan Msg
 
-	// Msgs sent to Out are written
-	// to the server.
+	// Msgs sent to Out are written to the server.
 	Out chan<- Msg
 
-	// Errors is a channel of all read or write
-	// errors.  Errors are sent on this channel
-	// immediately before the connection
-	// is closed.
+	// Errors is a channel of all read or write errors.
 	Errors <-chan error
 }
 
@@ -96,7 +92,10 @@ func (c *Client) register(nick, fullname, pass string) error {
 }
 
 // readMsgs reads messages from the client and
-// sends them on the message channel.
+// sends them on the message channel.  If an
+// error occurs then it is sent on the errs channel,
+// the errs channel, ms channel, and connection
+// are all closed and the routine terminates.
 func (c *Client) readMsgs(errs chan<- error, ms chan<- Msg) {
 	in := bufio.NewReader(c.conn)
 	for {
@@ -113,20 +112,27 @@ func (c *Client) readMsgs(errs chan<- error, ms chan<- Msg) {
 }
 
 // writeMsgs writes the messages coming in on the
-// channel to the connection.
+// channel to the connection.  If there is an error,
+// it is sent on the errs channel.  If the error occurs
+// while writing to the client then the routine
+// closes the errs channel, the connection, and
+// discards all remaining messages.
 func (c *Client) writeMsgs(errs chan<- error, ms <-chan Msg) {
 	out := bufio.NewWriter(c.conn)
-	var err error
 	for m := range ms {
-		if _, err = out.WriteString(m.RawString() + "\r\n"); err != nil {
+		str, err := m.RawString()
+		if err != nil {
+			errs <- err
+			continue
+		}
+		if _, err = out.WriteString(str + "\r\n"); err != nil {
+			errs <- err
 			break
 		}
 		if err = out.Flush(); err != nil {
+			errs <- err
 			break
 		}
-	}
-	if err != nil {
-		errs <- err
 	}
 	close(errs)
 	c.conn.Close()
