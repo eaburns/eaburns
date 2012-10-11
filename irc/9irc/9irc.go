@@ -465,9 +465,6 @@ func handleExecute(ev winEvent, cmd string, args []string) bool {
 		}
 		client.Out <- irc.Msg{Cmd: irc.NICK, Args: []string{args[0]}}
 
-	case "Msg":
-		sendRawMsg(string(ev.Text)[len("Msg"):])
-
 	case "Who":
 		if ev.target[0] != '#' {
 			break
