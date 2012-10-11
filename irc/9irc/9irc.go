@@ -518,7 +518,7 @@ func handleMsg(msg irc.Msg) {
 		serverWin.WriteString(lastArg(msg))
 
 	case irc.RPL_NAMREPLY:
-		doRplNamReply(msg.Args[len(msg.Args)-2], lastArg(msg))
+		doNamReply(msg.Args[len(msg.Args)-2], lastArg(msg))
 
 	case irc.JOIN:
 		doJoin(msg.Args[0], msg.Origin)
@@ -550,7 +550,7 @@ func handleMsg(msg irc.Msg) {
 	}
 }
 
-func doRplNamReply(ch string, names string) {
+func doNamReply(ch string, names string) {
 	for _, n := range strings.Fields(names) {
 		n = strings.TrimLeft(n, "@+")
 		if n != *nick {
@@ -636,6 +636,8 @@ func doNick(prev, cur string) {
 }
 
 func doWhoReply(ch string, info []string) {
+	// BUG(eaburns): limit number of stored names to limit memory use.
+
 	w := getWindow(ch)
 	s := info[3]
 	if strings.IndexRune(info[4], '+') >= 0 {
