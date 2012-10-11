@@ -71,6 +71,14 @@ func main() {
 	}
 	serverWin.Fprintf("tag", "Chat ")
 
+	// Set Dump handling for the server window.
+	if wd, err := os.Getwd(); err != nil {
+		log.Println(err)
+	} else {
+		serverWin.Ctl("dumpdir %s", wd)
+	}
+	serverWin.Ctl("dump %s", strings.Join(os.Args, " "))
+
 	for {
 		select {
 		case ev := <-winEvents:
