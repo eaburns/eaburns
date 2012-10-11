@@ -343,6 +343,7 @@ func (w *win) typing(q0, q1 int) {
 		if w == serverWin {
 			sendRawMsg(t)
 		} else {
+			// BUG(eaburns): Long PRIVMSGs should be broken up and sent in pieces.
 			client.Out <- irc.Msg{
 				Cmd:  "PRIVMSG",
 				Args: []string{w.target, t},
