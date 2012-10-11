@@ -428,6 +428,15 @@ func handleWindowEvent(ev winEvent) {
 		ev.deleting(ev.Q0, ev.Q1)
 
 	case ev.C2 == 'l' || ev.C2 == 'L':
+		if ev.Flag & 2 != 0 {	// expansion
+			// The look was on highlighted text.  Instead of
+			// sending the hilighted text, send the original
+			// addresses, so that 3-clicking without draging
+			// on selected text doesn't move the cursor
+			// out of the tag.
+			ev.Q0 = ev.OrigQ0
+			ev.Q1 = ev.OrigQ1
+		}
 		ev.WriteEvent(ev.Event)
 	}
 }
