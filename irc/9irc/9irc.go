@@ -644,8 +644,6 @@ func doNick(prev, cur string) {
 }
 
 func doWhoReply(ch string, info []string) {
-	// BUG(eaburns): limit number of stored names to limit memory use.
-
 	w := getWindow(ch)
 	s := info[3]
 	if strings.IndexRune(info[4], '+') >= 0 {
@@ -660,20 +658,9 @@ func doWhoReply(ch string, info []string) {
 
 func doEndOfWho(ch string) {
 	w := getWindow(ch)
-	s := ""
 	sort.Strings(w.who)
-	for i, n := range w.who {
-		if i%4 == 0 {
-			if i > 0 {
-				s += "\n"
-			}
-		} else {
-			s += " "
-		}
-		s += "[" + n + "]"
-	}
-	w.writeMsg(s)
-	w.who = []string{}
+	w.writeMsg("[" + strings.Join(w.who, "] [") + "]")
+	w.who = w.who[:0]
 }
 
 // LastArg returns the last message
