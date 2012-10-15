@@ -570,6 +570,7 @@ func doNamReply(ch string, names string) {
 func doJoin(ch, who string) {
 	w := getWindow(ch)
 	w.writeMsg("+" + who)
+	// BUG(eaburns): The channel topic should be printed when joining.
 	if who != *nick {
 		u := getUser(who)
 		w.users[who] = u
