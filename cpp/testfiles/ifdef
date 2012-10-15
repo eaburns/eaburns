@@ -1,0 +1,14 @@
+#define THIS
+#ifdef THIS
+you should see this
+#endif
+#ifdef NOTDEFINED
+but not this
+#ifdef THIS
+	and not this
+#endif
+#endif
+#ifndef \
+	NOTDEFINED	// some garbage here
+		you should see this too
+#endif	// and here
