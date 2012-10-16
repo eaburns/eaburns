@@ -91,9 +91,10 @@ func main() {
 			}
 			handleMsg(msg)
 
-		case err := <-client.Errors:
-			log.Println(err)
-
+		case err, ok := <-client.Errors:
+			if ok {
+				log.Println(err)
+			}
 		}
 	}
 }
