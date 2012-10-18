@@ -98,6 +98,7 @@ out:
 			}
 		}
 	}
+	close(client.Out)
 	for _, w := range wins {
 		w.WriteString("Disconnected")
 		w.Ctl("clean")
