@@ -8,6 +8,7 @@ import (
 	"flag"
 	"log"
 	"net"
+	"io"
 	"os"
 	"sort"
 	"strings"
@@ -79,6 +80,7 @@ func main() {
 	}
 	serverWin.Ctl("dump %s", strings.Join(os.Args, " "))
 
+out:
 	for {
 		select {
 		case ev := <-winEvents:
@@ -86,17 +88,22 @@ func main() {
 
 		case msg, ok := <-client.In:
 			if !ok {
-				serverWin.WriteString("Disconnected")
-				os.Exit(0)
+				break out
 			}
 			handleMsg(msg)
 
 		case err, ok := <-client.Errors:
-			if ok {
+			if ok && err != io.EOF {
 				log.Println(err)
 			}
 		}
 	}
+	for _, w := range wins {
+		w.WriteString("Disconnected")
+		w.Ctl("clean")
+	}
+	serverWin.WriteString("Disconnected")
+	serverWin.Ctl("clean")
 }
 
 // Win is an open acme windown for either
@@ -460,7 +467,6 @@ func handleExecute(ev winEvent, cmd string, args []string) bool {
 		t := ev.target
 		if ev.win == serverWin {
 			client.Out <- irc.Msg{Cmd: irc.QUIT}
-			serverWin.Ctl("delete")
 		} else if t != "" && t[0] == '#' { // channel
 			client.Out <- irc.Msg{Cmd: irc.PART, Args: []string{t}}
 		} else { // private message
@@ -519,7 +525,7 @@ func handleMsg(msg irc.Msg) {
 
 	switch msg.Cmd {
 	case irc.ERROR:
-		os.Exit(0)
+		log.Fatal(msg)
 
 	case irc.PING:
 		client.Out <- irc.Msg{Cmd: irc.PONG}
