@@ -18,7 +18,7 @@ import (
 
 const defaultPort = "6667"
 
-const prompt = "\n> "
+const prompt = "\n>"
 
 const meCmd = "/me"
 
