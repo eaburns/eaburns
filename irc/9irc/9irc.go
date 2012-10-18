@@ -517,7 +517,6 @@ func handleMsg(msg irc.Msg) {
 		log.Printf("%#v\n\n", msg)
 	}
 
-	// BUG(eaburns): handle TOPIC.
 	switch msg.Cmd {
 	case irc.ERROR:
 		os.Exit(0)
@@ -530,6 +529,12 @@ func handleMsg(msg irc.Msg) {
 
 	case irc.RPL_NAMREPLY:
 		doNamReply(msg.Args[len(msg.Args)-2], lastArg(msg))
+
+	case irc.RPL_TOPIC:
+		doTopic(msg.Args[1], msg.Args[0], lastArg(msg))
+
+	case irc.TOPIC:
+		doTopic(msg.Args[0], msg.Origin, lastArg(msg))
 
 	case irc.JOIN:
 		doJoin(msg.Args[0], msg.Origin)
@@ -570,10 +575,14 @@ func doNamReply(ch string, names string) {
 	}
 }
 
+func doTopic(ch, who, what string) {
+	w := getWindow(ch)
+	w.writeMsg("=" + who + " topic: " + what)
+}
+
 func doJoin(ch, who string) {
 	w := getWindow(ch)
 	w.writeMsg("+" + who)
-	// BUG(eaburns): The channel topic should be printed when joining.
 	if who != *nick {
 		u := getUser(who)
 		w.users[who] = u
