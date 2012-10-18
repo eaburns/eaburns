@@ -516,6 +516,8 @@ func handleMsg(msg irc.Msg) {
 	if *debug {
 		log.Printf("%#v\n\n", msg)
 	}
+
+	// BUG(eaburns): handle TOPIC.
 	switch msg.Cmd {
 	case irc.ERROR:
 		os.Exit(0)
