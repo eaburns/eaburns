@@ -584,7 +584,7 @@ func doNamReply(ch string, names string) {
 
 func doTopic(ch, who, what string) {
 	w := getWindow(ch)
-	w.writeMsg("=" + who + " topic: " + what)
+	w.writeMsg("^" + who + " topic: " + what)
 }
 
 func doJoin(ch, who string) {
