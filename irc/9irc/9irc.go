@@ -144,7 +144,11 @@ func handleConnecting(conn <-chan bool) {
 				if len(fs) > 0 && fs[0] == "Del" {
 					if ev.win == serverWin {
 						serverWin.WriteString("Quit")
-						serverWin.Ctl("clean")
+						serverWin.Ctl("clean")				
+						for _, w := range wins {
+							w.WriteString("Quit")
+							w.Ctl("clean")
+						}
 						os.Exit(0)
 					}
 					ev.win.del()
