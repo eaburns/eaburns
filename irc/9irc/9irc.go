@@ -58,6 +58,10 @@ var (
 
 	// users contains all known users.
 	users = map[string]*user{}
+
+	// Quitting is set to true if the user Dels
+	// the server window.
+	quitting = false
 )
 
 func main() {
@@ -96,6 +100,10 @@ func main() {
 			w.WriteString("Connected")
 		}
 		handleConnection()
+
+		if quitting {
+			break
+		}
 	}
 }
 
@@ -242,6 +250,7 @@ func handleExecute(ev winEvent, cmd string, args []string) bool {
 	case "Del":
 		t := ev.target
 		if ev.win == serverWin {
+			quitting = true
 			client.Out <- irc.Msg{Cmd: irc.QUIT}
 		} else if t != "" && t[0] == '#' { // channel
 			client.Out <- irc.Msg{Cmd: irc.PART, Args: []string{t}}
