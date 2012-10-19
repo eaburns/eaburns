@@ -98,7 +98,11 @@ func main() {
 		serverWin.WriteString("Connected")
 		for _, w := range wins {
 			w.WriteString("Connected")
+			if len(w.target) > 0 && w.target[0] == '#' {
+				client.Out <- irc.Msg{Cmd: irc.JOIN, Args: []string{w.target}}
+			}
 		}
+
 		handleConnection()
 
 		if quitting {
