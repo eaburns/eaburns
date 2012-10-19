@@ -144,7 +144,7 @@ func (w *win) privMsgString(who, text string) string {
 	w.lastSpeaker = who
 	w.lastTime = time.Now()
 
-	if strings.HasPrefix(text, *nick+":") {
+	if strings.Contains(text, *nick) {
 		buf.WriteRune('!')
 	}
 	buf.WriteRune('\t')
