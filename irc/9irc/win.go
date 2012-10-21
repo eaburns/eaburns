@@ -58,10 +58,11 @@ type winEvent struct {
 // If the win already exists then it is returned,
 // otherwise it is created.
 func getWindow(target string) *win {
-	w, ok := wins[target]
+	key := strings.ToLower(target)
+	w, ok := wins[key]
 	if !ok {
 		w = newWindow(target)
-		wins[target] = w
+		wins[key] = w
 	}
 	return w
 }

@@ -344,7 +344,7 @@ func handleMsg(msg irc.Msg) {
 		doQuit(msg.Origin, lastArg(msg))
 
 	case irc.NOTICE:
-		serverWin.WriteString("NOTICE: " + msg.Origin + " " + lastArg(msg))
+		doNotice(msg.Args[0], msg.Origin, lastArg(msg))
 
 	case irc.PRIVMSG:
 		doPrivMsg(msg.Args[0], msg.Origin, msg.Args[1])
@@ -426,6 +426,10 @@ func doPrivMsg(ch, who, text string) {
 		ch = who
 	}
 	getWindow(ch).writePrivMsg(who, text)
+}
+
+func doNotice(ch, who, text string) {
+	doPrivMsg(ch, who, text)
 }
 
 func doNick(prev, cur string) {
