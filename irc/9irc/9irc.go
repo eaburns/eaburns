@@ -334,6 +334,14 @@ func handleMsg(msg irc.Msg) {
 	case irc.TOPIC:
 		doTopic(msg.Args[0], msg.Origin, lastArg(msg))
 
+	case irc.MODE:
+		if len(msg.Args) < 3 {	// I dunno what this is, but I bet it's valid.	
+			cmd := irc.CmdNames[msg.Cmd]
+			serverWin.WriteString("(" + cmd + ") " + msg.Raw)
+			break
+		}
+		doMode(msg.Args[0], msg.Args[1], msg.Args[2])
+
 	case irc.JOIN:
 		doJoin(msg.Args[0], msg.Origin)
 
@@ -376,6 +384,14 @@ func doNamReply(ch string, names string) {
 func doTopic(ch, who, what string) {
 	w := getWindow(ch)
 	w.writeMsg("^" + who + " topic: " + what)
+}
+
+func doMode(ch, mode, who string) {
+	if len(ch) == 0 || ch[0] != '#' {
+		return
+	}
+	w := getWindow(ch)
+	w.writeMsg("=" + who + " mode " + mode)
 }
 
 func doJoin(ch, who string) {
