@@ -310,8 +310,7 @@ func sendRawMsg(str string) {
 	}
 }
 
-// HandleMsg handles IRC messages from
-// the server.
+// HandleMsg handles IRC messages from the server.
 func handleMsg(msg irc.Msg) {
 	if *debug {
 		log.Printf("%#v\n\n", msg)
