@@ -298,18 +298,6 @@ func handleExecute(ev winEvent, cmd string, args []string) bool {
 	return true
 }
 
-// SendRawMsg sends a raw message to the server.
-// If there is an error parsing a message  from the
-// string then it is logged.
-func sendRawMsg(str string) {
-	str = strings.TrimLeft(str, " \t")
-	if msg, err := irc.ParseMsg(str); err != nil {
-		log.Println(err.Error())
-	} else {
-		client.Out <- msg
-	}
-}
-
 // HandleMsg handles IRC messages from the server.
 func handleMsg(msg irc.Msg) {
 	if *debug {
