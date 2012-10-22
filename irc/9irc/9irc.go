@@ -192,6 +192,8 @@ func handleConnection() {
 		serverWin.Ctl("clean")
 		for _, w := range wins {
 			w.WriteString("Disconnected")
+			w.users = make(map[string]*user)
+			w.lastSpeaker = ""
 			w.Ctl("clean")
 		}
 	}()
