@@ -277,22 +277,32 @@ func (w *win) typing(q0, q1 int) {
 // Deleting moves the addresses around when
 // text is deleted from the window.
 func (w *win) deleting(q0, q1 int) {
-	if q0 >= w.eAddr {
+	if q0 >= w.eAddr {	// Deleting after the entry point.
 		return
 	}
-	if q1 >= w.eAddr {
+
+	reprompt := false
+
+	if q1 >= w.eAddr {	// Deleting before and after the entry point.
+		reprompt = true
 		w.eAddr = q0
-	} else {
+	} else {	// Deleting entirely before the entry point
 		w.eAddr -= q1 - q0
 	}
 
-	if q0 >= w.pAddr {
-		return
+	if q0 < w.pAddr {	// Deleting before and after the prompt beginning.
+		if q1 >= w.pAddr {
+			reprompt = true
+			w.pAddr = q0
+		} else {	// Deleting entirely before the prompt.
+			w.pAddr -= q1 - q0
+		}
 	}
-	if q1 >= w.pAddr {
-		w.pAddr = q0
-	} else {
-		w.pAddr -= q1 - q0
+
+	if reprompt {
+		w.Addr("#%d,#%d", w.pAddr, w.eAddr)
+		w.writeData([]byte(prompt))
+		w.eAddr = w.pAddr + utf8.RuneCountInString(prompt)
 	}
 }
 
