@@ -322,6 +322,12 @@ func handleMsg(msg irc.Msg) {
 	case irc.PING:
 		client.Out <- irc.Msg{Cmd: irc.PONG}
 
+	case irc.ERR_NOSUCHNICK:
+		doNoSuchNick(msg.Args[1], lastArg(msg))
+
+	case irc.ERR_NOSUCHCHANNEL:
+		doNoSuchChannel(msg.Args[1])
+	
 	case irc.RPL_MOTD:
 		serverWin.WriteString(lastArg(msg))
 
@@ -370,6 +376,15 @@ func handleMsg(msg irc.Msg) {
 		cmd := irc.CmdNames[msg.Cmd]
 		serverWin.WriteString("(" + cmd + ") " + msg.Raw)
 	}
+}
+
+func doNoSuchNick(ch, msg string) {
+	getWindow(ch).writeMsg("=ERROR: " + ch + ":" + msg)
+}
+
+func doNoSuchChannel(ch string) {
+	// Must have PARTed a channel that is not JOINed.
+	getWindow(ch).del()
 }
 
 func doNamReply(ch string, names string) {
