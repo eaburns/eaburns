@@ -274,6 +274,18 @@ func (w *win) typing(q0, q1 int) {
 	w.Addr("#%d", w.pAddr)
 }
 
+// SendRawMsg sends a raw message to the server.
+// If there is an error parsing a message  from the
+// string then it is logged.
+func sendRawMsg(str string) {
+	str = strings.TrimLeft(str, " \t")
+	if msg, err := irc.ParseMsg(str); err != nil {
+		log.Println(err.Error())
+	} else {
+		client.Out <- msg
+	}
+}
+
 // Deleting moves the addresses around when
 // text is deleted from the window.
 func (w *win) deleting(q0, q1 int) {
