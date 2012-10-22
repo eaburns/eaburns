@@ -30,6 +30,13 @@ func main() {
 		die(err)
 	}
 
+	if wd, err := os.Getwd(); err != nil {
+		log.Println(err)
+	} else {
+		win.Ctl("dumpdir %s", wd)
+	}
+	win.Ctl("dump %s", strings.Join(os.Args, " "))
+
 	abs, err := filepath.Abs(*path)
 	if err != nil {
 		die(err)
