@@ -2,12 +2,12 @@ package main
 
 import (
 	"bytes"
-	"code.google.com/p/goplan9/plan9/acme"
-	"unicode/utf8"
-	"time"
-	"strings"
-	"log"
 	"code.google.com/p/eaburns/irc"
+	"code.google.com/p/goplan9/plan9/acme"
+	"log"
+	"strings"
+	"time"
+	"unicode/utf8"
 )
 
 // Win is an open acme windown for either
@@ -289,33 +289,28 @@ func sendRawMsg(str string) {
 // Deleting moves the addresses around when
 // text is deleted from the window.
 func (w *win) deleting(q0, q1 int) {
-	if q0 >= w.eAddr {	// Deleting after the entry point.
+	if q0 >= w.eAddr { // Deleting entirely after the entry point.
 		return
 	}
-
-	reprompt := false
-
-	if q1 >= w.eAddr {	// Deleting before and after the entry point.
-		reprompt = true
+	if q1 >= w.eAddr {
 		w.eAddr = q0
-	} else {	// Deleting entirely before the entry point
+	} else {
 		w.eAddr -= q1 - q0
 	}
-
-	if q0 < w.pAddr {	// Deleting before and after the prompt beginning.
+	if q0 < w.pAddr {
 		if q1 >= w.pAddr {
-			reprompt = true
 			w.pAddr = q0
-		} else {	// Deleting entirely before the prompt.
+		} else {
 			w.pAddr -= q1 - q0
 		}
 	}
-
-	if reprompt {
-		w.Addr("#%d,#%d", w.pAddr, w.eAddr)
-		w.writeData([]byte(prompt))
-		w.eAddr = w.pAddr + utf8.RuneCountInString(prompt)
+	if q1 < w.pAddr {	// Deleting entirely before the prompt
+		return
 	}
+
+	w.Addr("#%d,#%d", w.pAddr, w.eAddr)
+	w.writeData([]byte(prompt))
+	w.eAddr = w.pAddr + utf8.RuneCountInString(prompt)
 }
 
 // Del deletes this window.

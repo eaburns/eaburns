@@ -4,9 +4,9 @@ package main
 import (
 	"code.google.com/p/eaburns/irc"
 	"flag"
+	"io"
 	"log"
 	"net"
-	"io"
 	"os"
 	"sort"
 	"strings"
@@ -22,7 +22,7 @@ const (
 	// to delay before reconnecting.  Each failed
 	// reconnection doubles the timout until
 	// a connection is made successfully.
-	initialTimeout = 2*time.Second
+	initialTimeout = 2 * time.Second
 
 	// Prompt is the prompt string written at the
 	// beginning of the text entry line.
@@ -34,10 +34,10 @@ const (
 )
 
 var (
-	nick   = flag.String("n", os.Getenv("USER"), "nick name")
-	full   = flag.String("f", os.Getenv("USER"), "full name")
-	pass   = flag.String("p", "", "password")
-	debug  = flag.Bool("d", false, "debugging")
+	nick  = flag.String("n", os.Getenv("USER"), "nick name")
+	full  = flag.String("f", os.Getenv("USER"), "full name")
+	pass  = flag.String("p", "", "password")
+	debug = flag.Bool("d", false, "debugging")
 )
 
 var (
@@ -93,7 +93,7 @@ func main() {
 	serverWin.Ctl("dump %s", strings.Join(os.Args, " "))
 
 	for {
-		handleConnecting(connect(server+":"+port))
+		handleConnecting(connect(server + ":" + port))
 
 		serverWin.WriteString("Connected")
 		for _, w := range wins {
@@ -127,7 +127,7 @@ func connect(addr string) <-chan bool {
 			}
 			serverWin.WriteString("Failed to connect: " + err.Error())
 			timeout *= 2
-			<- time.After(timeout)
+			<-time.After(timeout)
 		}
 	}(conn)
 	return conn
@@ -148,7 +148,7 @@ func handleConnecting(conn <-chan bool) {
 				if len(fs) > 0 && fs[0] == "Del" {
 					if ev.win == serverWin {
 						serverWin.WriteString("Quit")
-						serverWin.Ctl("clean")				
+						serverWin.Ctl("clean")
 						for _, w := range wins {
 							w.WriteString("Quit")
 							w.Ctl("clean")
@@ -163,12 +163,12 @@ func handleConnecting(conn <-chan bool) {
 				ev.win.Addr("#%d,#%d", ev.Q0, ev.Q1)
 				ev.win.writeData([]byte{0})
 				ev.win.Addr("#%d", ev.win.pAddr)
-		
+
 			case (ev.C1 == 'M' || ev.C1 == 'K') && ev.C2 == 'D':
 				ev.deleting(ev.Q0, ev.Q1)
-		
+
 			case ev.C2 == 'l' || ev.C2 == 'L':
-				if ev.Flag & 2 != 0 {	// expansion
+				if ev.Flag&2 != 0 { // expansion
 					// The look was on highlighted text.  Instead of
 					// sending the hilighted text, send the original
 					// addresses, so that 3-clicking without draging
@@ -203,7 +203,7 @@ func handleConnection() {
 			handleWindowEvent(ev)
 
 		case msg, ok := <-client.In:
-			if !ok {	// disconnect
+			if !ok { // disconnect
 				return
 			}
 			handleMsg(msg)
@@ -238,7 +238,7 @@ func handleWindowEvent(ev winEvent) {
 		ev.deleting(ev.Q0, ev.Q1)
 
 	case ev.C2 == 'l' || ev.C2 == 'L':
-		if ev.Flag & 2 != 0 {	// expansion
+		if ev.Flag&2 != 0 { // expansion
 			// The look was on highlighted text.  Instead of
 			// sending the hilighted text, send the original
 			// addresses, so that 3-clicking without draging
@@ -316,7 +316,7 @@ func handleMsg(msg irc.Msg) {
 
 	case irc.ERR_NOSUCHCHANNEL:
 		doNoSuchChannel(msg.Args[1])
-	
+
 	case irc.RPL_MOTD:
 		serverWin.WriteString(lastArg(msg))
 
@@ -330,7 +330,7 @@ func handleMsg(msg irc.Msg) {
 		doTopic(msg.Args[0], msg.Origin, lastArg(msg))
 
 	case irc.MODE:
-		if len(msg.Args) < 3 {	// I dunno what this is, but I bet it's valid.	
+		if len(msg.Args) < 3 { // I dunno what this is, but I bet it's valid.	
 			cmd := irc.CmdNames[msg.Cmd]
 			serverWin.WriteString("(" + cmd + ") " + msg.Raw)
 			break
