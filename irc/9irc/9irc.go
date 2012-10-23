@@ -324,7 +324,7 @@ func handleMsg(msg irc.Msg) {
 		doNamReply(msg.Args[len(msg.Args)-2], lastArg(msg))
 
 	case irc.RPL_TOPIC:
-		doTopic(msg.Args[1], msg.Args[0], lastArg(msg))
+		doTopic(msg.Args[1], "", lastArg(msg))
 
 	case irc.TOPIC:
 		doTopic(msg.Args[0], msg.Origin, lastArg(msg))
@@ -387,7 +387,11 @@ func doNamReply(ch string, names string) {
 
 func doTopic(ch, who, what string) {
 	w := getWindow(ch)
-	w.writeMsg("^" + who + " topic: " + what)
+	if who == "" {
+		w.writeMsg("=topic: " + what)
+	} else {
+		w.writeMsg("=" + who + " topic: " + what)
+	}
 }
 
 func doMode(ch, mode, who string) {
