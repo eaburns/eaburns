@@ -271,6 +271,7 @@ const (
 	RPL_CHANNELMODEIS     = "324"
 	RPL_NOTOPIC           = "331"
 	RPL_TOPIC             = "332"
+	RPL_TOPICWHOTIME = "333"  // ircu specific (not in the RFC)
 	RPL_INVITING          = "341"
 	RPL_SUMMONING         = "342"
 	RPL_INVITELIST        = "346"
@@ -456,6 +457,7 @@ var CmdNames = map[string]string{
 	"324":    "RPL_CHANNELMODEIS",
 	"331":    "RPL_NOTOPIC",
 	"332":    "RPL_TOPIC",
+	"333":    "RPL_TOPICWHOTIME", // ircu specific (not in the RFC)
 	"341":    "RPL_INVITING",
 	"342":    "RPL_SUMMONING",
 	"346":    "RPL_INVITELIST",
