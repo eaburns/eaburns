@@ -205,7 +205,7 @@ func (w *win) writeData(data []byte) {
 func (w *win) typing(q0, q1 int) {
 	if q0 < w.pAddr {
 		w.pAddr += q1 - q0
-		// w.textAddr >= w.pAddr so this
+		// w.eAddr ≥ w.pAddr so this
 		// call returns in the next if clause.
 	}
 	if q0 < w.eAddr {
