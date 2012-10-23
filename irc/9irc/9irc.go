@@ -211,6 +211,7 @@ func handleConnection() {
 		case err, ok := <-client.Errors:
 			if ok && err != io.EOF {
 				log.Println(err)
+				os.Exit(1)
 			}
 		}
 	}

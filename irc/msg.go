@@ -183,7 +183,7 @@ func readMsgData(in *bufio.Reader) (string, error) {
 			return string(msg), nil
 
 		case len(msg) >= MaxMsgLength-2:
-			return "", errors.New("message is too long")
+			return "", errors.New("message is too long: prefix=["+string(msg)+"]")
 
 		default:
 			msg = append(msg, c)
