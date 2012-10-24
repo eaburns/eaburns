@@ -73,7 +73,7 @@ func getWindow(target string) *win {
 func newWindow(target string) *win {
 	aw, err := acme.New()
 	if err != nil {
-		panic(err.Error())
+		panic("Failed to create window: " + err.Error())
 	}
 	name := "/irc/" + server
 	if target != "" {
@@ -192,7 +192,7 @@ func (w *win) writeData(data []byte) {
 		}
 		n, err := w.Write("data", data[:sz])
 		if err != nil {
-			panic(err.Error())
+			panic("Failed to write to window: " + err.Error())
 		}
 		data = data[n:]
 	}
@@ -216,7 +216,7 @@ func (w *win) typing(q0, q1 int) {
 	w.Addr("#%d", w.eAddr)
 	text, err := w.ReadAll("data")
 	if err != nil {
-		panic(err.Error())
+		panic("Failed to read from window: " + err.Error())
 	}
 	for {
 		i := bytes.IndexRune(text, '\n')
@@ -315,12 +315,7 @@ func (w *win) deleting(q0, q1 int) {
 
 // Del deletes this window.
 func (w *win) del() {
-	delete(wins, w.target)
-	for key, win := range wins {
-		if win == w {
-			panic("deleted window is still in the map: target=" + w.target + " key=" + key)
-		}
-	}
+	delete(wins, strings.ToLower(w.target))
 	w.Ctl("delete")
 }
 
