@@ -300,7 +300,9 @@ func handleMsg(msg irc.Msg) {
 
 	switch msg.Cmd {
 	case irc.ERROR:
-		exit(1, "Received error: " + msg.Raw)
+		if !quitting {
+			exit(1, "Received error: " + msg.Raw)
+		}
 
 	case irc.PING:
 		client.Out <- irc.Msg{Cmd: irc.PONG}
