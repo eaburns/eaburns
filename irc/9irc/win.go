@@ -316,6 +316,11 @@ func (w *win) deleting(q0, q1 int) {
 // Del deletes this window.
 func (w *win) del() {
 	delete(wins, w.target)
+	for key, win := range wins {
+		if win == w {
+			panic("deleted window is still in the map: target=" + w.target + " key=" + key)
+		}
+	}
 	w.Ctl("delete")
 }
 
