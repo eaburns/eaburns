@@ -409,7 +409,7 @@ func doJoin(ch, who string) {
 }
 
 func doPart(ch, who string) {
-	w, ok := wins[ch]
+	w, ok := wins[strings.ToLower(ch)]
 	if !ok {
 		return
 	}
