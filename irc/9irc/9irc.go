@@ -5,8 +5,8 @@ import (
 	"code.google.com/p/eaburns/irc"
 	"flag"
 	"io"
-	"log"
 	"net"
+	"log"
 	"os"
 	"sort"
 	"strings"
@@ -86,11 +86,11 @@ func main() {
 	serverWin.Fprintf("tag", "Chat ")
 	// Set Dump handling for the server window.
 	if wd, err := os.Getwd(); err != nil {
-		log.Println(err)
+		log.Println("Failed to set dump working directory: " + err.Error())
 	} else {
 		serverWin.Ctl("dumpdir %s", wd)
+		serverWin.Ctl("dump %s", strings.Join(os.Args, " "))
 	}
-	serverWin.Ctl("dump %s", strings.Join(os.Args, " "))
 
 	for {
 		handleConnecting(connect(server + ":" + port))
@@ -147,13 +147,7 @@ func handleConnecting(conn <-chan bool) {
 				fs := strings.Fields(string(ev.Text))
 				if len(fs) > 0 && fs[0] == "Del" {
 					if ev.win == serverWin {
-						serverWin.WriteString("Quit")
-						serverWin.Ctl("clean")
-						for _, w := range wins {
-							w.WriteString("Quit")
-							w.Ctl("clean")
-						}
-						os.Exit(0)
+						exit(0, "Quit")
 					}
 					ev.win.del()
 				}
@@ -210,8 +204,7 @@ func handleConnection() {
 
 		case err, ok := <-client.Errors:
 			if ok && err != io.EOF {
-				log.Println(err)
-				os.Exit(1)
+				exit(1, err.Error())
 			}
 		}
 	}
@@ -307,7 +300,7 @@ func handleMsg(msg irc.Msg) {
 
 	switch msg.Cmd {
 	case irc.ERROR:
-		log.Fatal(msg)
+		exit(1, "Received error: " + msg.Raw)
 
 	case irc.PING:
 		client.Out <- irc.Msg{Cmd: irc.PONG}
@@ -510,4 +503,16 @@ func lastArg(msg irc.Msg) string {
 		return ""
 	}
 	return msg.Args[len(msg.Args)-1]
+}
+
+// Exit marks all windows as clean and exits
+// with the given status.
+func exit(status int, why string) {
+	serverWin.WriteString(why)
+	serverWin.Ctl("clean")
+	for _, w := range wins {
+		w.WriteString(why)
+		w.Ctl("clean")
+	}
+	os.Exit(status)
 }
