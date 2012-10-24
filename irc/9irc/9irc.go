@@ -258,7 +258,7 @@ func handleExecute(ev winEvent, cmd string, args []string) bool {
 			client.Out <- irc.Msg{Cmd: irc.QUIT}
 		} else if t != "" && t[0] == '#' { // channel
 			client.Out <- irc.Msg{Cmd: irc.PART, Args: []string{t}}
-		} else { // private message
+		} else { // private chat
 			ev.win.del()
 		}
 
