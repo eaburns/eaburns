@@ -73,7 +73,7 @@ func getWindow(target string) *win {
 func newWindow(target string) *win {
 	aw, err := acme.New()
 	if err != nil {
-		log.Fatal("Failed to create a new window: " + err.Error())
+		panic(err.Error())
 	}
 	name := "/irc/" + server
 	if target != "" {
@@ -192,7 +192,7 @@ func (w *win) writeData(data []byte) {
 		}
 		n, err := w.Write("data", data[:sz])
 		if err != nil {
-			log.Fatal("Failed to write data: " + err.Error())
+			panic(err.Error())
 		}
 		data = data[n:]
 	}
@@ -216,7 +216,7 @@ func (w *win) typing(q0, q1 int) {
 	w.Addr("#%d", w.eAddr)
 	text, err := w.ReadAll("data")
 	if err != nil {
-		log.Fatal("Failed to read data: " + err.Error())
+		panic(err.Error())
 	}
 	for {
 		i := bytes.IndexRune(text, '\n')
