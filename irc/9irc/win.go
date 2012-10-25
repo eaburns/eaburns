@@ -225,6 +225,20 @@ func (w *win) typing(q0, q1 int) {
 		}
 
 		t := string(text[:i+1])
+
+		// BUG(eaburns): sometimse 1st letter is dropped.
+		// 
+		// Everyone shouldn't get barfed on, but I want
+		// to try to track down a very rare bug where the
+		// first entered letter of text is dropped.  It seems
+		// to happen sometimes when someone else says
+		// something at just the right time while text is
+		// also being entered.
+		if *nick == "eaburns" {
+			log.Printf("pAddr=%d, eAddr=%d, text [%s]\n",
+				w.pAddr, w.eAddr, t)
+		}
+
 		w.Addr("#%d,#%d", w.pAddr, w.eAddr+utf8.RuneCountInString(t))
 		if strings.HasPrefix(t, meCmd) {
 			act := strings.TrimLeft(t[len(meCmd):], " \t")
