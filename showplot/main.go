@@ -83,19 +83,19 @@ func main() {
 
 // drawPlots draws the plots to an image.
 func drawPlots(img draw.Image) {
-	c, w, h := vgimg.NewImage(img)
-	da := plot.NewDrawArea(c, w, h)
+	c := vgimg.NewImage(img)
+	da := plot.MakeDrawArea(c)
 
 	textAreaSize := vg.Points(12)
 	da.Min.Y += textAreaSize
 	da.Size.Y -= textAreaSize
 
-	left := *da
+	left := da
 	left.Size.X /= 2
 	ps[0].plot.Draw(left)
 	ps[0].dataArea = ps[0].plot.DataDrawArea(left)
 
-	right := *da
+	right := da
 	right.Min.X = left.Min.X + left.Size.X
 	right.Size.X /= 2
 	ps[1].plot.Draw(right)
@@ -104,7 +104,7 @@ func drawPlots(img draw.Image) {
 
 // crosshair draws a plus at the given point.
 func crosshair(img draw.Image, x, y int, str string) {
-	c, _, _ := vgimg.NewImage(img)
+	c := vgimg.NewImage(img)
 
 	// drawPlots here because NewImage
 	// clears the canvas.  Instead, the canvas
