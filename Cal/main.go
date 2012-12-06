@@ -20,7 +20,7 @@ func main() {
 	last := time.Now()
 	for {
 		now := time.Now()
-		tstr := now.Format(" Font Mon Jan 2 15:04:05 -0700 MST 2006")
+		tstr := now.Format(" Font Mon Jan 2 15:04 -0700 MST 2006")
 		win.Ctl("cleartag")
 		win.Write("tag", []byte(tstr))
 		last = now
@@ -30,7 +30,7 @@ func main() {
 			showCal(win)
 		}
 
-		time.Sleep(time.Second)
+		time.Sleep(time.Minute)
 	}
 }
 
