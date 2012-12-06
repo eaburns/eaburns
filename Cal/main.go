@@ -5,7 +5,9 @@ import (
 	"code.google.com/p/goplan9/plan9/acme"
 	"time"
 	"io"
+	"os"
 	"os/exec"
+	"strings"
 )
 
 func main() {
@@ -17,12 +19,16 @@ func main() {
 	win.Name("/Cal")
 	showCal(win)
 
+	fmt := " Font Mon Jan 2 15:04 -0700 MST 2006"
+	if len(os.Args) > 1 {
+		fmt = " Font " + strings.Join(os.Args[1:], " ")
+	}
+
 	last := time.Now()
 	for {
 		now := time.Now()
-		tstr := now.Format(" Font Mon Jan 2 15:04 -0700 MST 2006")
 		win.Ctl("cleartag")
-		win.Write("tag", []byte(tstr))
+		win.Write("tag", []byte(now.Format(fmt)))
 		last = now
 
 		if now.Month() != last.Month() {
