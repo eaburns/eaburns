@@ -16,7 +16,7 @@ func main() {
 		panic(err)
 	}
 
-	win.Name("/+Cal")
+	win.Name("+Cal")
 	showCal(win)
 
 	fmt := " Font Mon Jan 2 15:04 2006"
