@@ -16,10 +16,10 @@ func main() {
 		panic(err)
 	}
 
-	win.Name("/Cal")
+	win.Name("/+Cal")
 	showCal(win)
 
-	fmt := " Font Mon Jan 2 15:04 -0700 MST 2006"
+	fmt := " Font Mon Jan 2 15:04 2006"
 	if len(os.Args) > 1 {
 		fmt = " Font " + strings.Join(os.Args[1:], " ")
 	}
