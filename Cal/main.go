@@ -82,4 +82,5 @@ func showCal(win *acme.Win) {
 	if err := cmd.Wait(); err != nil {
 		panic(err)
 	}
+	win.Ctl("clean")
 }
