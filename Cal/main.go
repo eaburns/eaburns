@@ -16,6 +16,18 @@ func main() {
 		panic(err)
 	}
 
+	go func(){
+		for ev := range win.EventChan() {
+			if ev.C2 == 'x' || ev.C2 == 'X' {
+				fs := strings.Fields(string(ev.Text))
+				if len(fs) > 0 && fs[0] == "Del" {
+					win.Ctl("delete")
+					os.Exit(0)
+				}
+			}
+		}
+	}()
+
 	win.Name("+Cal")
 	showCal(win)
 
