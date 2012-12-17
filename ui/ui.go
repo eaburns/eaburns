@@ -9,8 +9,8 @@ import (
 	"github.com/jteeuwen/glfw"
 	"image"
 	"image/color"
-	"image/png"
 	"image/draw"
+	"image/png"
 	"io/ioutil"
 	"os"
 )
@@ -147,13 +147,13 @@ func (img Image) Release() {
 
 // A Font describes the look of and draw text.
 type Font struct {
-	ctx  *freetype.Context
+	ctx *freetype.Context
 	fnt *truetype.Font
-	sz float64
+	sz  float64
 }
 
 const (
-	dpi = 96.0
+	dpi    = 96.0
 	ptInch = 72.0
 )
 
@@ -202,7 +202,7 @@ func (font Font) Render(format string, vls ...interface{}) (img Image, err error
 
 func (f Font) textSize(s string) (int, int, int) {
 	// scale converts truetype.FUnit to float64
-	scale := f.sz / float64(f.fnt.FUnitsPerEm()) * (dpi/ptInch)
+	scale := f.sz / float64(f.fnt.FUnitsPerEm()) * (dpi / ptInch)
 
 	width := 0
 	prev, hasPrev := truetype.Index(0), false

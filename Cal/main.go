@@ -3,11 +3,11 @@ package main
 
 import (
 	"code.google.com/p/goplan9/plan9/acme"
-	"time"
 	"io"
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -16,17 +16,7 @@ func main() {
 		panic(err)
 	}
 
-	go func(){
-		for ev := range win.EventChan() {
-			if ev.C2 == 'x' || ev.C2 == 'X' {
-				fs := strings.Fields(string(ev.Text))
-				if len(fs) > 0 && fs[0] == "Del" {
-					win.Ctl("delete")
-					os.Exit(0)
-				}
-			}
-		}
-	}()
+	go handleWinEvents(win)
 
 	win.Name("+Cal")
 	showCal(win)
@@ -95,4 +85,19 @@ func showCal(win *acme.Win) {
 		panic(err)
 	}
 	win.Ctl("clean")
+}
+
+func handleWinEvents(win *acme.Win) {
+	for ev := range win.EventChan() {
+		if ev.C2 == 'x' || ev.C2 == 'X' {
+			if ev.Flag&2 != 0 {
+				ev.Q0 = ev.OrigQ0
+				ev.Q1 = ev.OrigQ1
+			}
+			win.WriteEvent(ev)
+			if fs := strings.Fields(string(ev.Text)); len(fs) > 0 && fs[0] == "Del" {
+				os.Exit(0)
+			}
+		}
+	}
 }
