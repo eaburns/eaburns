@@ -4,16 +4,16 @@ package main
 
 import (
 	"code.google.com/p/goplan9/plan9/acme"
+	"errors"
+	"flag"
 	"github.com/howeyc/fsnotify"
 	"io"
-	"os"
-	"errors"
 	"log"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
-	"flag"
-	"path/filepath"
 )
 
 var path = flag.String("p", ".", "specify the path to watch")
@@ -116,7 +116,7 @@ func watcher(path string, run chan<- runRequest) {
 			if err != nil {
 				die(err)
 			}
-			run <- runRequest{ info.ModTime(), done }
+			run <- runRequest{info.ModTime(), done}
 			<-done
 
 		case err := <-w.Error:

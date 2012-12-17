@@ -38,7 +38,7 @@ var scene = Scene{
 var (
 	eye = Point{0, 0, 3}
 	ref = Point{0, 0, 0}
-	up = Point{0, 1, 0}
+	up  = Point{0, 1, 0}
 )
 
 func main() {
@@ -51,11 +51,11 @@ func main() {
 		for y := b.Min.Y; y < b.Max.Y; y++ {
 			px := image2World(float64(x), float64(y))
 			dir := px.Minus(eye)
-	
+
 			hit, ok := scene.Hit(eye, dir)
 			c := Color{0, 0, 0}
 			if ok {
-					c = hit.Object.Color(scene, hit, 0)
+				c = hit.Object.Color(scene, hit, 0)
 			}
 			img.Set(x, y, c.ImageColor())
 		}
@@ -88,26 +88,26 @@ func image2World(b image.Rectangle, x, y float64) Point {
 	}
 }
 
-func makeProjection(b image.Rectangle) func(x, y float64)Point {
+func makeProjection(b image.Rectangle) func(x, y float64) Point {
 	z := eye.Minus(ref).Normalize()
 	x := up.Cross(z).Normalize()
 	y := z.Cross(x).Normalize()
 	m := [4][4]float64{
-		{ x[0], y[0], z[0], eye[0] },
-		{ x[1], y[1], z[1], eye[1] },
-		{ x[2], y[2], z[2], eye[2] },
+		{x[0], y[0], z[0], eye[0]},
+		{x[1], y[1], z[1], eye[1]},
+		{x[2], y[2], z[2], eye[2]},
 	}
 	clipL, clipR := -1.0, 1.0
 	clipB, clipT := -1.0, 1.0
 	clipN := 2.0
-	dx := (clipR-clipL)/float64(b.Max.X-b.Min.X)
-	height := float64(b.Max.Y-b.Min.Y)
-	dy := (clipT-clipB)/height
+	dx := (clipR - clipL) / float64(b.Max.X-b.Min.X)
+	height := float64(b.Max.Y - b.Min.Y)
+	dy := (clipT - clipB) / height
 	zv := -clipN
 
 	return func(x, y float64) Point {
 		xv := clipL + dx*x
-		yv := clipB + dy*(height - y)
+		yv := clipB + dy*(height-y)
 		var w Point
 		w[0] = m[0][0]*xv + m[0][1]*yv + m[0][2]*zv + m[0][3]
 		w[1] = m[1][0]*xv + m[1][1]*yv + m[1][2]*zv + m[1][3]
