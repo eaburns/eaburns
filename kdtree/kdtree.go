@@ -3,25 +3,29 @@ package kdtree
 // K is the number of dimensions of the stored points.
 const K = 2
 
+// Point is a location in K-dimensional space.
 type Point [K]float64
 
-// T is a node in a KD-tree.   A *T is the root of a KD-tree, and nil is the
-// empty tree.
-type T struct {
-	pt          Point
-	split       int
-	data        interface{}
-	left, right *T
+// Root is the root of a KD-tree.
+type Root struct {
+	node *node
 }
 
 // Insert inserts data associated with a given point into the KD tree.
-func (t *T) Insert(pt Point, data interface{}) *T {
-	return t.insert(0, pt, data)
+func (r *Root) Insert(pt Point, data interface{}) {
+	r.node = r.node.insert(0, pt, data)
 }
 
-func (t *T) insert(depth int, pt Point, data interface{}) *T {
+type node struct {
+	pt          Point
+	split       int
+	data        interface{}
+	left, right *node
+}
+
+func (t *node) insert(depth int, pt Point, data interface{}) *node {
 	if t == nil {
-		return &T{pt: pt, split: split(depth), data: data}
+		return &node{pt: pt, split: split(depth), data: data}
 	}
 	if pt[t.split] < t.pt[t.split] {
 		t.left = t.left.insert(depth+1, pt, data)

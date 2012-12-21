@@ -15,8 +15,8 @@ func BenchmarkInsert(b *testing.B) {
 	}
 
 	b.StartTimer()
-	var t *T
+	var t Root
 	for i := range pts {
-		t = t.Insert(pts[i], nil)
+		t.Insert(pts[i], nil)
 	}
 }
