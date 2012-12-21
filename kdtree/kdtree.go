@@ -6,7 +6,7 @@ const K = 2
 // Point is a location in K-dimensional space.
 type Point [K]float64
 
-// Root is the root of a KD-tree.
+// Root is the root of a KD-tree.  The zero-value is an empty tree.
 type Root struct {
 	node *node
 }
