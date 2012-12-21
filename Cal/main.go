@@ -19,6 +19,13 @@ func main() {
 	go handleWinEvents(win)
 
 	win.Name("+Cal")
+	// Set Dump handling for the server window.
+	if wd, err := os.Getwd(); err != nil {
+		panic("Failed to set dump working directory: " + err.Error())
+	} else {
+		win.Ctl("dumpdir %s", wd)
+		win.Ctl("dump %s", strings.Join(os.Args, " "))
+	}
 	showCal(win)
 
 	fmt := " Font Mon Jan 2 15:04 2006"
