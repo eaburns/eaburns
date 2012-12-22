@@ -27,6 +27,8 @@ func (r *Root) Insert(Point Point, Data interface{}) {
 
 // Height returns the height (the maximum length path to a leaf)
 // of the K-D tree.
+//
+// This operation uses time linear in the number of nodes in the tree.
 func (r *Root) Height() int {
 	return r.node.height()
 }
