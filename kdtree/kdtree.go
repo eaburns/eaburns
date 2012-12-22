@@ -1,7 +1,7 @@
 // Kdtree is a very simple K-D tree implementation.
 // This implementation uses a fixed value for K.  The intention
 // is to copy the code locally, change K to your needs, and
-// change Node.Data's type to suit yoru needs too.
+// change Node.Data's type to suit your needs too.
 package kdtree
 
 import (
