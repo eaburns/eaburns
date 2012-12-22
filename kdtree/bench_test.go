@@ -114,6 +114,45 @@ func inRangeSz(sz int, b *testing.B) {
 	}
 }
 
+// BenchmarkInRangeSlice1000 benchmarks the InRangeSlice
+// function with a tree containing 1000 nodes.
+func BenchmarkInRangeSlice1000(b *testing.B) {
+	inRangeSliceSz(1000, b)
+}
+
+// inRangeSliceSz benchmarks InRangeSlice function on a tree
+// with the given number of nodes.
+func inRangeSliceSz(sz int, b *testing.B) {
+	b.StopTimer()
+	nodes := make([]Node, sz)
+	nodeps := make([]*Node, sz)
+	for i := range nodes {
+		for j := range nodes[i].Point {
+			nodes[i].Point[j] = rand.Float64()
+		}
+		nodeps[i] = &nodes[i]
+	}
+	tree := Make(nodeps)
+
+	points := make([]Point, b.N)
+	for i := range points {
+		for j := range points[i] {
+			points[i][j] = rand.Float64()
+		}
+	}
+	rs := make([]float64, b.N)
+	for i := range rs {
+		rs[i] = rand.Float64()
+	}
+
+	pool := make([]*Node, 0, sz)
+
+	b.StartTimer()
+	for i, pt := range points {
+		tree.InRangeSlice(pt, rs[i], pool[:0])
+	}
+}
+
 // BenchmarkInRangeLiner1000 benchmarks computing the in range
 // nodes via a linear scan.
 func BenchmarkInRangeLinear1000(b *testing.B) {

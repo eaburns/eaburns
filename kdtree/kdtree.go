@@ -41,6 +41,14 @@ func (r *Root) InRange(pt Point, radius float64) []*Node {
 	return r.node.inRange(pt, radius*radius, nil)
 }
 
+// InRangeSlice is the same as InRange, however, a pre-allocated
+// slice is used for the returned nodes.  Note that, if the pre-allocated
+// slice is not large enough, then the returned slice will be a newly
+// allocated slice that can fit all nodes.
+func (r *Root) InRangeSlice(pt Point, radius float64, slice []*Node) []*Node {
+	return r.node.inRange(pt, radius*radius, slice)
+}
+
 // Height returns the height (the maximum length path to a leaf)
 // of the K-D tree.
 //
