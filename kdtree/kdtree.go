@@ -25,6 +25,12 @@ func (r *Root) Insert(Point Point, Data interface{}) {
 	r.node = r.node.insert(0, Point, Data)
 }
 
+// Height returns the height (the maximum length path to a leaf)
+// of the K-D tree.
+func (r *Root) Height() int {
+	return r.node.height()
+}
+
 // A Node is a node in the K-D tree, pairing a point in K-dimensional
 // space with a value.
 type Node struct {
@@ -50,6 +56,18 @@ func (t *Node) insert(depth int, Point Point, Data interface{}) *Node {
 		t.right = t.right.insert(depth+1, Point, Data)
 	}
 	return t
+}
+
+// Height returns the height of this node.
+func (t *Node) height() int {
+	if t == nil {
+		return 0
+	}
+	ht := t.left.height()
+	if rht := t.right.height(); rht > ht {
+		ht = rht
+	}
+	return ht+1
 }
 
 // BuildTree returns a new tree, built up from the given slice of nodes.
