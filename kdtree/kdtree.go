@@ -38,8 +38,8 @@ func Make(nodes []*Node) Root {
 }
 
 // Insert inserts data associated with a given point into the KD tree.
-func (r *Root) Insert(pt Point, data interface{}) {
-	r.node = r.node.insert(0, pt, data)
+func (r *Root) Insert(n *Node) {
+	r.node = r.node.insert(0, n)
 }
 
 // InRange returns all of the nodes in the K-D tree with a point within
@@ -86,14 +86,15 @@ type Node struct {
 
 // Insert inserts the point, data pair beneath the given node, returning
 // a new node rooting the new subtree.
-func (t *Node) insert(depth int, pt Point, data interface{}) *Node {
+func (t *Node) insert(depth int, n *Node) *Node {
 	if t == nil {
-		return &Node{Point: pt, split: depth % K, Data: data}
+		n.split = depth % K
+		return n
 	}
-	if pt[t.split] < t.Point[t.split] {
-		t.left = t.left.insert(depth+1, pt, data)
+	if n.Point[t.split] < t.Point[t.split] {
+		t.left = t.left.insert(depth+1, n)
 	} else {
-		t.right = t.right.insert(depth+1, pt, data)
+		t.right = t.right.insert(depth+1, n)
 	}
 	return t
 }

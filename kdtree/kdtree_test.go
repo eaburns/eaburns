@@ -14,7 +14,7 @@ func TestInsert(t *testing.T) {
 	if err := quick.Check(func(pts pointSlice) bool {
 		var tree Root
 		for _, p := range pts {
-			tree.Insert(Point(p), nil)
+			tree.Insert(&Node{Point: p})
 		}
 		_, ok := tree.node.invariantHolds()
 		return ok
