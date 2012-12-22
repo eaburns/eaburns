@@ -1,7 +1,7 @@
 package kdtree
 
 import (
-	"math/rand"
+	"sort"
 )
 
 // K is the number of dimensions of the stored points.
@@ -27,6 +27,9 @@ type Root struct {
 
 // Make returns a new K-D tree built using the given nodes.
 func Make(nodes []*Node) Root {
+	if len(nodes) == 0 {
+		return Root{}
+	}
 	return Root{buildTree(0, nodes)}
 }
 
@@ -131,7 +134,7 @@ func buildTree(depth int, nodes []*Node) *Node {
 		nd.left, nd.right = nil, nil
 		return nd
 	}
-	cur, nodes := med3(split, nodes)
+	cur, nodes := med(split, nodes)
 	left, right := partition(split, cur.Point[split], nodes)
 	cur.split = split
 	cur.left = buildTree(depth+1, left)
@@ -154,34 +157,38 @@ func partition(split int, pivot float64, nodes []*Node) (fst, snd []*Node) {
 	return nodes[:p], nodes[p:]
 }
 
-// Med3 gets three random nodes in the slice, removes the node
-// that has the median value of the three on the splitting dimension,
-// and returns the median node and the rest of the slice.
-func med3(split int, nodes []*Node) (*Node, []*Node) {
-	switch len(nodes) {
-	case 0:
-		panic("med3: no nodes")
-	case 1:
-		return nodes[0], []*Node{}
-	case 2:
-		return nodes[0], nodes[1:]
+// Med returns the median node, compared on the split dimension
+// and the remaining nodes.
+func med(split int, nodes []*Node) (*Node, []*Node) {
+	if len(nodes) == 0 {
+		panic("med: no nodes")
 	}
-	inds := [3]int{
-		rand.Intn(len(nodes)),
-		rand.Intn(len(nodes)),
-		rand.Intn(len(nodes)),
+	sort.Sort(NodeSorter{split, nodes})
+	var m int
+	for m = len(nodes) / 2; m >= 1; m-- {
+		if nodes[m-1].Point[split] < nodes[m].Point[split] {
+			break
+		}
 	}
-	if nodes[inds[1]].Point[split] < nodes[inds[0]].Point[split] {
-		inds[0], inds[1] = inds[1], inds[0]
-	}
-	if nodes[inds[2]].Point[split] < nodes[inds[1]].Point[split] {
-		inds[1], inds[2] = inds[2], inds[1]
-	}
-	if nodes[inds[1]].Point[split] < nodes[inds[0]].Point[split] {
-		inds[0], inds[1] = inds[1], inds[0]
-	}
-	med := inds[2]
-
-	nodes[0], nodes[med] = nodes[med], nodes[0]
+	nodes[0], nodes[m] = nodes[m], nodes[0]
 	return nodes[0], nodes[1:]
+}
+
+// A NodeSorter implements sort.Interface, sortnig the nodes
+// in ascending order of their point values on the split dimension.
+type NodeSorter struct {
+	split int
+	nodes []*Node
+}
+
+func (n NodeSorter) Len() int {
+	return len(n.nodes)
+}
+
+func (n NodeSorter) Swap(i, j int) {
+	n.nodes[i], n.nodes[j] = n.nodes[j], n.nodes[i]
+}
+
+func (n NodeSorter) Less(i, j int) bool {
+	return n.nodes[i].Point[n.split] < n.nodes[j].Point[n.split]
 }
