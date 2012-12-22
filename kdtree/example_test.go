@@ -5,9 +5,10 @@ import (
 	"math/rand"
 )
 
-// Generates 1000 random points on the unit square, and prints all points
+// Generate random points in the unit square, and prints all points
 // within a radius of 0.25 from the origin.
-func ExampleInRange() {
+func ExampleRoot_InRange() {
+	// Make a K-D tree of random points.
 	const N = 1000
 	nodes := make([]*Node, N)
 	for i := range nodes {
@@ -22,9 +23,10 @@ func ExampleInRange() {
 	fmt.Println(rng)
 }
 
-// Generates 1000 random points on the unit square, and prints all points
+// Generate random points in the unit square, and prints all points
 // within a radius of 0.25 from the origin.
-func ExampleInRangeSlice() {
+func ExampleRoot_InRangeSlice() {
+	// Make a K-D tree of random points.
 	const N = 1000
 	nodes := make([]*Node, N)
 	for i := range nodes {
@@ -35,6 +37,7 @@ func ExampleInRangeSlice() {
 	}
 	tree := Make(nodes)
 
+	// Pre-allocate node pointers for the result of InRangeSlice
 	pool := make([]Node, N)
 	nodes = make([]*Node, N)
 	for i := range pool {
