@@ -1,6 +1,7 @@
 package kdtree
 
 import (
+	"math"
 	"math/rand"
 	"reflect"
 	"testing"
@@ -43,6 +44,7 @@ func TestMake(t *testing.T) {
 // the range.
 func TestInRange(t *testing.T) {
 	if err := quick.Check(func(pts pointSlice, pt Point, r float64) bool {
+		r = math.Abs(r)
 		nodes := make([]*Node, len(pts))
 		for i, pt := range pts {
 			nodes[i] = &Node{Point: pt}

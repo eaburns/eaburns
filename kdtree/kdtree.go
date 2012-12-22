@@ -45,7 +45,10 @@ func (r *Root) Insert(pt Point, data interface{}) {
 // InRange returns all nodes in the K-D tree with a point within
 // a distance r from the given point.
 func (r *Root) InRange(pt Point, radius float64) []*Node {
-	return r.node.inRange(&pt, radius*radius, nil)
+	if radius < 0 {
+		return []*Node{}
+	}
+	return r.node.inRange(&pt, radius, nil)
 }
 
 // InRangeSlice is the same as InRange, however, a pre-allocated
@@ -53,7 +56,11 @@ func (r *Root) InRange(pt Point, radius float64) []*Node {
 // slice is not large enough, then the returned slice will be a newly
 // allocated slice that can fit all nodes.
 func (r *Root) InRangeSlice(pt Point, radius float64, slice []*Node) []*Node {
-	return r.node.inRange(&pt, radius*radius, slice)
+	slice = slice[:0]
+	if radius < 0 {
+		return slice
+	}
+	return r.node.inRange(&pt, radius, slice)
 }
 
 // Height returns the height (the maximum length path to a leaf)
@@ -93,24 +100,26 @@ func (t *Node) insert(depth int, pt Point, data interface{}) *Node {
 
 // InRange returns a slice of all nodes within the given squared range
 //  of the point.
-func (t *Node) inRange(pt *Point, rSq float64, nodes []*Node) []*Node {
+func (t *Node) inRange(pt *Point, r float64, nodes []*Node) []*Node {
 	if t == nil {
 		return nodes
 	}
-	if t.sqDist(pt) <= rSq {
-		nodes = append(nodes, t)
-	}
 
-	kid, other := t.left, t.right
-	if pt[t.split] >= t.Point[t.split] {
-		kid, other = other, kid
-	}
-
-	nodes = kid.inRange(pt, rSq, nodes)
 	diff := pt[t.split] - t.Point[t.split]
-	if diff*diff < rSq {
-		nodes = other.inRange(pt, rSq, nodes)
+
+	thisSide, otherSide := t.right, t.left
+	if diff < 0 {
+		thisSide, otherSide = t.left, t.right
+		diff = -diff // abs
 	}
+	nodes = thisSide.inRange(pt, r, nodes)
+	if diff <= r {
+		if t.Point.sqDist(pt) < r*r {
+			nodes = append(nodes, t)
+		}
+		nodes = otherSide.inRange(pt, r, nodes)
+	}
+
 	return nodes
 }
 
