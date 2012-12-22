@@ -15,7 +15,7 @@ func (a *Point) sqDist(b *Point) float64 {
 	sqDist := 0.0
 	for i, x := range a {
 		diff := x - b[i]
-		sqDist += diff*diff
+		sqDist += diff * diff
 	}
 	return sqDist
 }
@@ -27,12 +27,12 @@ type Root struct {
 
 // Make returns a new K-D tree built using the given nodes.
 func Make(nodes []*Node) Root {
-	return Root{ buildTree(0, nodes) }
+	return Root{buildTree(0, nodes)}
 }
 
 // Insert inserts data associated with a given point into the KD tree.
-func (r *Root) Insert(Point Point, Data interface{}) {
-	r.node = r.node.insert(0, Point, Data)
+func (r *Root) Insert(pt Point, data interface{}) {
+	r.node = r.node.insert(0, pt, data)
 }
 
 // InRange returns all nodes in the K-D tree with a point within
@@ -56,7 +56,7 @@ type Node struct {
 	// data of this node.
 	Point
 	// Data is auxiliary data associated with the point of this node.
-	Data        interface{}
+	Data interface{}
 
 	split       int
 	left, right *Node
@@ -64,14 +64,14 @@ type Node struct {
 
 // Insert inserts the point, data pair beneath the given node, returning
 // a new node rooting the new subtree.
-func (t *Node) insert(depth int, Point Point, Data interface{}) *Node {
+func (t *Node) insert(depth int, pt Point, data interface{}) *Node {
 	if t == nil {
-		return &Node{Point: Point, split: depth % K, Data: Data}
+		return &Node{Point: pt, split: depth % K, Data: data}
 	}
-	if Point[t.split] < t.Point[t.split] {
-		t.left = t.left.insert(depth+1, Point, Data)
+	if pt[t.split] < t.Point[t.split] {
+		t.left = t.left.insert(depth+1, pt, data)
 	} else {
-		t.right = t.right.insert(depth+1, Point, Data)
+		t.right = t.right.insert(depth+1, pt, data)
 	}
 	return t
 }
@@ -92,7 +92,7 @@ func (t *Node) inRange(pt Point, rSq float64, nodes []*Node) []*Node {
 	}
 
 	nodes = kid.inRange(pt, rSq, nodes)
-	diff := pt[t.split] - t.Point[t.split] 
+	diff := pt[t.split] - t.Point[t.split]
 	if diff*diff < rSq {
 		nodes = other.inRange(pt, rSq, nodes)
 	}
@@ -108,7 +108,7 @@ func (t *Node) height() int {
 	if rht := t.right.height(); rht > ht {
 		ht = rht
 	}
-	return ht+1
+	return ht + 1
 }
 
 // BuildTree returns a new tree, built up from the given slice of nodes.

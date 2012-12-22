@@ -28,7 +28,7 @@ func TestMake(t *testing.T) {
 	if err := quick.Check(func(pts pointSlice) bool {
 		nodes := make([]*Node, len(pts))
 		for i, pt := range pts {
-			nodes[i] = &Node{ Point: pt }
+			nodes[i] = &Node{Point: pt}
 		}
 		tree := Make(nodes)
 		_, ok := tree.node.invariantHolds()
@@ -45,7 +45,7 @@ func TestInRange(t *testing.T) {
 	if err := quick.Check(func(pts pointSlice, pt Point, r float64) bool {
 		nodes := make([]*Node, len(pts))
 		for i, pt := range pts {
-			nodes[i] = &Node{ Point: pt }
+			nodes[i] = &Node{Point: pt}
 		}
 
 		tree := Make(nodes)

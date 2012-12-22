@@ -71,7 +71,7 @@ func makeSz(sz int, b *testing.B) {
 		nodeps[i] = &nodes[i]
 	}
 
-	for i := 0; i < b.N; i++{
+	for i := 0; i < b.N; i++ {
 		Make(nodeps)
 	}
 
