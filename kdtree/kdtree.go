@@ -10,6 +10,16 @@ const K = 2
 // Point is a location in K-dimensional space.
 type Point [K]float64
 
+// SqDist returns the square distance between two points.
+func (a *Point) sqDist(b *Point) float64 {
+	sqDist := 0.0
+	for i, x := range a {
+		diff := x - b[i]
+		sqDist += diff*diff
+	}
+	return sqDist
+}
+
 // Root is the root of a K-D tree.  The zero-value is an empty tree.
 type Root struct {
 	node *Node
@@ -23,6 +33,12 @@ func Make(nodes []*Node) Root {
 // Insert inserts data associated with a given point into the KD tree.
 func (r *Root) Insert(Point Point, Data interface{}) {
 	r.node = r.node.insert(0, Point, Data)
+}
+
+// InRange returns all nodes in the K-D tree with a point within
+// a distance r from the given point.
+func (r *Root) InRange(pt Point, radius float64) []*Node {
+	return r.node.inRange(pt, radius*radius, nil)
 }
 
 // Height returns the height (the maximum length path to a leaf)
@@ -58,6 +74,29 @@ func (t *Node) insert(depth int, Point Point, Data interface{}) *Node {
 		t.right = t.right.insert(depth+1, Point, Data)
 	}
 	return t
+}
+
+// InRange returns a slice of all nodes within the given squared range
+//  of the point.
+func (t *Node) inRange(pt Point, rSq float64, nodes []*Node) []*Node {
+	if t == nil {
+		return nodes
+	}
+	if t.sqDist(&pt) <= rSq {
+		nodes = append(nodes, t)
+	}
+
+	kid, other := t.left, t.right
+	if pt[t.split] >= t.Point[t.split] {
+		kid, other = other, kid
+	}
+
+	nodes = kid.inRange(pt, rSq, nodes)
+	diff := pt[t.split] - t.Point[t.split] 
+	if diff*diff < rSq {
+		nodes = other.inRange(pt, rSq, nodes)
+	}
+	return nodes
 }
 
 // Height returns the height of this node.

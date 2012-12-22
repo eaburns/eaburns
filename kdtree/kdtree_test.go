@@ -38,6 +38,37 @@ func TestMake(t *testing.T) {
 	}
 }
 
+// TestInRange tests the InRange function, ensuring that all points
+// in the range are reported, and all points reported are indeed in
+// the range.
+func TestInRange(t *testing.T) {
+	if err := quick.Check(func(pts pointSlice, pt Point, r float64) bool {
+		nodes := make([]*Node, len(pts))
+		for i, pt := range pts {
+			nodes[i] = &Node{ Point: pt }
+		}
+
+		tree := Make(nodes)
+		in := make(map[*Node]bool, len(nodes))
+		for _, n := range tree.InRange(pt, r) {
+			in[n] = true
+		}
+
+		num := 0
+		for _, n := range nodes {
+			if pt.sqDist(&n.Point) <= r*r {
+				num++
+				if !in[n] {
+					return false
+				}
+			}
+		}
+		return num == len(in)
+	}, nil); err != nil {
+		t.Error(err)
+	}
+}
+
 // TestPartition tests the partition function, ensuring that random
 // points correctly partition into sets less than the pivot and a
 // greater than or equal to the pivot.
@@ -81,6 +112,14 @@ func (pointSlice) Generate(r *rand.Rand, size int) reflect.Value {
 		}
 	}
 	return reflect.ValueOf(ps)
+}
+
+// Generate implements the Generator interface for Points
+func (p Point) Generate(r *rand.Rand, _ int) reflect.Value {
+	for i := range p {
+		p[i] = r.Float64()
+	}
+	return reflect.ValueOf(p)
 }
 
 // InvariantHolds returns the points in this subtree, and a bool
