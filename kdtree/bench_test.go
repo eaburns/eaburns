@@ -5,6 +5,9 @@ import (
 	"testing"
 )
 
+// RadiusMax is the maximum radius for InRange benchmarks.
+const radiusMax = 0.1
+
 // BenchmarkInsert benchmarks insertions into an initially empty tree.
 func BenchmarkInsert(b *testing.B) {
 	b.StopTimer()
@@ -110,7 +113,7 @@ func inRangeSz(sz int, b *testing.B) {
 
 	b.StartTimer()
 	for i, pt := range points {
-		tree.InRange(pt, rs[i])
+		tree.InRange(pt, rs[i]*radiusMax)
 	}
 }
 
@@ -149,7 +152,7 @@ func inRangeSliceSz(sz int, b *testing.B) {
 
 	b.StartTimer()
 	for i, pt := range points {
-		tree.InRangeSlice(pt, rs[i], pool[:0])
+		tree.InRangeSlice(pt, rs[i]*radiusMax, pool[:0])
 	}
 }
 
@@ -178,7 +181,7 @@ func inRangeLinearSz(sz int, b *testing.B) {
 	}
 	rs := make([]float64, b.N)
 	for i := range rs {
-		rs[i] = rand.Float64()
+		rs[i] = rand.Float64() * radiusMax
 	}
 
 	local := make([]*Node, 0, sz)
