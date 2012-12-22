@@ -17,8 +17,8 @@ func ExampleRoot_InRange() {
 			nodes[i].Point[j] = rand.Float64()
 		}
 	}
-
 	tree := Make(nodes)
+
 	rng := tree.InRange(Point{0, 0}, 0.25)
 	fmt.Println(rng)
 }
