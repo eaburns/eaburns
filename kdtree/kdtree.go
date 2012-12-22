@@ -38,7 +38,7 @@ func (r *Root) Insert(pt Point, data interface{}) {
 // InRange returns all nodes in the K-D tree with a point within
 // a distance r from the given point.
 func (r *Root) InRange(pt Point, radius float64) []*Node {
-	return r.node.inRange(pt, radius*radius, nil)
+	return r.node.inRange(&pt, radius*radius, nil)
 }
 
 // InRangeSlice is the same as InRange, however, a pre-allocated
@@ -46,7 +46,7 @@ func (r *Root) InRange(pt Point, radius float64) []*Node {
 // slice is not large enough, then the returned slice will be a newly
 // allocated slice that can fit all nodes.
 func (r *Root) InRangeSlice(pt Point, radius float64, slice []*Node) []*Node {
-	return r.node.inRange(pt, radius*radius, slice)
+	return r.node.inRange(&pt, radius*radius, slice)
 }
 
 // Height returns the height (the maximum length path to a leaf)
@@ -86,11 +86,11 @@ func (t *Node) insert(depth int, pt Point, data interface{}) *Node {
 
 // InRange returns a slice of all nodes within the given squared range
 //  of the point.
-func (t *Node) inRange(pt Point, rSq float64, nodes []*Node) []*Node {
+func (t *Node) inRange(pt *Point, rSq float64, nodes []*Node) []*Node {
 	if t == nil {
 		return nodes
 	}
-	if t.sqDist(&pt) <= rSq {
+	if t.sqDist(pt) <= rSq {
 		nodes = append(nodes, t)
 	}
 
