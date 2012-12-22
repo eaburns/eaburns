@@ -21,7 +21,7 @@ func BenchmarkInsert(b *testing.B) {
 	b.StartTimer()
 	var t Root
 	for i := range pts {
-		t.Insert(pts[i], nil)
+		t.Insert(&Node{Point: pts[i]})
 	}
 }
 
@@ -44,7 +44,7 @@ func insertSz(sz int, b *testing.B) {
 	var t Root
 	for i := 0; i < b.N; i++ {
 		for i := range pts {
-			t.Insert(pts[i], nil)
+			t.Insert(&Node{Point: pts[i]})
 		}
 	}
 
