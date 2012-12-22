@@ -6,7 +6,7 @@ const K = 2
 // Point is a location in K-dimensional space.
 type Point [K]float64
 
-// Root is the root of a KD-tree.  The zero-value is an empty tree.
+// Root is the root of a K-D tree.  The zero-value is an empty tree.
 type Root struct {
 	node *node
 }
@@ -16,6 +16,8 @@ func (r *Root) Insert(pt Point, data interface{}) {
 	r.node = r.node.insert(0, pt, data)
 }
 
+// A node is a node in the K-D tree, pairing a point in K-dimensional
+// space with a value.
 type node struct {
 	pt          Point
 	split       int
@@ -23,9 +25,11 @@ type node struct {
 	left, right *node
 }
 
+// Insert inserts the point, data pair beneath the given node, returning
+// a new node rooting the new subtree.
 func (t *node) insert(depth int, pt Point, data interface{}) *node {
 	if t == nil {
-		return &node{pt: pt, split: split(depth), data: data}
+		return &node{pt: pt, split: depth%K, data: data}
 	}
 	if pt[t.split] < t.pt[t.split] {
 		t.left = t.left.insert(depth+1, pt, data)
@@ -33,9 +37,4 @@ func (t *node) insert(depth int, pt Point, data interface{}) *node {
 		t.right = t.right.insert(depth+1, pt, data)
 	}
 	return t
-}
-
-// Split returns the splitting dimension from the depth.
-func split(d int) int {
-	return (d + 1) % K
 }
