@@ -163,7 +163,7 @@ func med(split int, nodes []*Node) (*Node, []*Node) {
 	if len(nodes) == 0 {
 		panic("med: no nodes")
 	}
-	sort.Sort(NodeSorter{split, nodes})
+	sort.Sort(nodeSorter{split, nodes})
 	var m int
 	for m = len(nodes) / 2; m >= 1; m-- {
 		if nodes[m-1].Point[split] < nodes[m].Point[split] {
@@ -174,21 +174,21 @@ func med(split int, nodes []*Node) (*Node, []*Node) {
 	return nodes[0], nodes[1:]
 }
 
-// A NodeSorter implements sort.Interface, sortnig the nodes
+// A nodeSorter implements sort.Interface, sortnig the nodes
 // in ascending order of their point values on the split dimension.
-type NodeSorter struct {
+type nodeSorter struct {
 	split int
 	nodes []*Node
 }
 
-func (n NodeSorter) Len() int {
+func (n nodeSorter) Len() int {
 	return len(n.nodes)
 }
 
-func (n NodeSorter) Swap(i, j int) {
+func (n nodeSorter) Swap(i, j int) {
 	n.nodes[i], n.nodes[j] = n.nodes[j], n.nodes[i]
 }
 
-func (n NodeSorter) Less(i, j int) bool {
+func (n nodeSorter) Less(i, j int) bool {
 	return n.nodes[i].Point[n.split] < n.nodes[j].Point[n.split]
 }
