@@ -1,12 +1,14 @@
 package kdtree
 
 import (
-	"testing"
-	"testing/quick"
 	"math/rand"
 	"reflect"
+	"testing"
+	"testing/quick"
 )
 
+// TestInsert tests the insert function, ensuring that random points
+// inserted into an empty tree maintain the K-D tree invariant.
 func TestInsert(t *testing.T) {
 	if err := quick.Check(func(pts pointSlice) bool {
 		var tree Root
@@ -18,6 +20,53 @@ func TestInsert(t *testing.T) {
 	}, nil); err != nil {
 		t.Error(err)
 	}
+}
+
+// TestMake tests the Make function, ensuring that a tree built
+// using random points respects the K-D tree invariant.
+func TestMake(t *testing.T) {
+	if err := quick.Check(func(pts pointSlice) bool {
+		nodes := make([]*Node, len(pts))
+		for i, pt := range pts {
+			nodes[i] = &Node{ Point: pt }
+		}
+		tree := Make(nodes)
+		_, ok := tree.node.invariantHolds()
+		return ok
+	}, nil); err != nil {
+		t.Error(err)
+	}
+}
+
+// TestPartition tests the partition function, ensuring that random
+// points correctly partition into sets less than the pivot and a
+// greater than or equal to the pivot.
+func TestPartition(t *testing.T) {
+	if err := quick.Check(func(pts pointSlice) bool {
+		nodes := make([]*Node, len(pts))
+		for i, Point := range pts {
+			nodes[i] = &Node{Point: Point}
+		}
+		split := 0
+		pivot := nodes[0].Point[split]
+		nodes = nodes[1:]
+
+		fst, snd := partition(split, pivot, nodes)
+		for _, n := range fst {
+			if n.Point[split] >= pivot {
+				return false
+			}
+		}
+		for _, n := range snd {
+			if n.Point[split] < pivot {
+				return false
+			}
+		}
+		return true
+	}, nil); err != nil {
+		t.Error(err)
+	}
+
 }
 
 // A pointSlice is a slice of points that implements the quick.Generator
@@ -40,7 +89,7 @@ func (pointSlice) Generate(r *rand.Rand, size int) reflect.Value {
 // of the current node on the splitting dimension, and the points
 // in the right subtree have values greater than or equal to that of
 // the current node.
-func (t *node) invariantHolds() ([]Point, bool) {
+func (t *Node) invariantHolds() ([]Point, bool) {
 	if t == nil {
 		return []Point{}, true
 	}
@@ -50,9 +99,9 @@ func (t *node) invariantHolds() ([]Point, bool) {
 
 	ok := leftOk && rightOk
 
-	if ok {	
+	if ok {
 		for _, l := range left {
-			if l[t.split] >= t.pt[t.split] {
+			if l[t.split] >= t.Point[t.split] {
 				ok = false
 				break
 			}
@@ -60,11 +109,11 @@ func (t *node) invariantHolds() ([]Point, bool) {
 	}
 	if ok {
 		for _, r := range right {
-			if r[t.split] < t.pt[t.split] {
+			if r[t.split] < t.Point[t.split] {
 				ok = false
 				break
 			}
 		}
 	}
-	return append(append(left, t.pt), right...), ok
+	return append(append(left, t.Point), right...), ok
 }
