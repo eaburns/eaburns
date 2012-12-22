@@ -113,3 +113,45 @@ func inRangeSz(sz int, b *testing.B) {
 		tree.InRange(pt, rs[i])
 	}
 }
+
+// BenchmarkInRangeLiner1000 benchmarks computing the in range
+// nodes via a linear scan.
+func BenchmarkInRangeLinear1000(b *testing.B) {
+	inRangeLinearSz(1000, b)
+}
+
+// inRangeLinearSz benchmarks computing in range nodes using
+// a linear scan of the given number of nodes.
+func inRangeLinearSz(sz int, b *testing.B) {
+	b.StopTimer()
+	nodes := make([]Node, sz)
+	for i := range nodes {
+		for j := range nodes[i].Point {
+			nodes[i].Point[j] = rand.Float64()
+		}
+	}
+
+	points := make([]Point, b.N)
+	for i := range points {
+		for j := range points[i] {
+			points[i][j] = rand.Float64()
+		}
+	}
+	rs := make([]float64, b.N)
+	for i := range rs {
+		rs[i] = rand.Float64()
+	}
+
+	local := make([]*Node, 0, sz)
+
+	b.StartTimer()
+	for i, pt := range points {
+		local = local[:0]
+		rr := rs[i] * rs[i]
+		for i := range nodes {
+			if nodes[i].Point.sqDist(&pt) < rr {
+				local = append(local, &nodes[i])
+			}
+		}
+	}
+}
