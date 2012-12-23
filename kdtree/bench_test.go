@@ -111,48 +111,11 @@ func inRangeSz(sz int, b *testing.B) {
 		rs[i] = rand.Float64()
 	}
 
-	b.StartTimer()
-	for i, pt := range points {
-		tree.InRange(pt, rs[i]*radiusMax)
-	}
-}
-
-// BenchmarkInRangeSlice1000 benchmarks the InRangeSlice
-// function with a tree containing 1000 nodes.
-func BenchmarkInRangeSlice1000(b *testing.B) {
-	inRangeSliceSz(1000, b)
-}
-
-// inRangeSliceSz benchmarks InRangeSlice function on a tree
-// with the given number of nodes.
-func inRangeSliceSz(sz int, b *testing.B) {
-	b.StopTimer()
-	nodes := make([]T, sz)
-	nodeps := make([]*T, sz)
-	for i := range nodes {
-		for j := range nodes[i].Point {
-			nodes[i].Point[j] = rand.Float64()
-		}
-		nodeps[i] = &nodes[i]
-	}
-	tree := New(nodeps)
-
-	points := make([]Point, b.N)
-	for i := range points {
-		for j := range points[i] {
-			points[i][j] = rand.Float64()
-		}
-	}
-	rs := make([]float64, b.N)
-	for i := range rs {
-		rs[i] = rand.Float64()
-	}
-
 	pool := make([]*T, 0, sz)
 
 	b.StartTimer()
 	for i, pt := range points {
-		tree.InRangeSlice(pt, rs[i]*radiusMax, pool[:0])
+		tree.InRange(pt, rs[i]*radiusMax, pool[:0])
 	}
 }
 
