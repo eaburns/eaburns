@@ -59,25 +59,16 @@ func (t *T) insert(depth int, n *T) *T {
 	return t
 }
 
-// InRange returns all of the nodes in the K-D tree with a point within
-// a distance r from the given point.
-func (t *T) InRange(pt Point, radius float64) []*T {
-	if radius < 0 {
-		return []*T{}
+// InRange returns all of the nodes in the K-D tree within a certain
+// distance from the from the given point.  The returned nodes are
+// appended appended to the given slice, which may be nil.  To
+// avoid allocation, the slice can be pre-allocated with a larger
+// capacity and shared across multiple calls to InRange.
+func (t *T) InRange(pt Point, dist float64, nodes []*T) []*T {
+	if dist < 0 {
+		return nodes
 	}
-	return t.inRange(&pt, radius, nil)
-}
-
-// InRangeSlice is the same as InRange, however, a pre-allocated
-// slice is used for the returned nodes.  Note that, if the pre-allocated
-// slice is not large enough, then the returned slice will be a newly
-// allocated slice that can fit all of the nodes.
-func (t *T) InRangeSlice(pt Point, radius float64, slice []*T) []*T {
-	slice = slice[:0]
-	if radius < 0 {
-		return slice
-	}
-	return t.inRange(&pt, radius, slice)
+	return t.inRange(&pt, dist, nodes)
 }
 
 func (t *T) inRange(pt *Point, r float64, nodes []*T) []*T {

@@ -52,7 +52,7 @@ func TestInRange(t *testing.T) {
 
 		tree := New(nodes)
 		in := make(map[*T]bool, len(nodes))
-		for _, n := range tree.InRange(pt, r) {
+		for _, n := range tree.InRange(pt, r, nil) {
 			in[n] = true
 		}
 
