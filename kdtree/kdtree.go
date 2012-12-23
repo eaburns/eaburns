@@ -11,7 +11,7 @@ import (
 // K is the number of dimensions of the stored points.
 const K = 2
 
-// Point is a location in K-dimensional space.
+// A Point is a location in K-dimensional space.
 type Point [K]float64
 
 // SqDist returns the square distance between two points.
