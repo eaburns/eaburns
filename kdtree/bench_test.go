@@ -19,9 +19,9 @@ func BenchmarkInsert(b *testing.B) {
 	}
 
 	b.StartTimer()
-	var t Root
+	var t *T
 	for i := range pts {
-		t.Insert(&Node{Point: pts[i]})
+		t = t.Insert(&T{Point: pts[i]})
 	}
 }
 
@@ -41,10 +41,10 @@ func insertSz(sz int, b *testing.B) {
 	}
 
 	b.StartTimer()
-	var t Root
+	var t *T
 	for i := 0; i < b.N; i++ {
 		for i := range pts {
-			t.Insert(&Node{Point: pts[i]})
+			t = t.Insert(&T{Point: pts[i]})
 		}
 	}
 
@@ -67,15 +67,15 @@ func makeSz(sz int, b *testing.B) {
 	}
 
 	b.StartTimer()
-	nodes := make([]Node, sz)
-	nodeps := make([]*Node, sz)
+	nodes := make([]T, sz)
+	nodeps := make([]*T, sz)
 	for i := range nodes {
 		nodes[i].Point = pts[i]
 		nodeps[i] = &nodes[i]
 	}
 
 	for i := 0; i < b.N; i++ {
-		Make(nodeps)
+		New(nodeps)
 	}
 
 }
@@ -90,15 +90,15 @@ func BenchmarkInRange1000(b *testing.B) {
 // number of nodes.
 func inRangeSz(sz int, b *testing.B) {
 	b.StopTimer()
-	nodes := make([]Node, sz)
-	nodeps := make([]*Node, sz)
+	nodes := make([]T, sz)
+	nodeps := make([]*T, sz)
 	for i := range nodes {
 		for j := range nodes[i].Point {
 			nodes[i].Point[j] = rand.Float64()
 		}
 		nodeps[i] = &nodes[i]
 	}
-	tree := Make(nodeps)
+	tree := New(nodeps)
 
 	points := make([]Point, b.N)
 	for i := range points {
@@ -127,15 +127,15 @@ func BenchmarkInRangeSlice1000(b *testing.B) {
 // with the given number of nodes.
 func inRangeSliceSz(sz int, b *testing.B) {
 	b.StopTimer()
-	nodes := make([]Node, sz)
-	nodeps := make([]*Node, sz)
+	nodes := make([]T, sz)
+	nodeps := make([]*T, sz)
 	for i := range nodes {
 		for j := range nodes[i].Point {
 			nodes[i].Point[j] = rand.Float64()
 		}
 		nodeps[i] = &nodes[i]
 	}
-	tree := Make(nodeps)
+	tree := New(nodeps)
 
 	points := make([]Point, b.N)
 	for i := range points {
@@ -148,7 +148,7 @@ func inRangeSliceSz(sz int, b *testing.B) {
 		rs[i] = rand.Float64()
 	}
 
-	pool := make([]*Node, 0, sz)
+	pool := make([]*T, 0, sz)
 
 	b.StartTimer()
 	for i, pt := range points {
@@ -166,7 +166,7 @@ func BenchmarkInRangeLinear1000(b *testing.B) {
 // a linear scan of the given number of nodes.
 func inRangeLinearSz(sz int, b *testing.B) {
 	b.StopTimer()
-	nodes := make([]Node, sz)
+	nodes := make([]T, sz)
 	for i := range nodes {
 		for j := range nodes[i].Point {
 			nodes[i].Point[j] = rand.Float64()
@@ -184,7 +184,7 @@ func inRangeLinearSz(sz int, b *testing.B) {
 		rs[i] = rand.Float64() * radiusMax
 	}
 
-	local := make([]*Node, 0, sz)
+	local := make([]*T, 0, sz)
 
 	b.StartTimer()
 	for i, pt := range points {

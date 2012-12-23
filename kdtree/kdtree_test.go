@@ -12,11 +12,11 @@ import (
 // inserted into an empty tree maintain the K-D tree invariant.
 func TestInsert(t *testing.T) {
 	if err := quick.Check(func(pts pointSlice) bool {
-		var tree Root
+		var tree *T
 		for _, p := range pts {
-			tree.Insert(&Node{Point: p})
+			tree = tree.Insert(&T{Point: p})
 		}
-		_, ok := tree.node.invariantHolds()
+		_, ok := tree.invariantHolds()
 		return ok
 	}, nil); err != nil {
 		t.Error(err)
@@ -27,12 +27,12 @@ func TestInsert(t *testing.T) {
 // using random points respects the K-D tree invariant.
 func TestMake(t *testing.T) {
 	if err := quick.Check(func(pts pointSlice) bool {
-		nodes := make([]*Node, len(pts))
+		nodes := make([]*T, len(pts))
 		for i, pt := range pts {
-			nodes[i] = &Node{Point: pt}
+			nodes[i] = &T{Point: pt}
 		}
-		tree := Make(nodes)
-		_, ok := tree.node.invariantHolds()
+		tree := New(nodes)
+		_, ok := tree.invariantHolds()
 		return ok
 	}, nil); err != nil {
 		t.Error(err)
@@ -45,13 +45,13 @@ func TestMake(t *testing.T) {
 func TestInRange(t *testing.T) {
 	if err := quick.Check(func(pts pointSlice, pt Point, r float64) bool {
 		r = math.Abs(r)
-		nodes := make([]*Node, len(pts))
+		nodes := make([]*T, len(pts))
 		for i, pt := range pts {
-			nodes[i] = &Node{Point: pt}
+			nodes[i] = &T{Point: pt}
 		}
 
-		tree := Make(nodes)
-		in := make(map[*Node]bool, len(nodes))
+		tree := New(nodes)
+		in := make(map[*T]bool, len(nodes))
 		for _, n := range tree.InRange(pt, r) {
 			in[n] = true
 		}
@@ -76,9 +76,9 @@ func TestInRange(t *testing.T) {
 // greater than or equal to the pivot.
 func TestPartition(t *testing.T) {
 	if err := quick.Check(func(pts pointSlice) bool {
-		nodes := make([]*Node, len(pts))
+		nodes := make([]*T, len(pts))
 		for i, Point := range pts {
-			nodes[i] = &Node{Point: Point}
+			nodes[i] = &T{Point: Point}
 		}
 		split := 0
 		pivot := nodes[0].Point[split]
@@ -130,7 +130,7 @@ func (p Point) Generate(r *rand.Rand, _ int) reflect.Value {
 // of the current node on the splitting dimension, and the points
 // in the right subtree have values greater than or equal to that of
 // the current node.
-func (t *Node) invariantHolds() ([]Point, bool) {
+func (t *T) invariantHolds() ([]Point, bool) {
 	if t == nil {
 		return []Point{}, true
 	}
