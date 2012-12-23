@@ -8,7 +8,7 @@ import (
 	"sort"
 )
 
-// K is the number of dimensions of the stored points.
+// K is the dimensionality of the points in this package's K-D trees.
 const K = 2
 
 // A Point is a location in K-dimensional space.
@@ -24,8 +24,8 @@ func (a *Point) sqDist(b *Point) float64 {
 	return sqDist
 }
 
-// A T is a the node of a K-D tree.  *T is the root of a K-D tree, and nil is
-// an empty K-D tree.
+// A T is a the node of a K-D tree.  A *T is the root of a K-D tree,
+// and nil is an empty K-D tree.
 type T struct {
 	// Point is the K-dimensional point associated with the
 	// data of this node.
@@ -38,9 +38,8 @@ type T struct {
 }
 
 // Insert returns a new K-D tree with the given node inserted.
-// The unexported fields of the inserted node are modified, so
-// inserting a node that is already a member of a K-D tree will
-// invalidate that tree.
+// Inserting a node that is already a member of a K-D tree
+// invalidates that tree.
 func (t *T) Insert(n *T) *T {
 	return t.insert(0, n)
 }
@@ -93,7 +92,7 @@ func (t *T) inRange(pt *Point, r float64, nodes []*T) []*T {
 	return nodes
 }
 
-// Height returns the height of the K-D tree rooted at this node..
+// Height returns the height of the K-D tree.
 func (t *T) Height() int {
 	if t == nil {
 		return 0
@@ -106,9 +105,8 @@ func (t *T) Height() int {
 }
 
 // New returns a new K-D tree built using the given nodes.
-// The unexported fields of the inserted nodes are modified, so
-// inserting nodes that are already members of K-D trees will
-// invalidate those trees.
+// Building a new tree with nodes that are already members of
+// K-D trees invalidates those trees.
 func New(nodes []*T) *T {
 	if len(nodes) == 0 {
 		return nil
