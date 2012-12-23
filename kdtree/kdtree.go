@@ -37,7 +37,10 @@ type T struct {
 	left, right *T
 }
 
-// Make returns a new K-D tree built using the given nodes.
+// New returns a new K-D tree built using the given nodes.
+// The unexported fields of the inserted nodes are modified, so
+// inserting nodes that are already members of K-D trees will
+// invalidate those trees.
 func New(nodes []*T) *T {
 	if len(nodes) == 0 {
 		return nil
@@ -46,6 +49,9 @@ func New(nodes []*T) *T {
 }
 
 // Insert returns a new K-D tree with the given node inserted.
+// The unexported fields of the inserted node are modified, so
+// inserting a node that is already a member of a K-D tree will
+// invalidate that tree.
 func (t *T) Insert(n *T) *T {
 	return t.insert(0, n)
 }
@@ -53,6 +59,7 @@ func (t *T) Insert(n *T) *T {
 func (t *T) insert(depth int, n *T) *T {
 	if t == nil {
 		n.split = depth % K
+		n.left, n.right = nil, nil
 		return n
 	}
 	if n.Point[t.split] < t.Point[t.split] {
