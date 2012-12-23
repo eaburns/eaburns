@@ -24,56 +24,9 @@ func (a *Point) sqDist(b *Point) float64 {
 	return sqDist
 }
 
-// Root is the root of a K-D tree.  The zero-value is an empty tree.
-type Root struct {
-	node *Node
-}
-
-// Make returns a new K-D tree built using the given nodes.
-func Make(nodes []*Node) Root {
-	if len(nodes) == 0 {
-		return Root{}
-	}
-	return Root{buildTree(0, nodes)}
-}
-
-// Insert inserts data associated with a given point into the KD tree.
-func (r *Root) Insert(n *Node) {
-	r.node = r.node.insert(0, n)
-}
-
-// InRange returns all of the nodes in the K-D tree with a point within
-// a distance r from the given point.
-func (r *Root) InRange(pt Point, radius float64) []*Node {
-	if radius < 0 {
-		return []*Node{}
-	}
-	return r.node.inRange(&pt, radius, nil)
-}
-
-// InRangeSlice is the same as InRange, however, a pre-allocated
-// slice is used for the returned nodes.  Note that, if the pre-allocated
-// slice is not large enough, then the returned slice will be a newly
-// allocated slice that can fit all of the nodes.
-func (r *Root) InRangeSlice(pt Point, radius float64, slice []*Node) []*Node {
-	slice = slice[:0]
-	if radius < 0 {
-		return slice
-	}
-	return r.node.inRange(&pt, radius, slice)
-}
-
-// Height returns the height (the maximum length path to a leaf)
-// of the K-D tree.
-//
-// This operation uses time linear in the number of nodes in the tree.
-func (r *Root) Height() int {
-	return r.node.height()
-}
-
-// A Node is a node in the K-D tree, pairing a point in K-dimensional
-// space with a value.
-type Node struct {
+// A T is a the node of a K-D tree.  *T is the root of a K-D tree, and nil is
+// an empty K-D tree.
+type T struct {
 	// Point is the K-dimensional point associated with the
 	// data of this node.
 	Point
@@ -81,12 +34,23 @@ type Node struct {
 	Data interface{}
 
 	split       int
-	left, right *Node
+	left, right *T
 }
 
-// Insert inserts the point, data pair beneath the given node, returning
-// a new node rooting the new subtree.
-func (t *Node) insert(depth int, n *Node) *Node {
+// Make returns a new K-D tree built using the given nodes.
+func New(nodes []*T) *T {
+	if len(nodes) == 0 {
+		return nil
+	}
+	return buildTree(0, nodes)
+}
+
+// Insert returns a new K-D tree with the given node inserted.
+func (t *T) Insert(n *T) *T {
+	return t.insert(0, n)
+}
+
+func (t *T) insert(depth int, n *T) *T {
 	if t == nil {
 		n.split = depth % K
 		return n
@@ -99,9 +63,28 @@ func (t *Node) insert(depth int, n *Node) *Node {
 	return t
 }
 
-// InRange returns a slice of all of the nodes within the given
-// squared distance of the point.
-func (t *Node) inRange(pt *Point, r float64, nodes []*Node) []*Node {
+// InRange returns all of the nodes in the K-D tree with a point within
+// a distance r from the given point.
+func (t *T) InRange(pt Point, radius float64) []*T {
+	if radius < 0 {
+		return []*T{}
+	}
+	return t.inRange(&pt, radius, nil)
+}
+
+// InRangeSlice is the same as InRange, however, a pre-allocated
+// slice is used for the returned nodes.  Note that, if the pre-allocated
+// slice is not large enough, then the returned slice will be a newly
+// allocated slice that can fit all of the nodes.
+func (t *T) InRangeSlice(pt Point, radius float64, slice []*T) []*T {
+	slice = slice[:0]
+	if radius < 0 {
+		return slice
+	}
+	return t.inRange(&pt, radius, slice)
+}
+
+func (t *T) inRange(pt *Point, r float64, nodes []*T) []*T {
 	if t == nil {
 		return nodes
 	}
@@ -124,20 +107,20 @@ func (t *Node) inRange(pt *Point, r float64, nodes []*Node) []*Node {
 	return nodes
 }
 
-// Height returns the height of this node.
-func (t *Node) height() int {
+// Height returns the height of the K-D tree rooted at this node..
+func (t *T) Height() int {
 	if t == nil {
 		return 0
 	}
-	ht := t.left.height()
-	if rht := t.right.height(); rht > ht {
+	ht := t.left.Height()
+	if rht := t.right.Height(); rht > ht {
 		ht = rht
 	}
 	return ht + 1
 }
 
 // BuildTree returns a new tree, built up from the given slice of nodes.
-func buildTree(depth int, nodes []*Node) *Node {
+func buildTree(depth int, nodes []*T) *T {
 	split := depth % K
 	switch len(nodes) {
 	case 0:
@@ -160,7 +143,7 @@ func buildTree(depth int, nodes []*Node) *Node {
 // with values less than that of the pivot on the split dimension, and the
 // second containing all values greater or equal to that of the pivot
 // on the splitting dimension.
-func partition(split int, pivot float64, nodes []*Node) (fst, snd []*Node) {
+func partition(split int, pivot float64, nodes []*T) (fst, snd []*T) {
 	p := 0
 	for i, nd := range nodes {
 		if nd.Point[split] < pivot {
@@ -173,7 +156,7 @@ func partition(split int, pivot float64, nodes []*Node) (fst, snd []*Node) {
 
 // Med returns the median node, compared on the split dimension
 // and the remaining nodes.
-func med(split int, nodes []*Node) (*Node, []*Node) {
+func med(split int, nodes []*T) (*T, []*T) {
 	if len(nodes) == 0 {
 		panic("med: no nodes")
 	}
@@ -192,7 +175,7 @@ func med(split int, nodes []*Node) (*Node, []*Node) {
 // in ascending order of their point values on the split dimension.
 type nodeSorter struct {
 	split int
-	nodes []*Node
+	nodes []*T
 }
 
 func (n nodeSorter) Len() int {
