@@ -59,11 +59,10 @@ func (t *T) insert(depth int, n *T) *T {
 	return t
 }
 
-// InRange returns all of the nodes in the K-D tree within a certain
-// distance from the from the given point.  The returned nodes are
-// appended appended to the given slice, which may be nil.  To
-// avoid allocation, the slice can be pre-allocated with a larger
-// capacity and shared across multiple calls to InRange.
+// InRange appends all nodes in the K-D tree that are within a given
+// distance from the given point to the given slice, which may be nil.
+// To  avoid allocation, the slice can be pre-allocated with a larger
+// capacity and re-used across multiple calls to InRange.
 func (t *T) InRange(pt Point, dist float64, nodes []*T) []*T {
 	if dist < 0 {
 		return nodes
