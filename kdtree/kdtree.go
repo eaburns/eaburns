@@ -37,17 +37,6 @@ type T struct {
 	left, right *T
 }
 
-// New returns a new K-D tree built using the given nodes.
-// The unexported fields of the inserted nodes are modified, so
-// inserting nodes that are already members of K-D trees will
-// invalidate those trees.
-func New(nodes []*T) *T {
-	if len(nodes) == 0 {
-		return nil
-	}
-	return buildTree(0, nodes)
-}
-
 // Insert returns a new K-D tree with the given node inserted.
 // The unexported fields of the inserted node are modified, so
 // inserting a node that is already a member of a K-D tree will
@@ -124,6 +113,17 @@ func (t *T) Height() int {
 		ht = rht
 	}
 	return ht + 1
+}
+
+// New returns a new K-D tree built using the given nodes.
+// The unexported fields of the inserted nodes are modified, so
+// inserting nodes that are already members of K-D trees will
+// invalidate those trees.
+func New(nodes []*T) *T {
+	if len(nodes) == 0 {
+		return nil
+	}
+	return buildTree(0, nodes)
 }
 
 // BuildTree returns a new tree, built up from the given slice of nodes.
