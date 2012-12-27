@@ -126,32 +126,16 @@ func buildTree(depth int, nodes []*T) *T {
 		nd.left, nd.right = nil, nil
 		return nd
 	}
-	cur, nodes := med(split, nodes)
-	left, right := partition(split, cur.Point[split], nodes)
+	cur, left, right := med(split, nodes)
 	cur.split = split
 	cur.left = buildTree(depth+1, left)
 	cur.right = buildTree(depth+1, right)
 	return cur
 }
 
-// Partition returns two node slices, the first containing all elements
-// with values less than that of the pivot on the split dimension, and the
-// second containing all values greater or equal to that of the pivot
-// on the splitting dimension.
-func partition(split int, pivot float64, nodes []*T) (fst, snd []*T) {
-	p := 0
-	for i, nd := range nodes {
-		if nd.Point[split] < pivot {
-			nodes[p], nodes[i] = nodes[i], nodes[p]
-			p++
-		}
-	}
-	return nodes[:p], nodes[p:]
-}
-
 // Med returns the median node, compared on the split dimension
 // and the remaining nodes.
-func med(split int, nodes []*T) (*T, []*T) {
+func med(split int, nodes []*T) (med *T, left, right []*T) {
 	if len(nodes) == 0 {
 		panic("med: no nodes")
 	}
@@ -162,8 +146,7 @@ func med(split int, nodes []*T) (*T, []*T) {
 			break
 		}
 	}
-	nodes[0], nodes[m] = nodes[m], nodes[0]
-	return nodes[0], nodes[1:]
+	return nodes[m], nodes[:m], nodes[m+1:]
 }
 
 // A nodeSorter implements sort.Interface, sortnig the nodes
