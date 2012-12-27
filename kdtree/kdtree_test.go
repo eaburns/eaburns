@@ -71,37 +71,6 @@ func TestInRange(t *testing.T) {
 	}
 }
 
-// TestPartition tests the partition function, ensuring that random
-// points correctly partition into sets less than the pivot and a
-// greater than or equal to the pivot.
-func TestPartition(t *testing.T) {
-	if err := quick.Check(func(pts pointSlice) bool {
-		nodes := make([]*T, len(pts))
-		for i, Point := range pts {
-			nodes[i] = &T{Point: Point}
-		}
-		split := 0
-		pivot := nodes[0].Point[split]
-		nodes = nodes[1:]
-
-		fst, snd := partition(split, pivot, nodes)
-		for _, n := range fst {
-			if n.Point[split] >= pivot {
-				return false
-			}
-		}
-		for _, n := range snd {
-			if n.Point[split] < pivot {
-				return false
-			}
-		}
-		return true
-	}, nil); err != nil {
-		t.Error(err)
-	}
-
-}
-
 // A pointSlice is a slice of points that implements the quick.Generator
 // interface, generating a random set of points on the unit square.
 type pointSlice []Point
