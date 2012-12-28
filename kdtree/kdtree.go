@@ -121,74 +121,89 @@ func buildTree(depth int, nodes *preSorted) *T {
 	case 0:
 		return nil
 	case 1:
-		nd := nodes.dims[0][0]
+		nd := nodes.cur[0][0]
 		nd.split = split
 		nd.left, nd.right = nil, nil
 		return nd
 	}
 	cur, left, right := nodes.splitMed(split)
 	cur.split = split
-	cur.left = buildTree(depth+1, left)
-	cur.right = buildTree(depth+1, right)
+	cur.left = buildTree(depth+1, &left)
+	cur.right = buildTree(depth+1, &right)
 	return cur
 }
 
 // PreSorted holds the nodes pre-sorted on each dimension.
 type preSorted struct {
-	dims [K][]*T
+	// Cur is the currently sorted set of *Ts.
+	cur [K][]*T
+
+	// Next contains slices that will be used in the results
+	// of splitting a preSorted.
+	next [K][]*T
 }
 
 // PreSort returns the nodes pre-sorted on each dimension.
 func preSort(nodes []*T) *preSorted {
 	p := new(preSorted)
-	for i := range p.dims {
-		p.dims[i] = make([]*T, len(nodes))
-		copy(p.dims[i], nodes)
-		sort.Sort(&nodeSorter{i, p.dims[i]})
+	for i := range p.cur {
+		p.cur[i] = make([]*T, len(nodes))
+		p.next[i] = make([]*T, len(nodes))
+		copy(p.cur[i], nodes)
+		sort.Sort(&nodeSorter{i, p.cur[i]})
 	}
 	return p
 }
 
 // Len returns the number of nodes.
 func (p *preSorted) Len() int {
-	return len(p.dims[0])
+	return len(p.cur[0])
 }
 
 // SplitMed returns the median node on the split dimension and two
 // preSorted structs that contain the nodes (still sorted on each
 // dimension) that are less than and greater than or equal to the
 // median node value on the given splitting dimension
-func (p *preSorted) splitMed(dim int) (med *T, left, right *preSorted) {
-	m := len(p.dims[dim]) / 2
-	for m > 0 && p.dims[dim][m-1] == p.dims[dim][m] {
+//
+// The target of splitMed becomes invalid after the split, as its memory
+// is hijacked by the two returned partitions.
+func (p *preSorted) splitMed(dim int) (med *T, left, right preSorted) {
+	m := len(p.cur[dim]) / 2
+	for m > 0 && p.cur[dim][m-1] == p.cur[dim][m] {
 		m--
 	}
-	med = p.dims[dim][m]
+	med = p.cur[dim][m]
 	pivot := med.Point[dim]
-	sz := len(p.dims[dim]) - 1
 
-	left, right = new(preSorted), new(preSorted)
-	left.dims[dim] = p.dims[dim][:m]
-	right.dims[dim] = p.dims[dim][m+1:]
+	left.cur[dim] = p.cur[dim][:m]
+	left.next[dim] = p.next[dim][:m]
 
-	for d := range p.dims {
+	right.cur[dim] = p.cur[dim][m+1:]
+	right.next[dim] = p.next[dim][m+1:]
+
+	for d := range p.cur {
 		if d == dim {
 			continue
 		}
 
-		left.dims[d] = make([]*T, 0, sz)
-		right.dims[d] = make([]*T, 0, sz)
+		// Use p's next slices as left and right's cur slices.
+		left.cur[d] = p.next[d][:0]
+		right.cur[d] = p.next[d][m+1 : m+1]
 
-		for _, n := range p.dims[d] {
+		for _, n := range p.cur[d] {
 			if n == med {
 				continue
 			}
 			if n.Point[dim] < pivot {
-				left.dims[d] = append(left.dims[d], n)
+				left.cur[d] = append(left.cur[d], n)
 			} else {
-				right.dims[d] = append(right.dims[d], n)
+				right.cur[d] = append(right.cur[d], n)
 			}
 		}
+
+		// Re-use p's cur slice as left and right's next slices.
+		left.next[d] = p.cur[d][:m]
+		right.next[d] = p.cur[d][m+1:]
 	}
 	return
 }
