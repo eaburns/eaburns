@@ -41,8 +41,8 @@ func insertSz(sz int, b *testing.B) {
 	}
 
 	b.StartTimer()
-	var t *T
 	for i := 0; i < b.N; i++ {
+		var t *T
 		for i := range pts {
 			t = t.Insert(&T{Point: pts[i]})
 		}
