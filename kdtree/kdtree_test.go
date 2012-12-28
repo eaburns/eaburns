@@ -136,8 +136,8 @@ func TestPreSort(t *testing.T) {
 		}
 
 		p := preSort(nodes)
-		for i := range p.dims {
-			if !isSortedOnDim(i, p.dims[i]) || len(p.dims[i]) != len(nodes) {
+		for i := range p.cur {
+			if !isSortedOnDim(i, p.cur[i]) || len(p.cur[i]) != len(nodes) {
 				return false
 			}
 		}
@@ -165,8 +165,8 @@ func TestPreSort_SplitMed(t *testing.T) {
 		sorted := preSort(nodes)
 		med, left, right := sorted.splitMed(dim)
 
-		for i, p := range [2]*preSorted{left, right} {
-			for d, ns := range p.dims {
+		for i, p := range [2]*preSorted{&left, &right} {
+			for d, ns := range p.cur {
 				if len(ns) != p.Len() {
 					return false
 				}
