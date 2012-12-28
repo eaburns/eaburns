@@ -144,7 +144,7 @@ func preSort(nodes []*T) *preSorted {
 	for i := range p.dims {
 		p.dims[i] = make([]*T, len(nodes))
 		copy(p.dims[i], nodes)
-		sort.Sort(nodeSorter{i, p.dims[i]})
+		sort.Sort(&nodeSorter{i, p.dims[i]})
 	}
 	return p
 }
@@ -200,14 +200,14 @@ type nodeSorter struct {
 	nodes []*T
 }
 
-func (n nodeSorter) Len() int {
+func (n *nodeSorter) Len() int {
 	return len(n.nodes)
 }
 
-func (n nodeSorter) Swap(i, j int) {
+func (n *nodeSorter) Swap(i, j int) {
 	n.nodes[i], n.nodes[j] = n.nodes[j], n.nodes[i]
 }
 
-func (n nodeSorter) Less(i, j int) bool {
+func (n *nodeSorter) Less(i, j int) bool {
 	return n.nodes[i].Point[n.split] < n.nodes[j].Point[n.split]
 }
