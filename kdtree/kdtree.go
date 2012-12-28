@@ -111,42 +111,86 @@ func New(nodes []*T) *T {
 	if len(nodes) == 0 {
 		return nil
 	}
-	return buildTree(0, nodes)
+	return buildTree(0, preSort(nodes))
 }
 
 // BuildTree returns a new tree, built up from the given slice of nodes.
-func buildTree(depth int, nodes []*T) *T {
+func buildTree(depth int, nodes *preSorted) *T {
 	split := depth % K
-	switch len(nodes) {
+	switch nodes.Len() {
 	case 0:
 		return nil
 	case 1:
-		nd := nodes[0]
+		nd := nodes.dims[0][0]
 		nd.split = split
 		nd.left, nd.right = nil, nil
 		return nd
 	}
-	cur, left, right := med(split, nodes)
+	cur, left, right := nodes.splitMed(split)
 	cur.split = split
 	cur.left = buildTree(depth+1, left)
 	cur.right = buildTree(depth+1, right)
 	return cur
 }
 
-// Med returns the median node, compared on the split dimension
-// and the remaining nodes.
-func med(split int, nodes []*T) (med *T, left, right []*T) {
-	if len(nodes) == 0 {
-		panic("med: no nodes")
+// PreSorted holds the nodes pre-sorted on each dimension.
+type preSorted struct {
+	dims [K][]*T
+}
+
+// PreSort returns the nodes pre-sorted on each dimension.
+func preSort(nodes []*T) *preSorted {
+	p := new(preSorted)
+	for i := range p.dims {
+		p.dims[i] = make([]*T, len(nodes))
+		copy(p.dims[i], nodes)
+		sort.Sort(nodeSorter{i, p.dims[i]})
 	}
-	sort.Sort(nodeSorter{split, nodes})
-	var m int
-	for m = len(nodes) / 2; m >= 1; m-- {
-		if nodes[m-1].Point[split] < nodes[m].Point[split] {
-			break
+	return p
+}
+
+// Len returns the number of nodes.
+func (p *preSorted) Len() int {
+	return len(p.dims[0])
+}
+
+// SplitMed returns the median node on the split dimension and two
+// preSorted structs that contain the nodes (still sorted on each
+// dimension) that are less than and greater than or equal to the
+// median node value on the given splitting dimension
+func (p *preSorted) splitMed(dim int) (med *T, left, right *preSorted) {
+	m := len(p.dims[dim]) / 2
+	for m > 0 && p.dims[dim][m-1] == p.dims[dim][m] {
+		m--
+	}
+	med = p.dims[dim][m]
+	pivot := med.Point[dim]
+	sz := len(p.dims[dim]) - 1
+
+	left, right = new(preSorted), new(preSorted)
+	left.dims[dim] = p.dims[dim][:m]
+	right.dims[dim] = p.dims[dim][m+1:]
+
+	for d := range p.dims {
+		if d == dim {
+			continue
+		}
+
+		left.dims[d] = make([]*T, 0, sz)
+		right.dims[d] = make([]*T, 0, sz)
+
+		for _, n := range p.dims[d] {
+			if n == med {
+				continue
+			}
+			if n.Point[dim] < pivot {
+				left.dims[d] = append(left.dims[d], n)
+			} else {
+				right.dims[d] = append(right.dims[d], n)
+			}
 		}
 	}
-	return nodes[m], nodes[:m], nodes[m+1:]
+	return
 }
 
 // A nodeSorter implements sort.Interface, sortnig the nodes
