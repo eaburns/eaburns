@@ -163,7 +163,7 @@ func (p *preSorted) Len() int {
 // SplitMed returns the median node on the split dimension and two
 // preSorted structs that contain the nodes (still sorted on each
 // dimension) that are less than and greater than or equal to the
-// median node value on the given splitting dimension
+// median node value on the given splitting dimension.
 //
 // The target of splitMed becomes invalid after the split, as its memory
 // is hijacked by the two returned partitions.
