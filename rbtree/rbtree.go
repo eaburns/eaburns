@@ -98,10 +98,10 @@ func (t *RbTree) Member(k Key) bool {
 	return t.Find(k) != nil
 }
 
-// Do calls the function on each Key/value pair in the tree.  The function
+// Do calls the function on each Key/value pair in the tree. The function
 // is called on the bindings in the ordering defined over the Keys. The
-// behavior of Do is undefined defined if the tree is modified by the
-// function f.  The operation is O(n) in the number of Nodes in the tree.
+// behavior is undefined if f modifies the tree during traversal. The
+// operation is O(n) in the number of Nodes in the tree.
 func (t *RbTree) Do(f func(k Key, v interface{})) {
 	inOrder(t.root, f)
 }
