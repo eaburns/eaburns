@@ -176,7 +176,10 @@ func histPlot() *plot.Plot {
 
 	// Create a histogram of our values drawn
 	// from the standard normal.
-	h := plotter.NewHist(v, 16)
+	h, err := plotter.NewHist(v, 16)
+	if err != nil {
+		panic(err)
+	}
 	// Normalize the area under the histogram to
 	// sum to one.
 	h.Normalize(1)
@@ -220,17 +223,26 @@ func linesPlot() *plot.Plot {
 	p.Add(plotter.NewGrid())
 
 	// Make a scatter plotter and set its style.
-	s := plotter.NewScatter(scatterData)
+	s, err := plotter.NewScatter(scatterData)
+	if err != nil {
+		panic(err)
+	}
 	s.GlyphStyle.Color = color.RGBA{R: 255, B: 128, A: 255}
 
 	// Make a line plotter and set its style.
-	l := plotter.NewLine(lineData)
+	l, err := plotter.NewLine(lineData)
+	if err != nil {
+		panic(err)
+	}
 	l.LineStyle.Width = vg.Points(1)
 	l.LineStyle.Dashes = []vg.Length{vg.Points(5), vg.Points(5)}
 	l.LineStyle.Color = color.RGBA{B: 255, A: 255}
 
 	// Make a line plotter with points and set its style.
-	lpLine, lpPoints := plotter.NewLinePoints(linePointsData)
+	lpLine, lpPoints, err := plotter.NewLinePoints(linePointsData)
+	if err != nil {
+		panic(err)
+	}
 	lpLine.Color = color.RGBA{G: 255, A: 255}
 	lpPoints.Shape = plot.PyramidGlyph{}
 	lpPoints.Color = color.RGBA{R: 255, A: 255}
