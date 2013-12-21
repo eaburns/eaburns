@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"log"
 	"os"
+	"strings"
 )
 
 var (
@@ -28,13 +29,13 @@ type result struct {
 // joblist stores the different jobs and distributes them to
 // workers upon request.
 type joblist struct {
-	q             *list.List
-	n, nok, nfail int
-	goteof        bool
-	eof           chan bool   // receiving EOF signal from command file
-	post          chan string // receiving posted jobs
-	jobs          chan string // sending jobs to workers
-	done          chan result // receiving jobs completions
+	q                   *list.List
+	n, nok, nfail, ntot int
+	goteof              bool
+	eof                 chan bool   // receiving EOF signal from command file
+	post                chan string // receiving posted jobs
+	jobs                chan string // sending jobs to workers
+	done                chan result // receiving jobs completions
 }
 
 // newJoblist makes a new joblist
@@ -52,6 +53,7 @@ func newJoblist(finished chan<- bool) *joblist {
 
 // postJob posts a new command to the joblist
 func (j *joblist) postJob(cmd string) {
+	j.ntot++
 	j.post <- cmd
 }
 
@@ -83,12 +85,31 @@ func (j *joblist) repostJob(cmd string) {
 }
 
 func (j *joblist) Go(finished chan<- bool) {
+
+	barrierActive := false
+	completionMark := 0
+
 	for {
 		var send chan<- string
 		var front string
 		if j.q.Len() > 0 {
-			send = j.jobs
 			front = j.q.Front().Value.(string)
+
+			if strings.Contains(front, "PLEASE WAIT HERE") {
+				barrierActive = true
+				j.n--
+				completionMark = j.ntot - j.n
+
+				logfile.Printf("Barrier Active\n")
+				logfile.Printf("Barrier Tear Down In %d Job Completions\n",
+					completionMark-(j.nok+j.nfail))
+
+				e := j.q.Front()
+				j.q.Remove(e)
+			} else if !barrierActive {
+				send = j.jobs
+			}
+
 		}
 		select {
 		case <-j.eof:
@@ -106,6 +127,14 @@ func (j *joblist) Go(finished chan<- bool) {
 		case p := <-j.done:
 			if j.handleDone(p) {
 				goto done
+			}
+			if barrierActive {
+				logfile.Printf("Barrier Tear Down In %d Job Completions\n",
+					completionMark-(j.nok+j.nfail))
+				if (j.nok + j.nfail) == completionMark {
+					logfile.Printf("Barrier Removed\n")
+					barrierActive = false
+				}
 			}
 
 		case send <- front:
