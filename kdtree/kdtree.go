@@ -174,27 +174,17 @@ func (p *preSorted) splitMed(dim int) (med *T, left, right preSorted) {
 	}
 	med = p.cur[dim][m]
 	pivot := med.Point[dim]
-
-	left.cur[dim] = p.cur[dim][:m]
-	left.next[dim] = p.next[dim][:m]
-
-	right.cur[dim] = p.cur[dim][m+1:]
-	right.next[dim] = p.next[dim][m+1:]
-
+	nleft := leftSize(pivot, dim, p.cur)
 	for d := range p.cur {
-		if d == dim {
-			continue
-		}
-
 		// Use p's next slices as left and right's cur slices.
 		left.cur[d] = p.next[d][:0]
-		right.cur[d] = p.next[d][m+1 : m+1]
+		right.cur[d] = p.next[d][nleft+1 : nleft+1]
 
 		for _, n := range p.cur[d] {
 			if n == med {
 				continue
 			}
-			if n.Point[dim] < pivot {
+			if n.Point[dim] <= pivot {
 				left.cur[d] = append(left.cur[d], n)
 			} else {
 				right.cur[d] = append(right.cur[d], n)
@@ -202,10 +192,25 @@ func (p *preSorted) splitMed(dim int) (med *T, left, right preSorted) {
 		}
 
 		// Re-use p's cur slice as left and right's next slices.
-		left.next[d] = p.cur[d][:m]
-		right.next[d] = p.cur[d][m+1:]
+		left.next[d] = p.cur[d][:nleft]
+		if nleft+1 < len(p.cur[d])-1 {
+			right.next[d] = p.cur[d][nleft+1:]
+		} else {
+			right.next[d] = nil
+		}
 	}
 	return
+}
+
+func leftSize(pivot float64, d int, nodes [K][]*T) int {
+	var nleft int
+	for _, n := range nodes[d] {
+		if n.Point[d] <= pivot {
+			nleft++
+		}
+	}
+	// Minus 1 because the median point isn't placed down the left branch.
+	return nleft-1
 }
 
 // A nodeSorter implements sort.Interface, sortnig the nodes

@@ -45,6 +45,41 @@ func TestInsert(t *testing.T) {
 	}
 }
 
+// When splitting on the median, values after the median index may tie the median.
+// Make sure that we correctly account for this when splitting and reusing slices.
+// The test ensures that we don't panic.
+// See issue 18.
+func TestMedianTies(t *testing.T) {
+	 New([]*T{
+		&T{Point: Point{0, 1}},
+		&T{Point: Point{0, 1}},
+		&T{Point: Point{0, 0}},
+		&T{Point: Point{1, 0}},
+	})
+
+	// This is the data that originally produced issue 18.
+	 New([]*T{
+		&T{Point: Point{6, 9}},
+		&T{Point: Point{6, 4}},
+		&T{Point: Point{4, 6}},
+		&T{Point: Point{0, 1}},
+		&T{Point: Point{0, 3}},
+		&T{Point: Point{5, 8}},
+		&T{Point: Point{2, 3}},
+		&T{Point: Point{3, 4}},
+		&T{Point: Point{2, 2}},
+		&T{Point: Point{6, 2}},
+		&T{Point: Point{2, 3}},
+		&T{Point: Point{5, 8}},
+		&T{Point: Point{2, 2}},
+		&T{Point: Point{7, 2}},
+		&T{Point: Point{8, 6}},
+		&T{Point: Point{5, 0}},
+		&T{Point: Point{1, 6}},
+		&T{Point: Point{9, 0}},
+	})
+}
+
 // TestMake tests the Make function, ensuring that a tree built
 // using random points respects the K-D tree invariant.
 func TestMake(t *testing.T) {
