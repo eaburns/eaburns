@@ -1,0 +1,58 @@
+SEQ(0)----------------------
+ line 2: MainFunctionDeclaration
+ SEQ(1)----------------------
+  line 4: MainVariableDeclaration
+  line 4: Integer
+  SEQ(2)----------------------
+   line 4: NameIdentifier (i)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 6: While
+  line 6: {int} IntegerLiteral (1)
+  SEQ(2)----------------------
+   line 7: ExprSt
+   line 7: {int} =
+   line 7: {int} MainVariable (i)
+   line 7: {int} IntegerLiteral (4)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 10: ExprSt
+  line 10: {int} =
+  line 10: {int} MainVariable (i)
+  line 10: {int} IntegerLiteral (5)
+ SEQ(1)----------------------
+  line 0: Return
+  line 0: {int} IntegerLiteral (0)
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 0: ClassDeclaration (Object)
+ SEQ(1)----------------------
+  line 0: Destructor (Object)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (Object)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: MethodDeclaration
+  line 0: Integer
+  line 0: MethodDeclarator (equals)
+  SEQ(2)----------------------
+   line 0: {Object} FormalParameter1 (o)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} ==
+   line 0: {Object} This
+   line 0: {Object} Deref
+   line 0: {Object} Parameter (o)
+  NULL(2)---------------------
+ NULL(1)---------------------
+NULL(0)---------------------

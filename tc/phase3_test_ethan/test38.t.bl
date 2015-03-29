@@ -1,0 +1,107 @@
+Error on line 4: return from main not of type int
+Error on line 11: return with an expression from constructor or destructor
+Error on line 16: return with an expression from constructor or destructor
+Error on line 21: return statement without an expression from method or main function
+Error on line 22: type of return is not convertable to method return type
+SEQ(0)----------------------
+ line 2: MainFunctionDeclaration
+ SEQ(1)----------------------
+  line 4: Return
+  line 4: {T} ClassCreationExpression
+  NULL
+ SEQ(1)----------------------
+  line 5: Return
+  line 5: {int} IntegerLiteral (5)
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 8: ClassDeclaration (T extends S)
+ SEQ(1)----------------------
+  line 9: ConstructorDeclaration
+  line 9: ConstructorDeclarator (T)
+  NULL
+  SEQ(2)----------------------
+   line 10: Return
+   NULL
+  SEQ(2)----------------------
+   line 11: Return
+   line 11: {int} IntegerLiteral (5)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 14: Destructor (T)
+  SEQ(2)----------------------
+   line 15: Return
+   NULL
+  SEQ(2)----------------------
+   line 16: Return
+   line 16: {int} IntegerLiteral (213)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 19: MethodDeclaration
+  line 19: NameIdentifier (S)
+  line 19: MethodDeclarator (meth)
+  NULL
+  SEQ(2)----------------------
+   line 20: Return
+   line 20: {T} ClassCreationExpression
+   NULL
+  SEQ(2)----------------------
+   line 21: Return
+   NULL
+  SEQ(2)----------------------
+   line 22: Return
+   line 22: {int} IntegerLiteral (2)
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 26: ClassDeclaration (S extends Object)
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (S)
+  NULL
+  SEQ(2)----------------------
+   line 0: ConstructorInvocation
+   line 0: {Object} Super
+   NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (S)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 0: ClassDeclaration (Object)
+ SEQ(1)----------------------
+  line 0: Destructor (Object)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (Object)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: MethodDeclaration
+  line 0: Integer
+  line 0: MethodDeclarator (equals)
+  SEQ(2)----------------------
+   line 0: {Object} FormalParameter1 (o)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} ==
+   line 0: {Object} This
+   line 0: {Object} Deref
+   line 0: {Object} Parameter (o)
+  NULL(2)---------------------
+ NULL(1)---------------------
+NULL(0)---------------------

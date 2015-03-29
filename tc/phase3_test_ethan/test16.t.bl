@@ -1,0 +1,154 @@
+Error on line 8: target of field access is not a reference type
+Error on line 9: field does not exist
+Error on line 17: invalid assignment conversion
+SEQ(0)----------------------
+ line 2: MainFunctionDeclaration
+ SEQ(1)----------------------
+  line 4: MainVariableDeclaration
+  line 4: NameIdentifier (T)
+  SEQ(2)----------------------
+   line 4: NameIdentifier (t)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 5: MainVariableDeclaration
+  line 5: NameIdentifier (S)
+  SEQ(2)----------------------
+   line 5: NameIdentifier (s)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 6: MainVariableDeclaration
+  line 6: Integer
+  SEQ(2)----------------------
+   line 6: NameIdentifier (i)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 8: ExprSt
+  line 8: {error type} =
+  line 8: {int} MainVariable (i)
+  line 8: {error type} FieldAccess (nothing)
+  line 8: {int} Deref
+  line 8: {int} MainVariable (i)
+ SEQ(1)----------------------
+  line 9: ExprSt
+  line 9: {error type} =
+  line 9: {int} MainVariable (i)
+  line 9: {error type} FieldAccess (nothing)
+  line 9: {T} Deref
+  line 9: {T} MainVariable (t)
+ SEQ(1)----------------------
+  line 10: ExprSt
+  line 10: {int} =
+  line 10: {int} MainVariable (i)
+  line 10: {int} Deref
+  line 10: {int} FieldAccess (field)
+  line 10: {S} Deref
+  line 10: {S} MainVariable (s)
+ SEQ(1)----------------------
+  line 0: Return
+  line 0: {int} IntegerLiteral (0)
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 13: ClassDeclaration (T extends S)
+ SEQ(1)----------------------
+  line 14: FieldDeclaration
+  line 14: NameIdentifier (T)
+  SEQ(2)----------------------
+   line 14: NameIdentifier (field)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 16: ConstructorDeclaration
+  line 16: ConstructorDeclarator (T)
+  NULL
+  SEQ(2)----------------------
+   line 17: ExprSt
+   line 17: {error type} =
+   line 17: {int} Field (i)
+   line 17: {T} Deref
+   line 17: {T} FieldAccess (field)
+   line 17: {T} This
+  SEQ(2)----------------------
+   line 18: ExprSt
+   line 18: {int} =
+   line 18: {int} Field (i)
+   line 18: {int} Deref
+   line 18: {int} FieldAccess (field)
+   line 18: {S} Super
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (T)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 22: ClassDeclaration (S extends Object)
+ SEQ(1)----------------------
+  line 23: FieldDeclaration
+  line 23: Integer
+  SEQ(2)----------------------
+   line 23: NameIdentifier (field)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 24: FieldDeclaration
+  line 24: Integer
+  SEQ(2)----------------------
+   line 24: NameIdentifier (i)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 26: ConstructorDeclaration
+  line 26: ConstructorDeclarator (S)
+  NULL
+  SEQ(2)----------------------
+   line 27: ExprSt
+   line 27: {int} =
+   line 27: {int} Field (i)
+   line 27: {int} Deref
+   line 27: {int} FieldAccess (field)
+   line 27: {S} This
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (S)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 0: ClassDeclaration (Object)
+ SEQ(1)----------------------
+  line 0: Destructor (Object)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (Object)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: MethodDeclaration
+  line 0: Integer
+  line 0: MethodDeclarator (equals)
+  SEQ(2)----------------------
+   line 0: {Object} FormalParameter1 (o)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} ==
+   line 0: {Object} This
+   line 0: {Object} Deref
+   line 0: {Object} Parameter (o)
+  NULL(2)---------------------
+ NULL(1)---------------------
+NULL(0)---------------------

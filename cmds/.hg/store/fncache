@@ -1,0 +1,12 @@
+data/cat/main.go.i
+data/uniq/main.go.i
+data/ls/main.go.i
+data/wc/main.go.i
+data/true/main.go.i
+data/TODO.i
+data/.hgignore.i
+data/touch/main.go.i
+data/grep/main.go.i
+data/false/main.go.i
+data/sort/main.go.i
+data/echo/main.go.i

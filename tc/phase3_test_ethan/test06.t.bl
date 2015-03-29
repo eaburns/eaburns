@@ -1,0 +1,194 @@
+Error on line 10: invalid assignment conversion
+Error on line 11: invalid assignment conversion
+Error on line 12: invalid assignment conversion
+Error on line 12: invalid assignment conversion
+Error on line 13: invalid assignment conversion
+Error on line 14: invalid assignment conversion
+Error on line 15: invalid assignment conversion
+Error on line 15: invalid assignment conversion
+SEQ(0)----------------------
+ line 2: MainFunctionDeclaration
+ SEQ(1)----------------------
+  line 4: MainVariableDeclaration
+  line 4: Integer
+  SEQ(2)----------------------
+   line 4: NameIdentifier (i)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 5: MainVariableDeclaration
+  line 5: NameIdentifier (T)
+  SEQ(2)----------------------
+   line 5: NameIdentifier (t)
+  SEQ(2)----------------------
+   line 5: Array
+   line 5: NameIdentifier (tArray)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 6: MainVariableDeclaration
+  line 6: NameIdentifier (S)
+  SEQ(2)----------------------
+   line 6: NameIdentifier (s)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 7: MainVariableDeclaration
+  line 7: NameIdentifier (R)
+  SEQ(2)----------------------
+   line 7: NameIdentifier (r)
+  SEQ(2)----------------------
+   line 7: Array
+   line 7: NameIdentifier (rArray)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 8: MainVariableDeclaration
+  line 8: Integer
+  SEQ(2)----------------------
+   line 8: Array
+   line 8: Array
+   line 8: NameIdentifier (array)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 10: ExprSt
+  line 10: {error type} =
+  line 10: {int} MainVariable (i)
+  line 10: {T} Deref
+  line 10: {T} MainVariable (t)
+ SEQ(1)----------------------
+  line 11: ExprSt
+  line 11: {error type} =
+  line 11: {int} MainVariable (i)
+  line 11: {null type} NullLiteral
+ SEQ(1)----------------------
+  line 12: ExprSt
+  line 12: {error type} =
+  line 12: {T} MainVariable (t)
+  line 12: {R} Deref
+  line 12: {R} MainVariable (r)
+ SEQ(1)----------------------
+  line 12: ExprSt
+  line 12: {error type} =
+  line 12: {R} MainVariable (r)
+  line 12: {T} Deref
+  line 12: {T} MainVariable (t)
+ SEQ(1)----------------------
+  line 13: ExprSt
+  line 13: {error type} =
+  line 13: {int[][]} MainVariable (array)
+  line 13: {T} Deref
+  line 13: {T} MainVariable (t)
+ SEQ(1)----------------------
+  line 14: ExprSt
+  line 14: {error type} =
+  line 14: {T} MainVariable (t)
+  line 14: {int[][]} Deref
+  line 14: {int[][]} MainVariable (array)
+ SEQ(1)----------------------
+  line 15: ExprSt
+  line 15: {error type} =
+  line 15: {T[]} MainVariable (tArray)
+  line 15: {R[]} Deref
+  line 15: {R[]} MainVariable (rArray)
+ SEQ(1)----------------------
+  line 15: ExprSt
+  line 15: {error type} =
+  line 15: {R[]} MainVariable (rArray)
+  line 15: {T[]} Deref
+  line 15: {T[]} MainVariable (tArray)
+ SEQ(1)----------------------
+  line 0: Return
+  line 0: {int} IntegerLiteral (0)
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 18: ClassDeclaration (T extends S)
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (T)
+  NULL
+  SEQ(2)----------------------
+   line 0: ConstructorInvocation
+   line 0: {S} Super
+   NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (T)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 19: ClassDeclaration (S extends Object)
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (S)
+  NULL
+  SEQ(2)----------------------
+   line 0: ConstructorInvocation
+   line 0: {Object} Super
+   NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (S)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 20: ClassDeclaration (R extends Object)
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (R)
+  NULL
+  SEQ(2)----------------------
+   line 0: ConstructorInvocation
+   line 0: {Object} Super
+   NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (R)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 0: ClassDeclaration (Object)
+ SEQ(1)----------------------
+  line 0: Destructor (Object)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (Object)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: MethodDeclaration
+  line 0: Integer
+  line 0: MethodDeclarator (equals)
+  SEQ(2)----------------------
+   line 0: {Object} FormalParameter1 (o)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} ==
+   line 0: {Object} This
+   line 0: {Object} Deref
+   line 0: {Object} Parameter (o)
+  NULL(2)---------------------
+ NULL(1)---------------------
+NULL(0)---------------------

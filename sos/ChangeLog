@@ -1,0 +1,236 @@
+The following is a general list of what has changed in the OS.  This list
+is updated when ever convenient, however, it should be updated often.
+Ethan Burns <eaburns@cisunix.unh.edu>
+
+---6/09/05--- Ethan Burns
+-Fixed stage1 to save disk geomtery from BIOS correctly, and removed some data
+ that was not being used.
+-The process struct was changed to process_t because I like the _t convention.
+
+---6/08/05--- Ethan Burns
+-Added time_event's.
+-Made the scheduler use a time_event instead of being hard coded into the 
+ timer interrupt.
+-Changed memman_alloc_process and memman_free_process to alloc_addr_space and
+ free_addr_space respectivly.
+-Added some kfree calls in free_addr_space to fix a memory leak in kalloc 
+ memory.
+-Fixed HUGE memory leak in alloc_addr_space where no allocated memory was freed
+ if there was an error.  Now all alloced frames should be freed and all kalloc
+ memory should be freed.
+-Added kend function that will eventually cleanly halt the kernel.  This is
+ called by the scheduler when there is no more processes running.  Currently
+ kend meerly enables interrupts and enters a while(1){halt();} loop so that it
+ can show off the keyboard driver.
+-Added in support in the scheduler for processes being in state ``waiting''
+ and made a nice long comment on ideas for supporting an acutal init process
+-Screwed around a bit with scheduler's timing; BSD seems to use 10 schedules per
+ second, so, so do we.
+
+---6/06/05--- Ethan Burns
+-Changed memory map in the memory manager to be a struct that contains more 
+ information than a simple bit representing used/not-used.  This struct now
+ has a byte for a reference count and another byte for flags.
+-Processes now are created with 64 of data space (half being for kernel stack)
+-Processes now free their frames when they are terminated.
+-The scheduler has a function to ``kill'' a process (make its status NULL and
+ free up its memory).
+
+---6/04/05--- Ethan Burns
+-Changed the memory manager and processes a lot.
+  * The memory manager now actually allocates frames for a process.
+  * Processes are now really processes with their own address space and
+    everything.
+NOTE: there is still protection problems... processes have read and write
+      privledges to the kernel space.  This is a necessity because the
+      sched_start_proc wrapper function is part of the kernel space and it needs
+      to be executed while in user mode for now....
+
+---5/25-26/05--- Ethan Burns
+A few more changes from earlier yesterday/today
+-A ``system call'' type of thing is now required for tasks... they run in
+ ring 3.  
+
+NOTE: Since there is no real process address space allocation the MAIN PAGE 
+      TABLE has USER LEVEL protection!  THIS MUST CHANGE when we start giving
+      processes their own page tables!  I just wanted it for now so that I could
+      satisfy my fear that changing CPL wouldn't work with my current design 
+      when an interrupt occurs.
+      (I did it, so my design does work...)
+
+---5/25/05--- Ethan Burns
+-Changed tasks
+ * Task switching (for i386) uses the TSSes.
+ * Fixed bug where timer sent the irq done signal to the pic AFTER the
+   scheduler was called, this effectivly changed the schedueling to a 
+   NON-preemptive FCFS.
+ * Fixed bug where the ``count'' in the timer was incremented AFTER the
+   scheduler was called, this had the same effect as the irq done signal prob.
+
+   That's it... it was a BIG change but is simply said.
+
+-Moved the efs directory to sos/efs from sos/kernel/efs... it makes more sence
+ there since it is NOT used by the kernel at all.
+-Fixed a bunch of bugs in the ``memory manager'' (more of a potential mm for     now) so it now can allocate a frame in memory.
+ 
+
+---5/19/05--- Ethan Burns
+-Simple memory frame map.  It doesn't do much becides tell you the NEXT free
+ frame, if one exists.
+-Cleaned up a lot of small things, initialize functions are now checked for
+ failure, and panic if necessary.
+-A console device is now reqiured... It was required before by way of a 
+ General Protection fault, how the OS just halts the CPU if there is no console.
+-Added in robustness support for kalloc (it will return NULL and give a warning
+ if called before it is initialized).  This feature can be turned off in the
+ .config file to add speed once the kernel is not in as much of a debug state.
+-I deleted arch/i386/dev/bcon_i386.c that I found was floating in the src
+ tree un-used (renamed to arch/i386/dev/bcon.c).  Hopefully I will remember
+ to make this change reflected in CVS before my next cvs update.
+-The compilation how makes all .c and .S compliations to .o's depend on 
+ the .config file (so if it is changed, everything is re-compiled) this prevents
+ the configuration from not being reflected in object files from a previous
+ compile.
+
+
+---5/16/05--- Ethan Burns
+-Made a basic round-robbin scheduler (this will be improved but is good for
+ testing context switching).
+-kmain now runs a ``thread'' (hopefully these threads will be adaptable to a 
+ process soon).  There is no kernel/user level type of protection here, it is
+ really just the kernel running a thread.  The idea behind this is that there
+ will eventually be a LDT or somthing and a page table for each thread and
+ a protection and hence we will have seperate processes, not threads.  However,
+ for now this is a good confidence booster. /me steps down off soap box
+
+
+---5/15/05--- Ethan Burns
+-The floppy driver now detects the type of floppy drive that is connected, 
+ up to 2 drives can be detected with some basic CMOS support I added for i386.
+
+
+---5/12/05--- Ethan Burns
+-Removed the example dev/zero.c and dev/null.c drivers...
+-Removed minor number argument from init functions (yes that was somthing I JUST added).
+-Added a standardish return value header (include/retval.h)
+-Added irq.c, and moved some functionality there from interrupt.c
+
+
+---5/11/05--- Ethan Burns
+-Made the initialization process a little bit better, with support for
+ what bsd calls STAR devices... devices that use minor numbers.
+
+
+---5/06/05--- Ethan Burns
+-The boot loader now enables the A20 gate
+-The boot loader uses BIOS to get the extended memory size and passes it to the
+ kernel.
+-The kernel has reboot support via the kbd controller.
+-Ctl+Alt+Del works now, the flags for these things are setup correctly
+-Caps lock works, however it does not light up the LED yet...
+
+
+---4/29/05--- Ethan Burns
+-Added kernel parameters to the boot loader/kmain.  Parameters are passed to 
+ the kernel as a single string as the 1 argument to the kernel.  All text
+ after the first space at the boot prompt is considered kernel parameter.
+
+
+---4/28/05--- Ethan Burns
+BUG: bcon for i386 does not scroll up any more, I am not sure as of when.
+  - FIXED... there is no longer a i386 specific memutil file :)
+  - FIXED again, there is now again a i386 memutil file and it works nicely.
+
+-Moved the kernel.lds to the arch/i386 dir... it should be architecture 
+ specific.
+-Basic contiguous allocation for kalloc and malloc is now working (I think).
+ This needs a lot more testing!
+-Added kalloc.  It seems to be working fine.
+
+
+---4/24/05--- Ethan Burns
+-Paging is now enabled in the i386's cpu init.
+-Added faster i386 memory copy/setting routines.
+-kbd init function is called with other init functs, not from
+ the console.
+
+
+---4/20/05--- Ethan Burns
+-i386 will now load a GDT while INITing the cpu.
+
+
+---4/17/05--- Ethan Burns
+-Haven't tried it yet, but the floppy drive now should stop spinning
+ before we jump to the kernel.
+
+
+---4/16/05--- Ethan Burns
+-Changed I/O to use some new bus function wrappers that are simular
+ to BSD's bus_space_read/write_<amt> functions
+-Re-vamped mostly all of bconsole to not be so dependent on it'ar
+ arch specific functions.
+-Added sos to CVS
+
+
+---4/15/05--- Ethan Burns
+-Re-vamped the config system to support OPTIONS and to be cleaner.
+-Moved types.h to ktypes.h for consistency
+-Completely re-vamped the keyboard driver and how it interfaces
+ with the console.  Now, the console does the BULK of the work.
+-Moved bcon_i386.c into a subdir
+-Changed the keyboard driver to set the I/O port it uses by way of
+ an init call.
+
+
+---4/13/05--- Ethan Burns
+-Another re-vision to the bootloader, again to fix LBA to CHS. I have 
+ confidence in this again that it will be the FINAL time fixing the
+ conversion.
+-Also I am perplexed as to how it found the correct disk in stage2 because
+ that code appeared to be incorrect.
+
+
+---4/10/05--- Ethan Burns
+-Re-worked the screen output portion of the kernel to use a console.
+-Added in an un-explicit initialization feature simular to Linuxes.
+ This feature enables driver programmers to only edit 1 file to add a driver,
+ this file needs to only include a macro to have it's init_function called
+ for it. 
+-Renamed arch/i386/pic.c and arch/i386/include/pic.h to be 8295.c/h
+ respectivly.
+ 
+
+---4/08,09/05--- Ethan Burns
+-Worked all nite/morning and made a .config file!!!! and a parser for it.
+-Added some functionality to interrupts (they dump regs).
+-Added the beginnings of a template for a VERY simple keyboard driver
+-Fixed a major bug in writeefs where only the newest change to a
+ indirect pointer block was used (hence more than one indirect access
+ block was unuseable) --PHEW-- I hate debugging FS problems.
+
+
+---4/07/05--- Ethan Burns
+-FINALLY got interrupts enabled after a complete re-do of it.
+ Also moved some things around, there is a lib directory now!
+-The boot loader has a compile time option to turn off prompting
+ this is mainly for debugging (it speeds it up).
+
+
+---3/31/05--- Ethan Burns
+-The boot loader now supports indirect data pointer blocks.
+-The boot loader now correctly calculates disk geometry.
+-Added in some interrupt code (untested).
+-Completely revamped the make system.  
+-Fixed a bug in writeefs where it didn't write the indirect data 
+ pointer block to the correct place.
+ 
+
+---3/17/05--- Ethan Burns
+-Fixed some errors with inodes/indirect data pointer block allocation/setting
+
+
+---3/16/05--- Ethan Burns
+-Currently the efs utils are working 
+-Make files setup the boot2 on the last 5 sectors of the disk
+ the kernel is added to the FS and boot1 is written correctly
+

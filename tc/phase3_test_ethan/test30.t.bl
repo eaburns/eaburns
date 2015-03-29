@@ -1,0 +1,184 @@
+Error on line 26: cyclical constructor invocation
+SEQ(0)----------------------
+ line 30: MainFunctionDeclaration
+ SEQ(1)----------------------
+  line 0: Return
+  line 0: {int} IntegerLiteral (0)
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 2: ClassDeclaration (S extends Object)
+ SEQ(1)----------------------
+  line 3: ConstructorDeclaration
+  line 3: ConstructorDeclarator (S)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 4: ConstructorDeclaration
+  line 4: ConstructorDeclarator (S)
+  SEQ(2)----------------------
+   line 4: {int} FormalParameter1 (i)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (S)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 7: ClassDeclaration (T extends S)
+ SEQ(1)----------------------
+  line 9: ConstructorDeclaration
+  line 9: ConstructorDeclarator (T)
+  NULL
+  SEQ(2)----------------------
+   line 10: ConstructorInvocation
+   line 10: {T} This
+   SEQ(3)----------------------
+    line 10: {int} IntegerLiteral (5)
+   NULL(3)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 13: ConstructorDeclaration
+  line 13: ConstructorDeclarator (T)
+  SEQ(2)----------------------
+   line 13: {int} FormalParameter1 (i)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 14: ConstructorInvocation
+   line 14: {S} Super
+   SEQ(3)----------------------
+    line 14: {int} Deref
+    line 14: {int} Parameter (i)
+   NULL(3)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 17: ConstructorDeclaration
+  line 17: ConstructorDeclarator (T)
+  SEQ(2)----------------------
+   line 17: {int} FormalParameter1 (i)
+  SEQ(2)----------------------
+   line 17: {int} FormalParameter2 (j)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 18: ConstructorInvocation
+   line 18: {T} This
+   SEQ(3)----------------------
+    line 18: {int} Deref
+    line 18: {int} Parameter (i)
+   SEQ(3)----------------------
+    line 18: {int} Deref
+    line 18: {int} Parameter (j)
+   SEQ(3)----------------------
+    line 18: {int} IntegerLiteral (1)
+   NULL(3)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 21: ConstructorDeclaration
+  line 21: ConstructorDeclarator (T)
+  SEQ(2)----------------------
+   line 21: {int} FormalParameter1 (i)
+  SEQ(2)----------------------
+   line 21: {int} FormalParameter2 (j)
+  SEQ(2)----------------------
+   line 21: {int} FormalParameter3 (k)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 22: ConstructorInvocation
+   line 22: {T} This
+   SEQ(3)----------------------
+    line 22: {int} Deref
+    line 22: {int} Parameter (i)
+   SEQ(3)----------------------
+    line 22: {int} Deref
+    line 22: {int} Parameter (j)
+   SEQ(3)----------------------
+    line 22: {int} IntegerLiteral (1)
+   SEQ(3)----------------------
+    line 22: {int} IntegerLiteral (2)
+   NULL(3)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 25: ConstructorDeclaration
+  line 25: ConstructorDeclarator (T)
+  SEQ(2)----------------------
+   line 25: {int} FormalParameter1 (i)
+  SEQ(2)----------------------
+   line 25: {int} FormalParameter2 (j)
+  SEQ(2)----------------------
+   line 25: {int} FormalParameter3 (k)
+  SEQ(2)----------------------
+   line 25: {int} FormalParameter4 (l)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 26: ConstructorInvocation
+   line 26: {T} This
+   SEQ(3)----------------------
+    line 26: {int} Deref
+    line 26: {int} Parameter (i)
+   SEQ(3)----------------------
+    line 26: {int} Deref
+    line 26: {int} Parameter (j)
+   NULL(3)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (T)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 0: ClassDeclaration (Object)
+ SEQ(1)----------------------
+  line 0: Destructor (Object)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (Object)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: MethodDeclaration
+  line 0: Integer
+  line 0: MethodDeclarator (equals)
+  SEQ(2)----------------------
+   line 0: {Object} FormalParameter1 (o)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} ==
+   line 0: {Object} This
+   line 0: {Object} Deref
+   line 0: {Object} Parameter (o)
+  NULL(2)---------------------
+ NULL(1)---------------------
+NULL(0)---------------------

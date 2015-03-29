@@ -1,0 +1,238 @@
+Error on line 14: invalid assignment conversion
+Error on line 15: invalid assignment conversion
+Error on line 16: invalid assignment conversion
+Error on line 17: invalid assignment conversion
+Error on line 18: invalid assignment conversion
+Error on line 22: invalid assignment conversion
+Error on line 28: invalid assignment conversion
+Error on line 29: invalid assignment conversion
+SEQ(0)----------------------
+ line 3: MainFunctionDeclaration
+ SEQ(1)----------------------
+  line 5: MainVariableDeclaration
+  line 5: NameIdentifier (Object)
+  SEQ(2)----------------------
+   line 5: NameIdentifier (o)
+  SEQ(2)----------------------
+   line 5: Array
+   line 5: NameIdentifier (oo)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 6: MainVariableDeclaration
+  line 6: NameIdentifier (R)
+  SEQ(2)----------------------
+   line 6: NameIdentifier (r)
+  SEQ(2)----------------------
+   line 6: Array
+   line 6: NameIdentifier (rr)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 7: MainVariableDeclaration
+  line 7: NameIdentifier (S)
+  SEQ(2)----------------------
+   line 7: NameIdentifier (s)
+  SEQ(2)----------------------
+   line 7: Array
+   line 7: NameIdentifier (ss)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 8: MainVariableDeclaration
+  line 8: NameIdentifier (T)
+  SEQ(2)----------------------
+   line 8: NameIdentifier (t)
+  SEQ(2)----------------------
+   line 8: Array
+   line 8: NameIdentifier (tt)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 9: MainVariableDeclaration
+  line 9: Integer
+  SEQ(2)----------------------
+   line 9: NameIdentifier (i)
+  SEQ(2)----------------------
+   line 9: Array
+   line 9: NameIdentifier (ii)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 12: ExprSt
+  line 12: {T} =
+  line 12: {T} MainVariable (t)
+  line 12: {T} Deref
+  line 12: {T} MainVariable (t)
+ SEQ(1)----------------------
+  line 13: ExprSt
+  line 13: {S} =
+  line 13: {S} MainVariable (s)
+  line 13: {T} Deref
+  line 13: {T} MainVariable (t)
+ SEQ(1)----------------------
+  line 14: ExprSt
+  line 14: {error type} =
+  line 14: {R} MainVariable (r)
+  line 14: {T} Deref
+  line 14: {T} MainVariable (t)
+ SEQ(1)----------------------
+  line 15: ExprSt
+  line 15: {error type} =
+  line 15: {T} MainVariable (t)
+  line 15: {S} Deref
+  line 15: {S} MainVariable (s)
+ SEQ(1)----------------------
+  line 16: ExprSt
+  line 16: {error type} =
+  line 16: {int} MainVariable (i)
+  line 16: {T} Deref
+  line 16: {T} MainVariable (t)
+ SEQ(1)----------------------
+  line 17: ExprSt
+  line 17: {error type} =
+  line 17: {T[]} MainVariable (tt)
+  line 17: {Object} Deref
+  line 17: {Object} MainVariable (o)
+ SEQ(1)----------------------
+  line 18: ExprSt
+  line 18: {error type} =
+  line 18: {T[]} MainVariable (tt)
+  line 18: {T} Deref
+  line 18: {T} MainVariable (t)
+ SEQ(1)----------------------
+  line 21: ExprSt
+  line 21: {Object} =
+  line 21: {Object} MainVariable (o)
+  line 21: {T[]} Deref
+  line 21: {T[]} MainVariable (tt)
+ SEQ(1)----------------------
+  line 22: ExprSt
+  line 22: {error type} =
+  line 22: {T} MainVariable (t)
+  line 22: {T[]} Deref
+  line 22: {T[]} MainVariable (tt)
+ SEQ(1)----------------------
+  line 25: ExprSt
+  line 25: {int[]} =
+  line 25: {int[]} MainVariable (ii)
+  line 25: {int[]} Deref
+  line 25: {int[]} MainVariable (ii)
+ SEQ(1)----------------------
+  line 26: ExprSt
+  line 26: {T[]} =
+  line 26: {T[]} MainVariable (tt)
+  line 26: {T[]} Deref
+  line 26: {T[]} MainVariable (tt)
+ SEQ(1)----------------------
+  line 27: ExprSt
+  line 27: {S[]} =
+  line 27: {S[]} MainVariable (ss)
+  line 27: {T[]} Deref
+  line 27: {T[]} MainVariable (tt)
+ SEQ(1)----------------------
+  line 28: ExprSt
+  line 28: {error type} =
+  line 28: {R[]} MainVariable (rr)
+  line 28: {T[]} Deref
+  line 28: {T[]} MainVariable (tt)
+ SEQ(1)----------------------
+  line 29: ExprSt
+  line 29: {error type} =
+  line 29: {T[]} MainVariable (tt)
+  line 29: {R[]} Deref
+  line 29: {R[]} MainVariable (rr)
+ SEQ(1)----------------------
+  line 0: Return
+  line 0: {int} IntegerLiteral (0)
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 32: ClassDeclaration (R extends Object)
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (R)
+  NULL
+  SEQ(2)----------------------
+   line 0: ConstructorInvocation
+   line 0: {Object} Super
+   NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (R)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 33: ClassDeclaration (S extends Object)
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (S)
+  NULL
+  SEQ(2)----------------------
+   line 0: ConstructorInvocation
+   line 0: {Object} Super
+   NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (S)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 34: ClassDeclaration (T extends S)
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (T)
+  NULL
+  SEQ(2)----------------------
+   line 0: ConstructorInvocation
+   line 0: {S} Super
+   NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (T)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 0: ClassDeclaration (Object)
+ SEQ(1)----------------------
+  line 0: Destructor (Object)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (Object)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: MethodDeclaration
+  line 0: Integer
+  line 0: MethodDeclarator (equals)
+  SEQ(2)----------------------
+   line 0: {Object} FormalParameter1 (o)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} ==
+   line 0: {Object} This
+   line 0: {Object} Deref
+   line 0: {Object} Parameter (o)
+  NULL(2)---------------------
+ NULL(1)---------------------
+NULL(0)---------------------

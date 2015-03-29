@@ -1,0 +1,199 @@
+Error on line 22: ambiguous method invocation
+SEQ(0)----------------------
+ line 13: MainFunctionDeclaration
+ SEQ(1)----------------------
+  line 15: MainVariableDeclaration
+  line 15: NameIdentifier (T)
+  SEQ(2)----------------------
+   line 15: NameIdentifier (t)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 17: ExprSt
+  line 17: {int} MethodInvocation (meth)
+  line 17: {T} Deref
+  line 17: {T} MainVariable (t)
+  NULL
+ SEQ(1)----------------------
+  line 18: ExprSt
+  line 18: {int} MethodInvocation (meth)
+  line 18: {T} Deref
+  line 18: {T} MainVariable (t)
+  SEQ(2)----------------------
+   line 18: {int} IntegerLiteral (1)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 19: ExprSt
+  line 19: {int} MethodInvocation (meth)
+  line 19: {T} Deref
+  line 19: {T} MainVariable (t)
+  SEQ(2)----------------------
+   line 19: {int} IntegerLiteral (1)
+  SEQ(2)----------------------
+   line 19: {int} IntegerLiteral (2)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 20: ExprSt
+  line 20: {T} MethodInvocation (methT)
+  line 20: {T} Deref
+  line 20: {T} MainVariable (t)
+  NULL
+ SEQ(1)----------------------
+  line 21: ExprSt
+  line 21: {T} MethodInvocation (methT)
+  line 21: {T} Deref
+  line 21: {T} MainVariable (t)
+  SEQ(2)----------------------
+   line 21: {S} ClassCreationExpression
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 22: ExprSt
+  line 22: {error type} MethodInvocation (methT)
+  line 22: {T} Deref
+  line 22: {T} MainVariable (t)
+  SEQ(2)----------------------
+   line 22: {T} Deref
+   line 22: {T} MainVariable (t)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Return
+  line 0: {int} IntegerLiteral (0)
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 2: ClassDeclaration (T extends S)
+ SEQ(1)----------------------
+  line 3: MethodDeclaration
+  line 3: Integer
+  line 3: MethodDeclarator (meth)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} IntegerLiteral (0)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 4: MethodDeclaration
+  line 4: Integer
+  line 4: MethodDeclarator (meth)
+  SEQ(2)----------------------
+   line 4: {int} FormalParameter1 (i)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} IntegerLiteral (0)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 5: MethodDeclaration
+  line 5: Integer
+  line 5: MethodDeclarator (meth)
+  SEQ(2)----------------------
+   line 5: {int} FormalParameter1 (i)
+  SEQ(2)----------------------
+   line 5: {int} FormalParameter2 (j)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} IntegerLiteral (0)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 6: MethodDeclaration
+  line 6: NameIdentifier (T)
+  line 6: MethodDeclarator (methT)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {null type} NullLiteral
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 7: MethodDeclaration
+  line 7: NameIdentifier (T)
+  line 7: MethodDeclarator (methT)
+  SEQ(2)----------------------
+   line 7: {S} FormalParameter1 (s)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {null type} NullLiteral
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 8: MethodDeclaration
+  line 8: NameIdentifier (T)
+  line 8: MethodDeclarator (methT)
+  SEQ(2)----------------------
+   line 8: {T} FormalParameter1 (t)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {null type} NullLiteral
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (T)
+  NULL
+  SEQ(2)----------------------
+   line 0: ConstructorInvocation
+   line 0: {S} Super
+   NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (T)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 11: ClassDeclaration (S extends Object)
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (S)
+  NULL
+  SEQ(2)----------------------
+   line 0: ConstructorInvocation
+   line 0: {Object} Super
+   NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (S)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 0: ClassDeclaration (Object)
+ SEQ(1)----------------------
+  line 0: Destructor (Object)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (Object)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: MethodDeclaration
+  line 0: Integer
+  line 0: MethodDeclarator (equals)
+  SEQ(2)----------------------
+   line 0: {Object} FormalParameter1 (o)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} ==
+   line 0: {Object} This
+   line 0: {Object} Deref
+   line 0: {Object} Parameter (o)
+  NULL(2)---------------------
+ NULL(1)---------------------
+NULL(0)---------------------

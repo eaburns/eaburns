@@ -1,0 +1,123 @@
+SEQ(0)----------------------
+ line 2: MainFunctionDeclaration
+ SEQ(1)----------------------
+  line 4: MainVariableDeclaration
+  line 4: Integer
+  SEQ(2)----------------------
+   line 4: NameIdentifier (i)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 5: MainVariableDeclaration
+  line 5: NameIdentifier (T)
+  SEQ(2)----------------------
+   line 5: NameIdentifier (t)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 7: ExprSt
+  line 7: {int} =
+  line 7: {int} MainVariable (i)
+  line 7: {int} Deref
+  line 7: {int} FieldAccess (S)
+  line 7: {T} Deref
+  line 7: {T} MainVariable (t)
+ SEQ(1)----------------------
+  line 8: ExprSt
+  line 8: {int} =
+  line 8: {int} MainVariable (i)
+  line 8: {int} MethodInvocation (S)
+  line 8: {T} Deref
+  line 8: {T} MainVariable (t)
+  NULL
+ SEQ(1)----------------------
+  line 0: Return
+  line 0: {int} IntegerLiteral (0)
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 11: ClassDeclaration (T extends Object)
+ SEQ(1)----------------------
+  line 12: FieldDeclaration
+  line 12: Integer
+  SEQ(2)----------------------
+   line 12: NameIdentifier (S)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 13: MethodDeclaration
+  line 13: Integer
+  line 13: MethodDeclarator (S)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} IntegerLiteral (0)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (T)
+  NULL
+  SEQ(2)----------------------
+   line 0: ConstructorInvocation
+   line 0: {Object} Super
+   NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (T)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 16: ClassDeclaration (S extends Object)
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (S)
+  NULL
+  SEQ(2)----------------------
+   line 0: ConstructorInvocation
+   line 0: {Object} Super
+   NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (S)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 0: ClassDeclaration (Object)
+ SEQ(1)----------------------
+  line 0: Destructor (Object)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (Object)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: MethodDeclaration
+  line 0: Integer
+  line 0: MethodDeclarator (equals)
+  SEQ(2)----------------------
+   line 0: {Object} FormalParameter1 (o)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} ==
+   line 0: {Object} This
+   line 0: {Object} Deref
+   line 0: {Object} Parameter (o)
+  NULL(2)---------------------
+ NULL(1)---------------------
+NULL(0)---------------------

@@ -1,0 +1,150 @@
+Error on line 12: invalid target type operand to cast operator
+Error on line 13: unknown symbol in target type operand of cast operator
+Error on line 14: invalid cast conversion
+Error on line 15: invalid cast conversion
+SEQ(0)----------------------
+ line 5: MainFunctionDeclaration
+ SEQ(1)----------------------
+  line 7: MainVariableDeclaration
+  line 7: NameIdentifier (S)
+  SEQ(2)----------------------
+   line 7: NameIdentifier (s)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 7: MainVariableDeclaration
+  line 7: NameIdentifier (T)
+  SEQ(2)----------------------
+   line 7: NameIdentifier (t)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 7: MainVariableDeclaration
+  line 7: Integer
+  SEQ(2)----------------------
+   line 7: NameIdentifier (i)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 9: ExprSt
+  line 9: {S} =
+  line 9: {S} MainVariable (s)
+  line 9: {T} Deref
+  line 9: {T} MainVariable (t)
+ SEQ(1)----------------------
+  line 10: ExprSt
+  line 10: {S} =
+  line 10: {S} MainVariable (s)
+  line 10: {S} Deref
+  line 10: {S} MainVariable (s)
+ SEQ(1)----------------------
+  line 11: ExprSt
+  line 11: {T} =
+  line 11: {T} MainVariable (t)
+  line 11: {T} CastExpression
+  line 11: {S} Deref
+  line 11: {S} MainVariable (s)
+ SEQ(1)----------------------
+  line 12: ExprSt
+  line 12: {error type} =
+  line 12: {T} MainVariable (t)
+  line 12: {error type} CastExpression
+  line 12: {S} Deref
+  line 12: {S} MainVariable (s)
+ SEQ(1)----------------------
+  line 13: ExprSt
+  line 13: {error type} =
+  line 13: {T} MainVariable (t)
+  line 13: {error type} CastExpression
+  line 13: {S} Deref
+  line 13: {S} MainVariable (s)
+ SEQ(1)----------------------
+  line 14: ExprSt
+  line 14: {error type} =
+  line 14: {T} MainVariable (t)
+  line 14: {error type} CastExpression
+  line 14: {int} Deref
+  line 14: {int} MainVariable (i)
+ SEQ(1)----------------------
+  line 15: ExprSt
+  line 15: {error type} =
+  line 15: {T} MainVariable (t)
+  line 15: {error type} +
+  line 15: {error type} CastExpression
+  line 15: {int} IntegerLiteral (5)
+  line 15: {int} IntegerLiteral (7)
+ SEQ(1)----------------------
+  line 0: Return
+  line 0: {int} IntegerLiteral (0)
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 2: ClassDeclaration (S extends Object)
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (S)
+  NULL
+  SEQ(2)----------------------
+   line 0: ConstructorInvocation
+   line 0: {Object} Super
+   NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (S)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 3: ClassDeclaration (T extends S)
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (T)
+  NULL
+  SEQ(2)----------------------
+   line 0: ConstructorInvocation
+   line 0: {S} Super
+   NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (T)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 0: ClassDeclaration (Object)
+ SEQ(1)----------------------
+  line 0: Destructor (Object)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (Object)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: MethodDeclaration
+  line 0: Integer
+  line 0: MethodDeclarator (equals)
+  SEQ(2)----------------------
+   line 0: {Object} FormalParameter1 (o)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} ==
+   line 0: {Object} This
+   line 0: {Object} Deref
+   line 0: {Object} Parameter (o)
+  NULL(2)---------------------
+ NULL(1)---------------------
+NULL(0)---------------------

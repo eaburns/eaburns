@@ -1,0 +1,121 @@
+Error on line 18: invalid assignment conversion
+Error on line 24: invalid assignment conversion
+SEQ(0)----------------------
+ line 2: MainFunctionDeclaration
+ SEQ(1)----------------------
+  line 4: MainVariableDeclaration
+  line 4: Integer
+  SEQ(2)----------------------
+   line 4: NameIdentifier (var)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 7: ExprSt
+  line 7: {int} =
+  line 7: {int} MainVariable (var)
+  line 7: {int} Deref
+  line 7: {int} MainVariable (var)
+ SEQ(1)----------------------
+  line 0: Return
+  line 0: {int} IntegerLiteral (0)
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 10: ClassDeclaration (T extends Object)
+ SEQ(1)----------------------
+  line 11: FieldDeclaration
+  line 11: NameIdentifier (T)
+  SEQ(2)----------------------
+   line 11: NameIdentifier (t)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 12: FieldDeclaration
+  line 12: Integer
+  SEQ(2)----------------------
+   line 12: NameIdentifier (i)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 13: FieldDeclaration
+  line 13: NameIdentifier (T)
+  SEQ(2)----------------------
+   line 13: NameIdentifier (var)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 15: ConstructorDeclaration
+  line 15: ConstructorDeclarator (T)
+  SEQ(2)----------------------
+   line 15: {int} FormalParameter1 (var)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 17: ExprSt
+   line 17: {int} =
+   line 17: {int} Field (i)
+   line 17: {int} Deref
+   line 17: {int} Parameter (var)
+  SEQ(2)----------------------
+   line 18: ExprSt
+   line 18: {error type} =
+   line 18: {T} Field (t)
+   line 18: {int} Deref
+   line 18: {int} Parameter (var)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 21: ConstructorDeclaration
+  line 21: ConstructorDeclarator (T)
+  NULL
+  SEQ(2)----------------------
+   line 23: ExprSt
+   line 23: {T} =
+   line 23: {T} Field (t)
+   line 23: {T} Deref
+   line 23: {T} Field (var)
+  SEQ(2)----------------------
+   line 24: ExprSt
+   line 24: {error type} =
+   line 24: {int} Field (i)
+   line 24: {T} Deref
+   line 24: {T} Field (var)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (T)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 0: ClassDeclaration (Object)
+ SEQ(1)----------------------
+  line 0: Destructor (Object)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (Object)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: MethodDeclaration
+  line 0: Integer
+  line 0: MethodDeclarator (equals)
+  SEQ(2)----------------------
+   line 0: {Object} FormalParameter1 (o)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} ==
+   line 0: {Object} This
+   line 0: {Object} Deref
+   line 0: {Object} Parameter (o)
+  NULL(2)---------------------
+ NULL(1)---------------------
+NULL(0)---------------------

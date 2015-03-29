@@ -1,0 +1,116 @@
+Error on line 8: class name required
+Error on line 10: class name expected
+Error on line 11: class name expected
+Error on line 12: class name expected
+Error on line 13: class name expected
+Error on line 5: class name expected
+Error on line 15: class name expected
+SEQ(0)----------------------
+ line 3: MainFunctionDeclaration
+ SEQ(1)----------------------
+  line 5: MainVariableDeclaration
+  line 5: NameIdentifier (Q)
+  SEQ(2)----------------------
+   line 5: NameIdentifier (q)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Return
+  line 0: {int} IntegerLiteral (0)
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 8: ClassDeclaration (R extends Q)
+ SEQ(1)----------------------
+  line 9: FieldDeclaration
+  line 9: NameIdentifier (Object)
+  SEQ(2)----------------------
+   line 9: NameIdentifier (o)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 10: FieldDeclaration
+  line 10: NameIdentifier (Q)
+  SEQ(2)----------------------
+   line 10: NameIdentifier (q)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 11: MethodDeclaration
+  line 11: NameIdentifier (Q)
+  line 11: MethodDeclarator (meth)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {null type} NullLiteral
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 12: MethodDeclaration
+  line 12: Integer
+  line 12: MethodDeclarator (meth)
+  SEQ(2)----------------------
+   line 12: {error type} FormalParameter1 (q)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} IntegerLiteral (0)
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 13: ConstructorDeclaration
+  line 13: ConstructorDeclarator (R)
+  SEQ(2)----------------------
+   line 13: {error type} FormalParameter1 (q)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 14: ConstructorDeclaration
+  line 14: ConstructorDeclarator (R)
+  NULL
+  SEQ(2)----------------------
+   line 15: ExprSt
+   line 15: {error type} =
+   line 15: {Object} Field (o)
+   line 15: {error type} ClassCreationExpression
+   NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: Destructor (R)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ NULL(1)---------------------
+SEQ(0)----------------------
+ line 0: ClassDeclaration (Object)
+ SEQ(1)----------------------
+  line 0: Destructor (Object)
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: ConstructorDeclaration
+  line 0: ConstructorDeclarator (Object)
+  NULL
+  SEQ(2)----------------------
+   line 0: Return
+   NULL
+  NULL(2)---------------------
+ SEQ(1)----------------------
+  line 0: MethodDeclaration
+  line 0: Integer
+  line 0: MethodDeclarator (equals)
+  SEQ(2)----------------------
+   line 0: {Object} FormalParameter1 (o)
+  NULL(2)---------------------
+  SEQ(2)----------------------
+   line 0: Return
+   line 0: {int} ==
+   line 0: {Object} This
+   line 0: {Object} Deref
+   line 0: {Object} Parameter (o)
+  NULL(2)---------------------
+ NULL(1)---------------------
+NULL(0)---------------------
